@@ -6,6 +6,6 @@ namespace TimeManagerApi.Data {
     public AppDbContext(DbContextOptions<AppDbContext> opts) : base(opts) {}
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<TaskItem> TaskItems => Set<TaskItem>();
-    public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
+    public DbSet<Session> Sessions => Set<Session>();
   }
 }
