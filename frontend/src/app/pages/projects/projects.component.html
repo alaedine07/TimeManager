@@ -1,22 +1,82 @@
-<div class="container">
-  <h1>My Projects</h1>
-
-  <button (click)="showCreateForm()">+ New Project</button>
+<div class="projects-container">
+  <div class="header-action">
+    <h1>My Projects</h1>
+    <button class="btn-new" (click)="showCreateForm()">+ New Project</button>
+  </div>
 
   @if (loading()) {
-    <p>Loading projects...</p>
+    <div class="loading">
+      <p>Loading projects...</p>
+    </div>
   }
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <div class="error">
+      <p>{{ error() }}</p>
+    </div>
   }
 
   <div class="projects-grid">
     @for (project of projects(); track project.id) {
-      <div class="project-card">
-        <h3>{{ project.name }}</h3>
-        <p>{{ project.description }}</p>
-        <a [routerLink]="['/projects', project.id]">View Tasks →</a>
+      <div class="project-card" [routerLink]="['/projects', project.id]" [class.menu-open]="activeProjectMenu() === project.id">
+        <div class="project-header">
+          <div class="project-title-section">
+            <h3>{{ project.name }}</h3>
+            <span class="project-category">{{ project.category || 'General' }}</span>
+          </div>
+          <button class="menu-btn" [class.active]="activeProjectMenu() === project.id" (click)="toggleProjectMenu($event, project)">
+            @if (activeProjectMenu() === project.id) {
+              ✕
+            } @else {
+              •••
+            }
+          </button>
+        </div>
+
+        <p class="project-description">{{ project.description }}</p>
+
+        <div class="project-stats">
+          <div class="stat">
+            <span class="stat-value">{{ project.totalTasks || 0 }}</span>
+            <span class="stat-label">Tasks</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ project.completedTasks || 0 }}</span>
+            <span class="stat-label">Done</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ getPendingTasks(project) }}</span>
+            <span class="stat-label">Pending</span>
+          </div>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-label">
+            <span>Progress</span>
+            <span>{{ getProgressPercentage(project) }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="getProgressPercentage(project)"></div>
+          </div>
+        </div>
+
+        <!-- Action Buttons - Appear when menu is open -->
+        @if (activeProjectMenu() === project.id) {
+          <div class="project-actions">
+            <button class="action-btn complete" (click)="toggleProjectComplete($event, project)" title="Mark as complete">
+              <span class="icon">✓</span>
+            </button>
+            <button class="action-btn edit" (click)="editProject($event, project)" title="Edit">
+              <span class="icon">✎</span>
+            </button>
+            <button class="action-btn archive" (click)="archiveProject($event, project)" title="Archive">
+              <span class="icon">📦</span>
+            </button>
+            <button class="action-btn delete" (click)="deleteProject($event, project)" title="Delete">
+              <span class="icon">🗑</span>
+            </button>
+          </div>
+        }
       </div>
     }
   </div>

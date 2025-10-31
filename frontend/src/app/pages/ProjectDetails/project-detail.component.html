@@ -1,0 +1,124 @@
+<!-- project-detail.component.html -->
+<div class="project-detail-container">
+  @if (loading()) {
+    <div class="loading">
+      <p>Loading project...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error">
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  @if (project()) {
+    <div class="project-detail">
+      <!-- Header -->
+      <div class="detail-header">
+        <div class="header-top">
+          <button class="back-link" (click)="goBack()">← Back</button>
+          <a routerLink="/" class="home-link">Home</a>
+        </div>
+
+        <div class="project-title-section">
+          <h1>{{ project()!.name }}</h1>
+          <p class="project-desc">{{ project()!.description }}</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-section">
+          <div class="progress-label">
+            <span>Overall Progress</span>
+            <span>{{ getProgressPercentage() }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="getProgressPercentage()"></div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button
+            class="tab"
+            [class.active]="activeTab() === 'tasks'"
+            (click)="setActiveTab('tasks')">
+            Tasks ({{ project()!.tasks?.length || 0 }})
+          </button>
+          <button
+            class="tab"
+            [class.active]="activeTab() === 'subprojects'"
+            (click)="setActiveTab('subprojects')">
+            Sub-Projects ({{ getSubProjectCount() }})
+          </button>
+        </div>
+      </div>
+
+      <!-- Tasks Tab -->
+      @if (activeTab() === 'tasks') {
+        <div class="tab-content">
+          <div class="content-header">
+            <h2>Tasks</h2>
+            <button class="btn-add">+ Add Task</button>
+          </div>
+
+          @if ((project()!.tasks?.length || 0) === 0) {
+            <p class="empty-state">No tasks yet. Create one to get started!</p>
+          } @else {
+            <div class="tasks-list">
+              @for (task of project()!.tasks ?? []; track task.id) {
+                <div class="task-item" [class.completed]="task.completed">
+                  <div class="task-content">
+                    <input
+                      type="checkbox"
+                      [checked]="task.completed"
+                      (change)="toggleTaskCompletion(task)"
+                      class="task-checkbox">
+                    <div class="task-info">
+                      <h3>{{ task.name }}</h3>
+                      @if (task.description) {
+                        <p>{{ task.description }}</p>
+                      }
+                    </div>
+                  </div>
+                  <div class="task-actions">
+                    @if (task.priority) {
+                      <span class="priority-badge" [class]="'priority-' + task.priority">
+                        {{ task.priority }}
+                      </span>
+                    }
+                    <button class="btn-delete" (click)="deleteTask(task.id)">×</button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Sub-Projects Tab -->
+      @if (activeTab() === 'subprojects') {
+        <div class="tab-content">
+          <div class="content-header">
+            <h2>Sub-Projects</h2>
+            <button class="btn-add">+ Add Sub-Project</button>
+          </div>
+
+          @if ((project()!.subProjects?.length || 0) === 0) {
+            <p class="empty-state">No sub-projects yet.</p>
+          } @else {
+            <div class="subprojects-list">
+              @for (subProject of project()!.subProjects ?? []; track subProject.id) {
+                <a [routerLink]="['/projects', subProject.id]" class="subproject-card">
+                  <h3>{{ subProject.name }}</h3>
+                  <p>{{ subProject.description }}</p>
+                  <span class="view-link">View →</span>
+                </a>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

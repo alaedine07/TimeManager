@@ -15,6 +15,7 @@ export class ProjectsComponent implements OnInit {
   projects = signal<Project[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
+  activeProjectMenu = signal<number | null>(null);
 
   constructor(private projectService: ProjectService) {}
 
@@ -38,5 +39,67 @@ export class ProjectsComponent implements OnInit {
 
   showCreateForm() {
     alert('Create form coming next!');
+  }
+
+  getProgressPercentage(project: Project): number {
+    if (!project.totalTasks || project.totalTasks === 0) return 0;
+    return Math.round(((project.completedTasks ?? 0) / project.totalTasks) * 100);
+  }
+
+  getPendingTasks(project: Project): number {
+    if (!project.totalTasks) return 0;
+    return project.totalTasks - (project.completedTasks || 0);
+  }
+
+  closeProjectMenu() {
+    this.activeProjectMenu.set(null);
+  }
+
+  toggleProjectMenu(event: Event, project: Project) {
+    event.stopPropagation();
+    const current = this.activeProjectMenu();
+    this.activeProjectMenu.set(current === project.id ? null : project.id);
+  }
+
+  editProject(event: Event, project: Project) {
+    console.log('Edit project:', project);
+    alert('Edit form coming soon!');
+    this.closeProjectMenu();
+  }
+
+  toggleProjectComplete(event: Event, project: Project) {
+    const completed = !project.completed;
+    this.projectService.updateProject(project.id, { completed }).subscribe({
+      next: (updated) => {
+        const projects = this.projects();
+        const index = projects.findIndex(p => p.id === project.id);
+        if (index !== -1) {
+          projects[index] = updated;
+          this.projects.set([...projects]);
+        }
+        this.closeProjectMenu();
+      },
+      error: (err) => console.error('Failed to update project', err)
+    });
+  }
+
+  archiveProject(event: Event, project: Project) {
+    if (confirm(`Archive "${project.name}"?`)) {
+      console.log('Archive project:', project);
+      alert('Archive functionality coming soon!');
+      this.closeProjectMenu();
+    }
+  }
+
+  deleteProject(event: Event, project: Project) {
+    if (confirm(`Delete "${project.name}"? This cannot be undone.`)) {
+      this.projectService.deleteProject(project.id).subscribe({
+        next: () => {
+          this.projects.set(this.projects().filter(p => p.id !== project.id));
+          this.closeProjectMenu();
+        },
+        error: (err) => console.error('Failed to delete project', err)
+      });
+    }
   }
 }
