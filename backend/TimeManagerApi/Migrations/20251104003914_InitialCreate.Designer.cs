@@ -4,32 +4,39 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TimeManagerApi.Data;
+using TaskManagementApi.Data;
 
 #nullable disable
 
 namespace TimeManagerApi.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
-    [Migration("20251020173659_InitialCreate")]
+    [DbContext(typeof(TaskManagementDbContext))]
+    [Migration("20251104003914_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
 
-            modelBuilder.Entity("TimeManagerApi.Models.Project", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.Project", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Completed")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -42,9 +49,6 @@ namespace TimeManagerApi.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("totalTime")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ParentProjectId");
@@ -52,35 +56,13 @@ namespace TimeManagerApi.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("TimeManagerApi.Models.Session", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.TaskItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("Duration")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("EndAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("StartAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("TaskItemId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskItemId");
-
-                    b.ToTable("Sessions");
-                });
-
-            modelBuilder.Entity("TimeManagerApi.Models.TaskItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<bool>("Completed")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAt")
@@ -89,17 +71,17 @@ namespace TimeManagerApi.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("INTEGER");
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Title")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("TotalTimes")
+                    b.Property<string>("Priority")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProjectId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -109,32 +91,22 @@ namespace TimeManagerApi.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("TaskItems");
+                    b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("TimeManagerApi.Models.Project", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.Project", b =>
                 {
-                    b.HasOne("TimeManagerApi.Models.Project", "Parent")
+                    b.HasOne("TaskManagementApi.Models.Project", "ParentProject")
                         .WithMany("SubProjects")
-                        .HasForeignKey("ParentProjectId");
+                        .HasForeignKey("ParentProjectId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("Parent");
+                    b.Navigation("ParentProject");
                 });
 
-            modelBuilder.Entity("TimeManagerApi.Models.Session", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.TaskItem", b =>
                 {
-                    b.HasOne("TimeManagerApi.Models.TaskItem", "TaskItem")
-                        .WithMany("Sessions")
-                        .HasForeignKey("TaskItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TaskItem");
-                });
-
-            modelBuilder.Entity("TimeManagerApi.Models.TaskItem", b =>
-                {
-                    b.HasOne("TimeManagerApi.Models.Project", "Project")
+                    b.HasOne("TaskManagementApi.Models.Project", "Project")
                         .WithMany("Tasks")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -143,16 +115,11 @@ namespace TimeManagerApi.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("TimeManagerApi.Models.Project", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.Project", b =>
                 {
                     b.Navigation("SubProjects");
 
                     b.Navigation("Tasks");
-                });
-
-            modelBuilder.Entity("TimeManagerApi.Models.TaskItem", b =>
-                {
-                    b.Navigation("Sessions");
                 });
 #pragma warning restore 612, 618
         }

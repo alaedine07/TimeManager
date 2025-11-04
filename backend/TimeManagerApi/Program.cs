@@ -1,34 +1,49 @@
 using Microsoft.EntityFrameworkCore;
-using TimeManagerApi.Data;
+using TaskManagementApi.Data;
+using TaskManagementApi.Repositories;
+using TaskManagementApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
 
-// Configure SQLite Database
-builder.Services.AddDbContext<TimeManagerApi.Data.AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? "Data Source=timemanager.db"));
+// Add DbContext
+builder.Services.AddDbContext<TaskManagementDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add Swagger/OpenAPI support
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Add Repositories
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
-// Add CORS for frontend access
+// Add Services
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+
+// Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.WithOrigins("http://localhost:4200", "http://localhost:5173") // Angular dev servers
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
+// Add Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Apply migrations and create database
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<TaskManagementDbContext>();
+    context.Database.Migrate();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -37,8 +52,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Enable CORS
-app.UseCors("AllowAll");
+app.UseCors("AllowAngularApp");
 
 app.UseAuthorization();
 

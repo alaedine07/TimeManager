@@ -1,195 +1,146 @@
+// Controllers/ProjectsController.cs
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TimeManagerApi.Data;
-using TimeManagerApi.Models;
+using TaskManagementApi.DTOs;
+using TaskManagementApi.Services;
 
-namespace TimeManagerApi.Controllers
+namespace TaskManagementApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class ProjectsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IProjectService _projectService;
+        private readonly ITaskService _taskService;
 
-        public ProjectsController(AppDbContext context)
+        public ProjectsController(IProjectService projectService, ITaskService taskService)
         {
-            _context = context;
+            _projectService = projectService;
+            _taskService = taskService;
         }
 
-        // GET: api/Projects
+        // GET: api/projects
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
+        public async Task<ActionResult<List<ProjectDto>>> GetAllProjects()
         {
-            return await _context.Projects
-                .Include(p => p.SubProjects)
-                .Include(p => p.Tasks)
-                .ToListAsync();
+            var projects = await _projectService.GetAllRootProjectsAsync();
+            return Ok(projects);
         }
 
-        // GET: api/Projects/5
+        // GET: api/projects/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProject(int id)
+        public async Task<ActionResult<ProjectDto>> GetProjectById(int id)
         {
-            var project = await _context.Projects
-                .Include(p => p.SubProjects)
-                .Include(p => p.Tasks)
-                .Include(p => p.Parent)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
+            var project = await _projectService.GetProjectByIdAsync(id);
             if (project == null)
-            {
-                return NotFound();
-            }
+                return NotFound(new { message = $"Project with id {id} not found" });
 
-            return project;
+            return Ok(project);
         }
 
-        // GET: api/Projects/root - Get only root projects (no parent)
-        [HttpGet("root")]
-        public async Task<ActionResult<IEnumerable<Project>>> GetRootProjects()
-        {
-            return await _context.Projects
-                .Where(p => p.ParentProjectId == null)
-                .Include(p => p.SubProjects)
-                .Include(p => p.Tasks)
-                .ToListAsync();
-        }
-
-        // GET: api/Projects/5/subprojects - Get subprojects of a specific project
-        [HttpGet("{id}/subprojects")]
-        public async Task<ActionResult<IEnumerable<Project>>> GetSubProjects(int id)
-        {
-            var parentExists = await _context.Projects.AnyAsync(p => p.Id == id);
-            if (!parentExists)
-            {
-                return NotFound();
-            }
-
-            return await _context.Projects
-                .Where(p => p.ParentProjectId == id)
-                .Include(p => p.SubProjects)
-                .Include(p => p.Tasks)
-                .ToListAsync();
-        }
-
-        // POST: api/Projects
+        // POST: api/projects
         [HttpPost]
-        public async Task<ActionResult<Project>> CreateProject(ProjectDto projectDto)
+        public async Task<ActionResult<ProjectDto>> CreateProject([FromBody] CreateProjectDto dto)
         {
-            // Validate parent project exists if ParentProjectId is provided
-            if (projectDto.ParentProjectId.HasValue)
-            {
-                var parentExists = await _context.Projects
-                    .AnyAsync(p => p.Id == projectDto.ParentProjectId.Value);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                if (!parentExists)
-                {
-                    return BadRequest("Parent project does not exist.");
-                }
-            }
-
-            var project = new Project
-            {
-                Name = projectDto.Name,
-                Description = projectDto.Description,
-                ParentProjectId = projectDto.ParentProjectId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            _context.Projects.Add(project);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetProject), new { id = project.Id }, project);
+            var project = await _projectService.CreateProjectAsync(dto);
+            return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, project);
         }
 
-        // PUT: api/Projects/5
+        // PUT: api/projects/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProject(int id, ProjectDto projectDto)
+        public async Task<ActionResult<ProjectDto>> UpdateProject(int id, [FromBody] UpdateProjectDto dto)
         {
-            var project = await _context.Projects.FindAsync(id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            // Validate parent project exists if ParentProjectId is provided
-            if (projectDto.ParentProjectId.HasValue)
-            {
-                // Prevent circular reference (project can't be its own parent)
-                if (projectDto.ParentProjectId.Value == id)
-                {
-                    return BadRequest("A project cannot be its own parent.");
-                }
-
-                var parentExists = await _context.Projects
-                    .AnyAsync(p => p.Id == projectDto.ParentProjectId.Value);
-
-                if (!parentExists)
-                {
-                    return BadRequest("Parent project does not exist.");
-                }
-            }
-
-            project.Name = projectDto.Name;
-            project.Description = projectDto.Description;
-            project.ParentProjectId = projectDto.ParentProjectId;
-            project.UpdatedAt = DateTime.UtcNow;
-
             try
             {
-                await _context.SaveChangesAsync();
+                var project = await _projectService.UpdateProjectAsync(id, dto);
+                return Ok(project);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (KeyNotFoundException)
             {
-                if (!ProjectExists(id))
-                {
-                    return NotFound();
-                }
-                throw;
+                return NotFound(new { message = $"Project with id {id} not found" });
             }
-
-            return NoContent();
         }
 
-        // DELETE: api/Projects/5
+        // DELETE: api/projects/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProject(int id)
         {
-            var project = await _context.Projects
-                .Include(p => p.SubProjects)
-                .Include(p => p.Tasks)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            // Check if project has subprojects or tasks
-            if (project.SubProjects.Any() || project.Tasks.Any())
-            {
-                return BadRequest("Cannot delete project with subprojects or tasks. Delete them first.");
-            }
-
-            _context.Projects.Remove(project);
-            await _context.SaveChangesAsync();
+            var result = await _projectService.DeleteProjectAsync(id);
+            if (!result)
+                return NotFound(new { message = $"Project with id {id} not found" });
 
             return NoContent();
         }
 
-        private bool ProjectExists(int id)
+        // GET: api/projects/{id}/subprojects
+        [HttpGet("{id}/subprojects")]
+        public async Task<ActionResult<List<ProjectDto>>> GetSubProjects(int id)
         {
-            return _context.Projects.Any(e => e.Id == id);
+            var subProjects = await _projectService.GetSubProjectsAsync(id);
+            return Ok(subProjects);
         }
-    }
 
-    // DTO for creating/updating projects
-    public class ProjectDto
-    {
-        public string Name { get; set; } = "";
-        public string? Description { get; set; }
-        public int? ParentProjectId { get; set; }
+        // POST: api/projects/{id}/subprojects
+        [HttpPost("{id}/subprojects")]
+        public async Task<ActionResult<ProjectDto>> CreateSubProject(int id, [FromBody] CreateProjectDto dto)
+        {
+            dto.ParentProjectId = id;
+            var subProject = await _projectService.CreateProjectAsync(dto);
+            return CreatedAtAction(nameof(GetProjectById), new { id = subProject.Id }, subProject);
+        }
+
+        // POST: api/projects/{id}/tasks
+        [HttpPost("{id}/tasks")]
+        public async Task<ActionResult<TaskDto>> CreateTask(int id, [FromBody] CreateTaskDto dto)
+        {
+            try
+            {
+                var task = await _taskService.CreateTaskAsync(id, dto);
+                return CreatedAtAction(nameof(GetTaskById), new { projectId = id, taskId = task.Id }, task);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new { message = $"Project with id {id} not found" });
+            }
+        }
+
+        // PUT: api/projects/{projectId}/tasks/{taskId}
+        [HttpPut("{projectId}/tasks/{taskId}")]
+        public async Task<ActionResult<TaskDto>> UpdateTask(int projectId, int taskId, [FromBody] UpdateTaskDto dto)
+        {
+            try
+            {
+                var task = await _taskService.UpdateTaskAsync(taskId, dto);
+                return Ok(task);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new { message = $"Task with id {taskId} not found" });
+            }
+        }
+
+        // DELETE: api/projects/{projectId}/tasks/{taskId}
+        [HttpDelete("{projectId}/tasks/{taskId}")]
+        public async Task<IActionResult> DeleteTask(int projectId, int taskId)
+        {
+            var result = await _taskService.DeleteTaskAsync(taskId);
+            if (!result)
+                return NotFound(new { message = $"Task with id {taskId} not found" });
+
+            return NoContent();
+        }
+
+        // GET: api/projects/{id}/tasks/{taskId}
+        [HttpGet("{id}/tasks/{taskId}")]
+        public async Task<ActionResult<TaskDto>> GetTaskById(int id, int taskId)
+        {
+            var task = await _taskService.GetTaskByIdAsync(taskId);
+            if (task == null)
+                return NotFound(new { message = $"Task with id {taskId} not found" });
+
+            return Ok(task);
+        }
     }
 }

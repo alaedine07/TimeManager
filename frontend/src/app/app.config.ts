@@ -14,7 +14,7 @@ export const appConfig: ApplicationConfig = {
     {
       provide: 'PROJECT_SERVICE_INIT',
       useFactory: (ps: ProjectService) => {
-        ps.setDataSource('mock');
+        ps.setDataSource('api');
         return null;
       },
       deps: [ProjectService]

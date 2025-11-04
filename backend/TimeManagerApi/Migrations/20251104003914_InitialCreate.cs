@@ -18,9 +18,10 @@ namespace TimeManagerApi.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    Category = table.Column<string>(type: "TEXT", nullable: true),
                     ParentProjectId = table.Column<int>(type: "INTEGER", nullable: true),
-                    totalTime = table.Column<int>(type: "INTEGER", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    Completed = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
@@ -31,52 +32,32 @@ namespace TimeManagerApi.Migrations
                         name: "FK_Projects_Projects_ParentProjectId",
                         column: x => x.ParentProjectId,
                         principalTable: "Projects",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TaskItems",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Title = table.Column<string>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: true),
-                    Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    TotalTimes = table.Column<int>(type: "INTEGER", nullable: false),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TaskItems", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TaskItems_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Sessions",
+                name: "Tasks",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    TaskItemId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Duration = table.Column<int>(type: "INTEGER", nullable: true),
-                    StartAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    EndAt = table.Column<DateTime>(type: "TEXT", nullable: true)
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    Completed = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Priority = table.Column<string>(type: "TEXT", nullable: true),
+                    DueDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Sessions", x => x.Id);
+                    table.PrimaryKey("PK_Tasks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Sessions_TaskItems_TaskItemId",
-                        column: x => x.TaskItemId,
-                        principalTable: "TaskItems",
+                        name: "FK_Tasks_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -87,13 +68,8 @@ namespace TimeManagerApi.Migrations
                 column: "ParentProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Sessions_TaskItemId",
-                table: "Sessions",
-                column: "TaskItemId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TaskItems_ProjectId",
-                table: "TaskItems",
+                name: "IX_Tasks_ProjectId",
+                table: "Tasks",
                 column: "ProjectId");
         }
 
@@ -101,10 +77,7 @@ namespace TimeManagerApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Sessions");
-
-            migrationBuilder.DropTable(
-                name: "TaskItems");
+                name: "Tasks");
 
             migrationBuilder.DropTable(
                 name: "Projects");

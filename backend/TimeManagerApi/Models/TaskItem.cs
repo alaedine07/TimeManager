@@ -1,25 +1,21 @@
-namespace TimeManagerApi.Models {
+// Models/TaskItem.cs
+using System;
 
-    public enum TaskStatus
-    {
-        Running,
-        Paused,
-        Finished
-    }
-
+namespace TaskManagementApi.Models
+{
     public class TaskItem
     {
         public int Id { get; set; }
-        public string Title { get; set; } = "";
-        public string? Description { get; set; }
-        public TaskStatus Status { get; set; } = TaskStatus.Paused;
-        public int TotalTimes { get; set; }
-
         public int ProjectId { get; set; }
-        public Project? Project { get; set; }
-        public List<Session> Sessions { get; set; } = new();
-
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public bool Completed { get; set; } = false;
+        public string? Priority { get; set; } // "low", "medium", "high"
+        public DateTime? DueDate { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // Navigation property
+        public Project? Project { get; set; }
     }
 }
