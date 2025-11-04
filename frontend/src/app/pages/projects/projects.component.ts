@@ -55,6 +55,11 @@ export class ProjectsComponent implements OnInit {
     this.activeProjectMenu.set(null);
   }
 
+  openProjectMenu(event: Event, project: Project) {
+    event.stopPropagation();
+    this.activeProjectMenu.set(project.id);
+  }
+
   toggleProjectMenu(event: Event, project: Project) {
     event.stopPropagation();
     const current = this.activeProjectMenu();
