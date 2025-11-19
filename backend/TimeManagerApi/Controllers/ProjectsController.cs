@@ -98,7 +98,7 @@ namespace TaskManagementApi.Controllers
             try
             {
                 var task = await _taskService.CreateTaskAsync(id, dto);
-                return CreatedAtAction(nameof(GetTaskById), new { projectId = id, taskId = task.Id }, task);
+                return Created($"/api/projects/{id}/tasks/{task.Id}", task);
             }
             catch (KeyNotFoundException)
             {

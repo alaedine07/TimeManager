@@ -14,7 +14,7 @@ export type DataSource = 'mock' | 'api';
 })
 
 export class ProjectService {
-  private apiUrl = 'http://localhost:5052/api/projects';
+  private apiUrl = 'http://localhost:5052/api/Projects';
   private dataSource: DataSource = 'api'; // Set to 'api' to use real API
   private mockData: Project[] = JSON.parse(JSON.stringify(MOCK_PROJECTS)); // Deep copy
 

@@ -1,4 +1,4 @@
-<!-- project-detail.component.html -->
+<!-- components/project-detail/project-detail.component.html -->
 <div class="project-detail-container">
   @if (loading()) {
     <div class="loading">
@@ -59,8 +59,79 @@
         <div class="tab-content">
           <div class="content-header">
             <h2>Tasks</h2>
-            <button class="btn-add">+ Add Task</button>
+            <button class="btn-add" (click)="toggleTaskForm()">
+              {{ showTaskForm() ? '✕ Cancel' : '+ Add Task' }}
+            </button>
           </div>
+
+          <!-- Expandable Task Form -->
+          @if (showTaskForm()) {
+            <div class="task-form-container">
+              <form [formGroup]="taskForm" (ngSubmit)="addTask()" class="task-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="taskName">Task Name *</label>
+                    <input
+                      id="taskName"
+                      type="text"
+                      formControlName="name"
+                      placeholder="Enter task name"
+                      class="form-input"
+                      autofocus>
+                    @if (taskForm.get('name')?.invalid && taskForm.get('name')?.touched) {
+                      <span class="error-text">
+                        @if (taskForm.get('name')?.errors?.['required']) {
+                          Task name is required
+                        } @else if (taskForm.get('name')?.errors?.['minlength']) {
+                          Task name must be at least 3 characters
+                        }
+                      </span>
+                    }
+                  </div>
+
+                  <div class="form-group">
+                    <label for="taskPriority">Priority</label>
+                    <select
+                      id="taskPriority"
+                      formControlName="priority"
+                      class="form-input">
+                      <option value="low">Low</option>
+                      <option value="medium" selected>Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="taskDueDate">Due Date</label>
+                    <input
+                      id="taskDueDate"
+                      type="date"
+                      formControlName="dueDate"
+                      class="form-input">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="taskDesc">Description</label>
+                  <textarea
+                    id="taskDesc"
+                    formControlName="description"
+                    placeholder="Add task description (optional)"
+                    rows="3"
+                    class="form-input"></textarea>
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" class="btn btn-secondary" (click)="toggleTaskForm()">
+                    Cancel
+                  </button>
+                  <button type="submit" class="btn btn-primary" [disabled]="taskForm.invalid">
+                    Create Task
+                  </button>
+                </div>
+              </form>
+            </div>
+          }
 
           @if ((project()!.tasks?.length || 0) === 0) {
             <p class="empty-state">No tasks yet. Create one to get started!</p>
@@ -78,6 +149,11 @@
                       <h3>{{ task.name }}</h3>
                       @if (task.description) {
                         <p>{{ task.description }}</p>
+                      }
+                      @if (task.dueDate) {
+                        <span class="due-date">
+                          Due: {{ task.dueDate | date: 'MMM dd, yyyy' }}
+                        </span>
                       }
                     </div>
                   </div>
@@ -101,8 +177,57 @@
         <div class="tab-content">
           <div class="content-header">
             <h2>Sub-Projects</h2>
-            <button class="btn-add">+ Add Sub-Project</button>
+            <button class="btn-add" (click)="toggleSubProjectForm()">
+              {{ showSubProjectForm() ? '✕ Cancel' : '+ Add Sub Projects' }}
+            </button>
           </div>
+          <!-- Expandable Project Form -->
+          @if (showSubProjectForm()) {
+            <div class="task-form-container">
+              <form [formGroup]="subProjectForm" (ngSubmit)="addsubProject()" class="task-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="projectName">Project name *</label>
+                    <input
+                      id="projectName"
+                      type="text"
+                      formControlName="name"
+                      placeholder="Enter project name"
+                      class="form-input"
+                      autofocus>
+                    @if (subProjectForm.get('name')?.invalid && subProjectForm.get('name')?.touched) {
+                      <span class="error-text">
+                        @if (subProjectForm.get('name')?.errors?.['required']) {
+                          Project name is required
+                        } @else if (subProjectForm.get('name')?.errors?.['minlength']) {
+                          Project name must be at least 3 characters
+                        }
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="taskDesc">Description</label>
+                  <textarea
+                    id="taskDesc"
+                    formControlName="description"
+                    placeholder="Add task description (optional)"
+                    rows="3"
+                    class="form-input"></textarea>
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" class="btn btn-secondary" (click)="toggleSubProjectForm()">
+                    Cancel
+                  </button>
+                  <button type="submit" class="btn btn-primary" [disabled]="subProjectForm.invalid">
+                    Create Sub project
+                  </button>
+                </div>
+              </form>
+            </div>
+          }
 
           @if ((project()!.subProjects?.length || 0) === 0) {
             <p class="empty-state">No sub-projects yet.</p>

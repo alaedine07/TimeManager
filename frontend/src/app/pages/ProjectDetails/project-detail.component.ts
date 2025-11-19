@@ -3,6 +3,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
 import { Task } from '../../models/task.model';
@@ -10,7 +11,7 @@ import { Task } from '../../models/task.model';
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
@@ -20,11 +21,22 @@ export class ProjectDetailComponent implements OnInit {
   error = signal<string | null>(null);
   activeTab = signal<'tasks' | 'subprojects'>('tasks');
 
+  // Task form
+  showTaskForm = signal(false);
+  taskForm!: FormGroup;
+
+  // Sub-project form
+  showSubProjectForm = signal(false);
+  subProjectForm!: FormGroup;
+
   constructor(
     private projectService: ProjectService,
     private route: ActivatedRoute,
-    private location: Location
-  ) {}
+    private location: Location,
+    private fb: FormBuilder
+  ) {
+    this.initializeForm();
+  }
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -33,6 +45,22 @@ export class ProjectDetailComponent implements OnInit {
       if (id) {
         this.loadProject(Number(id));
       }
+    });
+  }
+
+  initializeForm(): void {
+    this.taskForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      priority: ['medium'],
+      dueDate: ['']
+    });
+  }
+
+  initializeSubProjectForm(): void {
+    this.subProjectForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
     });
   }
 
@@ -55,7 +83,6 @@ export class ProjectDetailComponent implements OnInit {
 
   toggleTaskCompletion(task: Task) {
     if (!this.project()) return;
-
     this.projectService.updateTask(this.project()!.id, task.id, {
       completed: !task.completed
     }).subscribe({
@@ -75,7 +102,6 @@ export class ProjectDetailComponent implements OnInit {
 
   deleteTask(taskId: number) {
     if (!this.project()) return;
-
     this.projectService.deleteTask(this.project()!.id, taskId).subscribe({
       next: () => {
         const proj = this.project();
@@ -86,6 +112,81 @@ export class ProjectDetailComponent implements OnInit {
       },
       error: (err) => console.error('Failed to delete task', err)
     });
+  }
+
+  toggleTaskForm(): void {
+    this.showTaskForm.update(val => !val);
+    if (this.showTaskForm()) {
+      this.initializeForm();
+    }
+  }
+
+  toggleSubProjectForm(): void {
+    this.showSubProjectForm.update(val => !val);
+    if (this.showSubProjectForm()) {
+      this.initializeSubProjectForm();
+    }
+  }
+
+  addsubProject(): void {
+    if (this.subProjectForm.valid && this.project()) {
+      const newSubProject: Project = {
+        id: Date.now(),
+        name: this.subProjectForm.value.name,
+        description: this.subProjectForm.value.description || '',
+        parentProjectId: this.project()!.id,
+        completed: false,
+        tasks: [],
+        subProjects: []
+      };
+
+      // Add sub-project via service
+      this.projectService.createSubProject(this.project()!.id, newSubProject).subscribe({
+        next: (createdSubProject) => {
+          const proj = this.project();
+          if (proj && proj.subProjects) {
+            proj.subProjects.push(createdSubProject);
+            this.project.set({ ...proj });
+          }
+          this.toggleSubProjectForm();
+          this.initializeForm();
+        },
+        error: (err) => {
+          console.error('Failed to create sub-project', err);
+          this.error.set('Failed to create sub-project');
+        }
+      });
+    }
+  }
+
+  addTask(): void {
+    if (this.taskForm.valid && this.project()) {
+      const newTask: Task = {
+        id: Date.now(),
+        name: this.taskForm.value.name,
+        description: this.taskForm.value.description || undefined,
+        completed: false,
+        dueDate: this.taskForm.value.dueDate ? new Date(this.taskForm.value.dueDate) : undefined,
+        priority: this.taskForm.value.priority
+      };
+
+      // Add task via service
+      this.projectService.addTask(this.project()!.id, newTask).subscribe({
+        next: (createdTask) => {
+          const proj = this.project();
+          if (proj && proj.tasks) {
+            proj.tasks.push(createdTask);
+            this.project.set({ ...proj });
+          }
+          this.toggleTaskForm();
+          this.initializeForm();
+        },
+        error: (err) => {
+          console.error('Failed to create task', err);
+          this.error.set('Failed to create task');
+        }
+      });
+    }
   }
 
   getProgressPercentage(): number {

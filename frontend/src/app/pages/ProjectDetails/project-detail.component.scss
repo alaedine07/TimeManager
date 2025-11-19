@@ -1,4 +1,4 @@
-// project-detail.component.scss
+// components/project-detail/project-detail.component.scss
 .project-detail-container {
   padding: 40px 20px;
   max-width: 1200px;
@@ -260,6 +260,14 @@
   }
 }
 
+.due-date {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  font-style: italic;
+}
+
 .task-actions {
   display: flex;
   gap: 8px;
@@ -381,7 +389,149 @@
   margin-top: auto;
 }
 
-// Responsive
+// ===== EXPANDABLE TASK FORM STYLES =====
+
+// Task Form Container
+.task-form-container {
+  margin-bottom: 24px;
+  animation: expandDown 0.3s ease-out;
+}
+
+@keyframes expandDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+    transform: translateY(0);
+  }
+}
+
+.task-form {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+// Form Row (for horizontal layout)
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+// Form Groups
+.form-group {
+  margin-bottom: 0;
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #cbd5e1;
+    font-size: 0.95rem;
+  }
+}
+
+.task-form .form-group {
+  margin-bottom: 16px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: rgba(15, 23, 42, 0.5);
+  color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: #94a3b8;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &:invalid:not(:placeholder-shown) {
+    border-color: #ef4444;
+  }
+}
+
+textarea.form-input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+// Error Text
+.error-text {
+  display: block;
+  color: #fca5a5;
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+
+// Form Actions
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  &:disabled {
+    background: rgba(148, 163, 184, 0.2);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.btn-secondary {
+  background: rgba(148, 163, 184, 0.1);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+
+  &:hover {
+    background: rgba(148, 163, 184, 0.15);
+    border-color: rgba(148, 163, 184, 0.3);
+  }
+}
+
+// ===== RESPONSIVE =====
+
 @media (max-width: 768px) {
   .project-detail-container {
     padding: 24px 16px;
@@ -412,6 +562,18 @@
   .task-actions {
     width: 100%;
     justify-content: flex-end;
+  }
+
+  .modal-dialog {
+    width: 95%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
   }
 }
 
