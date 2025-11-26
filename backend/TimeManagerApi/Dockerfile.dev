@@ -1,0 +1,22 @@
+# backend/TimeManagerApi/Dockerfile.dev
+
+# Use full .NET SDK for development (hot reload)
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+# Set working directory inside container
+WORKDIR /app
+
+# Copy project file first to restore dependencies
+COPY *.csproj ./
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy all source code
+COPY . .
+
+# Expose API port
+EXPOSE 5052
+
+# Use dotnet watch for hot reload
+CMD ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5052"]
