@@ -1,0 +1,31 @@
+# docker-compose.prod.yml
+version: "3.8"
+
+services:
+  backend-api:
+    build:
+      context: ./backend/TimeManagerApi
+      dockerfile: Dockerfile.prod
+    container_name: tmf-backend-api
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - tmf-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: tmf-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend-api
+    networks:
+      - tmf-net
+
+networks:
+  tmf-net:
+    driver: bridge
