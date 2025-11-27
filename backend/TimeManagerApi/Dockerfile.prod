@@ -10,10 +10,10 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy project file and restore dependencies
-COPY TimeManagerApi/*.csproj ./TimeManagerApi/
+COPY TimeManagerApi/TimeManagerApi.csproj ./TimeManagerApi/
 RUN dotnet restore ./TimeManagerApi/TimeManagerApi.csproj
 
-COPY . .
+COPY TimeManagerApi/. ./TimeManagerApi/
 RUN dotnet publish ./TimeManagerApi/TimeManagerApi.csproj -c Release -o /app/publish
 
 # Final stage
