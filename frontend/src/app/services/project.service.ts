@@ -6,7 +6,7 @@ import { delay, map } from 'rxjs/operators';
 import { Project, ProjectWithStats } from '../models/project.model';
 import { Task  } from '../models/task.model';
 import { MOCK_PROJECTS } from '../mocks/projects.mock';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 
 export type DataSource = 'mock' | 'api';
 
