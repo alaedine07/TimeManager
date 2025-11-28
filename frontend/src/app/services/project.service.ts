@@ -6,6 +6,7 @@ import { delay, map } from 'rxjs/operators';
 import { Project, ProjectWithStats } from '../models/project.model';
 import { Task  } from '../models/task.model';
 import { MOCK_PROJECTS } from '../mocks/projects.mock';
+import { environment } from '../environments/environment';
 
 export type DataSource = 'mock' | 'api';
 
@@ -14,7 +15,7 @@ export type DataSource = 'mock' | 'api';
 })
 
 export class ProjectService {
-  private apiUrl = 'http://localhost:5052/api/Projects';
+  private apiUrl = environment.apiUrl + '/Projects';
   private dataSource: DataSource = 'api'; // Set to 'api' to use real API
   private mockData: Project[] = JSON.parse(JSON.stringify(MOCK_PROJECTS)); // Deep copy
 
