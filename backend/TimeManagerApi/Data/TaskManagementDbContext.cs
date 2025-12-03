@@ -31,6 +31,13 @@ namespace TaskManagementApi.Data
                 .HasForeignKey(t => t.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.Owner)
+                .WithMany(u => u.Projects)
+                .HasForeignKey(p => p.OwnerId)
+                // prevent deletion of User if they own Projects
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Indexes for better query performance
             modelBuilder.Entity<Project>()
                 .HasIndex(p => p.ParentProjectId);

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementApi.DTOs;
 using TaskManagementApi.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskManagementApi.Controllers
 {
@@ -19,10 +20,16 @@ namespace TaskManagementApi.Controllers
         }
 
         // GET: api/projects
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<ProjectDto>>> GetAllProjects()
         {
-            var projects = await _projectService.GetAllRootProjectsAsync();
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+            var isAdmin = User.IsInRole("Admin");
+            var projects = isAdmin
+                ? await _projectService.GetAllRootProjectsAsync()
+                : await _projectService.GetUserRootProjectsAsync(userId);
+
             return Ok(projects);
         }
 

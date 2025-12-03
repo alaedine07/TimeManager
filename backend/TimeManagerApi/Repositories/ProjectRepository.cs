@@ -23,6 +23,16 @@ namespace TaskManagementApi.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Project>> GetUserRootProjectsAsync(int userId)
+        {
+            return await _context.Projects
+                .Where(p => p.ParentProjectId == null && p.OwnerId == userId)
+                .Include(p => p.Tasks)
+                .Include(p => p.SubProjects)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+        }
+
         public async Task<Project?> GetProjectByIdAsync(int id)
         {
             return await _context.Projects

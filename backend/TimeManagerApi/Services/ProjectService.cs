@@ -20,6 +20,12 @@ namespace TaskManagementApi.Services
             return projects.Select(MapToDto).ToList();
         }
 
+        public async Task<List<ProjectDto>> GetUserRootProjectsAsync(int userId)
+        {
+            var projects = await _repository.GetUserRootProjectsAsync(userId);
+            return projects.Select(MapToDto).ToList();
+        }
+
         public async Task<ProjectDto?> GetProjectByIdAsync(int id)
         {
             var project = await _repository.GetProjectByIdAsync(id);
