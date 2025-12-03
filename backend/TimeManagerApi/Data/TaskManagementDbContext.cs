@@ -34,7 +34,7 @@ namespace TaskManagementApi.Data
             modelBuilder.Entity<Project>()
                 .HasOne(p => p.Owner)
                 .WithMany(u => u.Projects)
-                .HasForeignKey(p => p.OwnerId)
+                .HasForeignKey(p => p.ownerId)
                 // prevent deletion of User if they own Projects
                 .OnDelete(DeleteBehavior.Restrict);
 

@@ -26,7 +26,7 @@ namespace TaskManagementApi.Repositories
         public async Task<List<Project>> GetUserRootProjectsAsync(int userId)
         {
             return await _context.Projects
-                .Where(p => p.ParentProjectId == null && p.OwnerId == userId)
+                .Where(p => p.ParentProjectId == null && p.ownerId == userId)
                 .Include(p => p.Tasks)
                 .Include(p => p.SubProjects)
                 .OrderByDescending(p => p.CreatedAt)
