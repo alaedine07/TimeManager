@@ -1,3 +1,4 @@
+// frontend/src/app/app.ts
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 

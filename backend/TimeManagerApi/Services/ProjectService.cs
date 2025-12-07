@@ -20,6 +20,12 @@ namespace TaskManagementApi.Services
             return projects.Select(MapToDto).ToList();
         }
 
+        public async Task<List<ProjectDto>> GetUserRootProjectsAsync(int userId)
+        {
+            var projects = await _repository.GetUserRootProjectsAsync(userId);
+            return projects.Select(MapToDto).ToList();
+        }
+
         public async Task<ProjectDto?> GetProjectByIdAsync(int id)
         {
             var project = await _repository.GetProjectByIdAsync(id);
@@ -33,7 +39,8 @@ namespace TaskManagementApi.Services
                 Name = dto.Name,
                 Description = dto.Description,
                 Category = dto.Category,
-                ParentProjectId = dto.ParentProjectId
+                ParentProjectId = dto.ParentProjectId,
+                ownerId = dto.ownerId,
             };
 
             var created = await _repository.CreateProjectAsync(project);
@@ -81,6 +88,7 @@ namespace TaskManagementApi.Services
                 Name = project.Name,
                 Description = project.Description,
                 Category = project.Category,
+                ownerId = project.ownerId,
                 ParentProjectId = project.ParentProjectId,
                 Completed = project.Completed,
                 TotalTasks = project.Tasks?.Count ?? 0,
