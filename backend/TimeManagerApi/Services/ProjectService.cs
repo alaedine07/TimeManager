@@ -88,6 +88,7 @@ namespace TaskManagementApi.Services
                 Name = project.Name,
                 Description = project.Description,
                 Category = project.Category,
+                ownerId = project.ownerId,
                 ParentProjectId = project.ParentProjectId,
                 Completed = project.Completed,
                 TotalTasks = project.Tasks?.Count ?? 0,
