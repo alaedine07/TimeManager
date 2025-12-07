@@ -39,7 +39,8 @@ namespace TaskManagementApi.Services
                 Name = dto.Name,
                 Description = dto.Description,
                 Category = dto.Category,
-                ParentProjectId = dto.ParentProjectId
+                ParentProjectId = dto.ParentProjectId,
+                ownerId = dto.ownerId,
             };
 
             var created = await _repository.CreateProjectAsync(project);

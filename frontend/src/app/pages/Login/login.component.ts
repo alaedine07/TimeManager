@@ -2,12 +2,14 @@
 import { Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
+  imports: [FormsModule]
 })
 export class LoginComponent {
   username = signal('');
@@ -19,7 +21,7 @@ export class LoginComponent {
 
   submit() {
     this.auth.login(this.username(), this.password()).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => this.router.navigate(['/projects']),
       error: () => {
         this.error.set('Login failed');
         this.loading.set(false);

@@ -2,11 +2,16 @@
 import { Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
+  styleUrl: './register.component.scss',
+  standalone: true,
+  imports: [FormsModule]
 })
+
 export class RegisterComponent {
   username = signal('');
   password = signal('');
@@ -29,7 +34,7 @@ export class RegisterComponent {
     this.auth.register(this.username(), this.password()).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigate(['/']);
+        this.router.navigate(['/login']);
       },
       error: () => {
         this.loading.set(false);

@@ -24,7 +24,10 @@ namespace TaskManagementApi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<ProjectDto>>> GetAllProjects()
         {
-            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+
             var isAdmin = User.IsInRole("Admin");
             var projects = isAdmin
                 ? await _projectService.GetAllRootProjectsAsync()
@@ -45,12 +48,18 @@ namespace TaskManagementApi.Controllers
         }
 
         // POST: api/projects
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<ProjectDto>> CreateProject([FromBody] CreateProjectDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // extract ownerId from the authenticated user
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var ownerId))
+                return Unauthorized();
+            dto.ownerId = ownerId;
             var project = await _projectService.CreateProjectAsync(dto);
             return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, project);
         }
