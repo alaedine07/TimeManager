@@ -1,6 +1,6 @@
 // frontend/src/app/pages/Register/register.component.ts
 import { Component, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 
@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
   standalone: true,
-  imports: [FormsModule]
+  imports: [FormsModule, RouterLink]
 })
 
 export class RegisterComponent {

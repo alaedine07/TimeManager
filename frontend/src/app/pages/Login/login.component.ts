@@ -1,6 +1,6 @@
 // frontend/src/app/pages/login/login.component.ts
 import { Component, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 
@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  imports: [FormsModule]
+  imports: [FormsModule, RouterLink]
 })
 export class LoginComponent {
   username = signal('');
