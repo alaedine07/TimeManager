@@ -1,0 +1,110 @@
+<!-- Header -->
+<div class="header">
+  <div class="header-content">
+    <div>
+      <h1>Dashboard</h1>
+      <p class="subtitle">Welcome back, {{ userName }}</p>
+    </div>
+    <div class="header-actions">
+      <div class="search-bar">
+        <input type="text" placeholder="Search..." />
+      </div>
+      <button class="icon-btn">🔔</button>
+      <button class="icon-btn">⚙️</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-container">
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    @for (stat of stats; track stat.title) {
+      <div class="stat-card" [class]="'stat-' + stat.color">
+        <div class="stat-header">
+          <h3>{{ stat.title }}</h3>
+        </div>
+        <p class="stat-value">{{ stat.value }}</p>
+      </div>
+    }
+  </div>
+
+  <!-- Content Grid -->
+  <div class="content-grid">
+    <!-- Left Column -->
+    <div class="left-column">
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Quick Actions</h2>
+        </div>
+        <div class="quick-actions">
+          @for (action of quickActions; track action.label) {
+            <button class="action-btn" (click)="onActionClick(action.label)">
+              + {{ action.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Recent Activities -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Recent Activities</h2>
+        </div>
+        <div class="activities-list">
+          @for (activity of recentActivities; track activity.text) {
+            <div class="activity-item" [class]="'activity-' + activity.type">
+              <span class="activity-icon">{{ getActivityIcon(activity.type) }}</span>
+              <div class="activity-content">
+                <p>{{ activity.text }}</p>
+                <span class="activity-time">{{ activity.time }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="right-column">
+      <div class="card">
+        <div class="card-header">
+          <h2>Projects</h2>
+        </div>
+        <div class="projects-list">
+          @for (project of projects; track project.name) {
+            <div
+              class="project-item"
+              [class.expanded]="expandedProject === project.name"
+              (click)="toggleProject(project.name)">
+              <div class="project-header">
+                <div class="project-title">
+                  <h4>{{ project.name }}</h4>
+                  <span [class]="'status ' + getStatusClass(project.status)">
+                    {{ project.status }}
+                  </span>
+                </div>
+                <span class="expand-icon">
+                  {{ expandedProject === project.name ? '−' : '+' }}
+                </span>
+              </div>
+              <div class="progress-container">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="project.progress"></div>
+                </div>
+                <span class="progress-text">{{ project.tasksDone }}/{{ project.tasksTotal }}</span>
+              </div>
+              @if (expandedProject === project.name) {
+                <div class="project-details">
+                  <p><strong>Team members:</strong> {{ project.team }}</p>
+                  <p><strong>Progress:</strong> {{ project.progress }}%</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
