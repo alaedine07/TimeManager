@@ -17,5 +17,6 @@ namespace TaskManagementApi.Models
 
         // Navigation
         public ICollection<Project> Projects { get; set; } = new List<Project>();
+        public ICollection<TaskTimeSession> TimeSessions { get; set; } = new List<TaskTimeSession>();
     }
 }
