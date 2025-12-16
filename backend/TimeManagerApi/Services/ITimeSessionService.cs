@@ -2,6 +2,6 @@
 
 public interface ITimeSessionService
 {
-    Task StartAsync(int userId, int taskId);
+    Task StartAsync(int userId, int taskId, int projectId);
     Task PauseAsync(int userId);
 }

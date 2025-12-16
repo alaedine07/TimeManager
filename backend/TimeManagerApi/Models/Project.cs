@@ -21,5 +21,6 @@ namespace TaskManagementApi.Models
         public ICollection<Project> SubProjects { get; set; } = new List<Project>();
         public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
         public User? Owner { get; set; }
+        public ICollection<TaskTimeSession> TimeSessions { get; set; } = new List<TaskTimeSession>();
     }
 }

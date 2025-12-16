@@ -16,13 +16,13 @@ namespace TimeManagerApi.Controllers
         }
 
         [HttpPost("start/{taskId}")]
-        public async Task<IActionResult> StartTimeSession(int taskId)
+        public async Task<IActionResult> StartTimeSession(int taskId, int projectId)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
                 return Unauthorized();
             int userId = int.Parse(userIdClaim.Value);
-            await _timeSessionService.StartAsync(userId, taskId);
+            await _timeSessionService.StartAsync(userId, taskId, projectId);
             return Ok();
         }
 

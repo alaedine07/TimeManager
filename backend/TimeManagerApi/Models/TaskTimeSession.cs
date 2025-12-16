@@ -9,6 +9,7 @@ namespace TaskManagementApi.Models
 
         public int TaskId { get; set; }
         public int UserId { get; set; }
+        public int ProjectId { get; set; }
 
         public DateTime StartTime { get; set; }
         // note: endTime is null meaning the session is still ongoing
@@ -17,5 +18,6 @@ namespace TaskManagementApi.Models
         // Navigation property
         public TaskItem? Task { get; set; }
         public User? User { get; set; }
+        public Project? Project { get; set; }
     }
 }

@@ -13,7 +13,7 @@ public class TimeSessionService : ITimeSessionService
     }
 
     // Start a session for a task
-    public async Task StartAsync(int userId, int taskId)
+    public async Task StartAsync(int userId, int taskId, int projectId)
     {
         var now = DateTime.UtcNow;
 
@@ -36,6 +36,7 @@ public class TimeSessionService : ITimeSessionService
         {
             UserId = userId,
             TaskId = taskId,
+            ProjectId = projectId,
             StartTime = now
         };
 

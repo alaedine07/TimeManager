@@ -51,6 +51,12 @@ namespace TaskManagementApi.Data
                 .HasForeignKey(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<TaskTimeSession>()
+                .HasOne(s => s.Project)
+                .WithMany(p => p.TimeSessions)
+                .HasForeignKey(s => s.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Indexes for better query performance
             modelBuilder.Entity<Project>()
                 .HasIndex(p => p.ParentProjectId);
