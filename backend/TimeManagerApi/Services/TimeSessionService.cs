@@ -13,7 +13,7 @@ public class TimeSessionService : ITimeSessionService
     }
 
     // Start a session for a task
-    public async Task StartAsync(int userId, int taskId, int projectId)
+    public async Task StartAsync(int userId, int taskId)
     {
         var now = DateTime.UtcNow;
 
@@ -31,6 +31,13 @@ public class TimeSessionService : ITimeSessionService
             activeSession.EndTime = now;
         }
 
+        // get the projectIf from the task
+        var task = await _context.Tasks
+            .FirstOrDefaultAsync(t => t.Id == taskId);
+        if (task == null)
+            throw new KeyNotFoundException($"Task with id {taskId} not found");
+        int projectId = task.ProjectId;
+
         // Start new session
         var session = new TaskTimeSession
         {
@@ -42,6 +49,14 @@ public class TimeSessionService : ITimeSessionService
 
         _context.TaskTimeSessions.Add(session);
         await _context.SaveChangesAsync();
+    }
+
+    // get current active session
+    public async Task<TaskTimeSession?> GetActiveSessionAsync(int userId)
+    {
+        // the active session is the one without an end time
+        return await _context.TaskTimeSessions
+            .FirstOrDefaultAsync(s => s.UserId == userId && s.EndTime == null);
     }
 
     // Pause currently active session

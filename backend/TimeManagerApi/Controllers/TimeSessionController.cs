@@ -16,13 +16,13 @@ namespace TimeManagerApi.Controllers
         }
 
         [HttpPost("start/{taskId}")]
-        public async Task<IActionResult> StartTimeSession(int taskId, int projectId)
+        public async Task<IActionResult> StartTimeSession(int taskId)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
                 return Unauthorized();
             int userId = int.Parse(userIdClaim.Value);
-            await _timeSessionService.StartAsync(userId, taskId, projectId);
+            await _timeSessionService.StartAsync(userId, taskId);
             return Ok();
         }
 
@@ -35,6 +35,17 @@ namespace TimeManagerApi.Controllers
             int userId = int.Parse(userIdClaim.Value);
             await _timeSessionService.PauseAsync(userId);
             return Ok();
+        }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActiveSession()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+            int userId = int.Parse(userIdClaim.Value);
+            var session = await _timeSessionService.GetActiveSessionAsync(userId);
+            return Ok(session);
         }
     }
 }

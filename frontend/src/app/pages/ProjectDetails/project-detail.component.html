@@ -158,6 +158,20 @@
                     </div>
                   </div>
                   <div class="task-actions">
+                    @if (TaskCurrentlyInProgress() === task.id) {
+                      <button
+                        class="btn-play"
+                        (click)="pauseTaskProgress()"
+                      >
+                        <span class="tooltip-text">⏸</span>
+                      </button>
+                    } @else {
+                      <button
+                      class="btn-play"
+                      (click)="toggleTaskProgress(task)">
+                        <span class="tooltip-text">▶</span>
+                      </button>
+                    }
                     @if (task.priority) {
                       <span class="priority-badge" [class]="'priority-' + task.priority">
                         {{ task.priority }}
