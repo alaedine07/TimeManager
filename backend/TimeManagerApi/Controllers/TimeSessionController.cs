@@ -47,5 +47,29 @@ namespace TimeManagerApi.Controllers
             var session = await _timeSessionService.GetActiveSessionAsync(userId);
             return Ok(session);
         }
+
+        // get total time worked for a task
+        [HttpGet("task/{taskId}/total-time")]
+        public async Task<IActionResult> GetTotalTimeForTask(int taskId)
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+            int userId = int.Parse(userIdClaim.Value);
+            var totalTime = await _timeSessionService.GetTotalTimeForTaskAsync(userId, taskId);
+            return Ok(totalTime);
+        }
+
+        // Get total time worked for a project
+        [HttpGet("project/{projectId}/total-time")]
+        public async Task<IActionResult> GetTotalTimeForProject(int projectId)
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+            int userId = int.Parse(userIdClaim.Value);
+            var totalTime = await _timeSessionService.GetTotalTimeForProjectAsync(userId, projectId);
+            return Ok(totalTime);
+        }
     }
 }

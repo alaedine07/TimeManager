@@ -71,4 +71,34 @@ public class TimeSessionService : ITimeSessionService
         activeSession.EndTime = DateTime.UtcNow;
         await _context.SaveChangesAsync();
     }
+
+    // get total time worked on a task
+    public async Task<TimeSpan> GetTotalTimeForTaskAsync(int userId, int taskId)
+    {
+        var sessions = await _context.TaskTimeSessions
+            .Where(s => s.UserId == userId && s.TaskId == taskId)
+            .ToListAsync();
+        TimeSpan totalTime = TimeSpan.Zero;
+        foreach (var session in sessions)
+        {
+            var endTime = session.EndTime ?? DateTime.UtcNow;
+            totalTime += endTime - session.StartTime;
+        }
+        return totalTime;
+    }
+
+    // get total time worked on a project
+    public async Task<TimeSpan> GetTotalTimeForProjectAsync(int userId, int projectId)
+    {
+        var sessions = await _context.TaskTimeSessions
+            .Where(s => s.UserId == userId && s.ProjectId == projectId)
+            .ToListAsync();
+        TimeSpan totalTime = TimeSpan.Zero;
+        foreach (var session in sessions)
+        {
+            var endTime = session.EndTime ?? DateTime.UtcNow;
+            totalTime += endTime - session.StartTime;
+        }
+        return totalTime;
+    }
 }
