@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
+import { TimeSessionsService } from '../../services/timeSessions.service';
+import { formatTimeSpan } from '../../utils/time-format.util';
 
 @Component({
   selector: 'app-projects',
@@ -17,8 +19,12 @@ export class ProjectsComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   activeProjectMenu = signal<number | null>(null);
+  projectTotalTimes = signal<{ [projectId: number]: string }>({});
 
-  constructor(private projectService: ProjectService) {}
+  constructor(
+    private projectService: ProjectService,
+    private timeSessionsService: TimeSessionsService
+  ){}
 
   ngOnInit() {
     this.loadProjects();
@@ -29,6 +35,17 @@ export class ProjectsComponent implements OnInit {
       next: (data) => {
         this.projects.set(data);
         this.loading.set(false);
+
+        // Fetch total time for each project
+        data.forEach(project => {
+          this.timeSessionsService.getTotalTimeForProject(project.id).subscribe({
+            next: (timeSpan) => {
+              const formatted = formatTimeSpan(timeSpan);
+              this.projectTotalTimes.update(times => ({ ...times, [project.id]: formatted }));
+            },
+            error: (err) => console.error('Failed to get total time for project', err)
+          });
+        });
       },
       error: (err) => {
         this.error.set('Failed to load projects :(');

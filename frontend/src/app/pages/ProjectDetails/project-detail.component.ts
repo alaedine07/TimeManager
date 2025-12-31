@@ -8,6 +8,7 @@ import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
 import { Task } from '../../models/task.model';
 import { TimeSessionsService } from '../../services/timeSessions.service';
+import { formatTimeSpan } from '../../utils/time-format.util';
 
 @Component({
   selector: 'app-project-detail',
@@ -22,6 +23,9 @@ export class ProjectDetailComponent implements OnInit {
   error = signal<string | null>(null);
   activeTab = signal<'tasks' | 'subprojects'>('tasks');
   TaskCurrentlyInProgress = signal<number | null>(null);
+  taskTotalTimes = signal<{ [taskId: number]: string }>({});
+  subProjectTotalTimes = signal<{ [subProjectId: number]: string }>({});
+  currentProjectTotalTime = signal<string | null>(null);
 
   // Task form
   showTaskForm = signal(false);
@@ -74,12 +78,57 @@ export class ProjectDetailComponent implements OnInit {
         console.log('Project loaded successfully:', data);
         this.project.set(data);
         this.loading.set(false);
+      // fetch current project total times
+      this.timeSessionsService.getTotalTimeForProject(id).subscribe({
+        next: (timeSpan) => {
+          const formatted = formatTimeSpan(timeSpan);
+          this.currentProjectTotalTime.set(formatted);
+        },
+        error: (err) => console.error('Failed to get total time for project', err)
+      });
+      // fetch task and sub-project total times
+      this.loadTaskTotalTimes(data.tasks ?? []);
+      this.loadSubProjectTotalTimes(data.subProjects ?? []);
       },
       error: (err) => {
         console.error('Error loading project:', err);
         this.error.set('Failed to load project');
         this.loading.set(false);
       }
+    });
+  }
+
+  loadTaskTotalTimes(tasks: Task[]) {
+    tasks.forEach(task => {
+      this.timeSessionsService.getTotalTimeForTask(task.id).subscribe({
+        next: (timeSpan) => {
+          const formatted = formatTimeSpan(timeSpan);
+          this.taskTotalTimes.update(times => ({
+            ...times,
+            [task.id]: formatted
+          }));
+        },
+        error: (err) => {
+          console.error(`Failed to get total time for task ${task.id}`, err);
+        }
+      });
+    });
+  }
+
+  loadSubProjectTotalTimes(subProjects: Project[]) {
+    subProjects.forEach(subProject => {
+      this.timeSessionsService.getTotalTimeForProject(subProject.id).subscribe({
+        next: (timeSpan) => {
+          const formatted = formatTimeSpan(timeSpan);
+          this.subProjectTotalTimes.update(times => ({
+            ...times,
+            [subProject.id]: formatted
+          }));
+        },
+        error: (err) => {
+          console.error(`Failed to get total time for sub-project ${subProject.id}`, err);
+        }
+      });
     });
   }
 

@@ -555,6 +555,63 @@ textarea.form-input {
   }
 }
 
+.total-time-worked {
+  margin-bottom: 20px;
+  font-size: 1rem;
+  color: #94a3b8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .time-label {
+    font-weight: 500;
+    color: #cbd5e1;
+  }
+
+  .time-value {
+    font-weight: 600;
+    color: #60a5fa;
+  }
+}
+
+.task-time-worked {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .time-label {
+    font-weight: 500;
+    color: #cbd5e1;
+  }
+
+  .time-value {
+    font-weight: 600;
+    color: #60a5fa;
+  }
+}
+
+.subproject-time-worked {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .time-label {
+    font-weight: 500;
+    color: #cbd5e1;
+  }
+
+  .time-value {
+    font-weight: 600;
+    color: #60a5fa;
+  }
+}
+
 // ===== RESPONSIVE =====
 
 @media (max-width: 768px) {

@@ -22,4 +22,12 @@ export class TimeSessionsService {
     getCurrentActiveSession() {
         return this.http.get(`${this.apiUrl}/active`);
     }
+
+    getTotalTimeForTask(taskId: number) {
+        return this.http.get<string>(`${this.apiUrl}/task/${taskId}/total-time`);
+    }
+
+    getTotalTimeForProject(projectId: number) {
+        return this.http.get<string>(`${this.apiUrl}/project/${projectId}/total-time`);
+    }
 }
