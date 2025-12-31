@@ -1,4 +1,4 @@
-// services/AuthService.cs
+// backend/TimeManagerApi/Services/AuthService.cs
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

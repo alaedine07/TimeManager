@@ -7,6 +7,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
 import { Task } from '../../models/task.model';
+import { TimeSessionsService } from '../../services/timeSessions.service';
+import { formatTimeSpan } from '../../utils/time-format.util';
 
 @Component({
   selector: 'app-project-detail',
@@ -20,6 +22,10 @@ export class ProjectDetailComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   activeTab = signal<'tasks' | 'subprojects'>('tasks');
+  TaskCurrentlyInProgress = signal<number | null>(null);
+  taskTotalTimes = signal<{ [taskId: number]: string }>({});
+  subProjectTotalTimes = signal<{ [subProjectId: number]: string }>({});
+  currentProjectTotalTime = signal<string | null>(null);
 
   // Task form
   showTaskForm = signal(false);
@@ -33,7 +39,8 @@ export class ProjectDetailComponent implements OnInit {
     private projectService: ProjectService,
     private route: ActivatedRoute,
     private location: Location,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private timeSessionsService: TimeSessionsService
   ) {
     this.initializeForm();
   }
@@ -41,11 +48,11 @@ export class ProjectDetailComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe(params => {
       const id = params['id'];
-      console.log('Project ID from route:', id, typeof id);
       if (id) {
         this.loadProject(Number(id));
       }
     });
+    this.getCurrentlyInProgressSession();
   }
 
   initializeForm(): void {
@@ -65,19 +72,63 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   loadProject(id: number) {
-    console.log('Loading project with ID:', id);
     this.loading.set(true);
     this.projectService.getProjectById(id).subscribe({
       next: (data) => {
         console.log('Project loaded successfully:', data);
         this.project.set(data);
         this.loading.set(false);
+      // fetch current project total times
+      this.timeSessionsService.getTotalTimeForProject(id).subscribe({
+        next: (timeSpan) => {
+          const formatted = formatTimeSpan(timeSpan);
+          this.currentProjectTotalTime.set(formatted);
+        },
+        error: (err) => console.error('Failed to get total time for project', err)
+      });
+      // fetch task and sub-project total times
+      this.loadTaskTotalTimes(data.tasks ?? []);
+      this.loadSubProjectTotalTimes(data.subProjects ?? []);
       },
       error: (err) => {
         console.error('Error loading project:', err);
         this.error.set('Failed to load project');
         this.loading.set(false);
       }
+    });
+  }
+
+  loadTaskTotalTimes(tasks: Task[]) {
+    tasks.forEach(task => {
+      this.timeSessionsService.getTotalTimeForTask(task.id).subscribe({
+        next: (timeSpan) => {
+          const formatted = formatTimeSpan(timeSpan);
+          this.taskTotalTimes.update(times => ({
+            ...times,
+            [task.id]: formatted
+          }));
+        },
+        error: (err) => {
+          console.error(`Failed to get total time for task ${task.id}`, err);
+        }
+      });
+    });
+  }
+
+  loadSubProjectTotalTimes(subProjects: Project[]) {
+    subProjects.forEach(subProject => {
+      this.timeSessionsService.getTotalTimeForProject(subProject.id).subscribe({
+        next: (timeSpan) => {
+          const formatted = formatTimeSpan(timeSpan);
+          this.subProjectTotalTimes.update(times => ({
+            ...times,
+            [subProject.id]: formatted
+          }));
+        },
+        error: (err) => {
+          console.error(`Failed to get total time for sub-project ${subProject.id}`, err);
+        }
+      });
     });
   }
 
@@ -97,6 +148,48 @@ export class ProjectDetailComponent implements OnInit {
         }
       },
       error: (err) => console.error('Failed to update task', err)
+    });
+  }
+
+  getCurrentlyInProgressSession() {
+    console.log('Fetching current active time session...');
+    this.timeSessionsService.getCurrentActiveSession().subscribe({
+      next: (data: any) => {
+        if (data && data.taskId) {
+          this.TaskCurrentlyInProgress.set(data.taskId);
+        } else {
+          this.TaskCurrentlyInProgress.set(null);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to get current active session', err);
+        this.TaskCurrentlyInProgress.set(null);
+      }
+    });
+  }
+
+  toggleTaskProgress(task: Task) {
+    console.log('Toggling task progress for task', task.id);
+    this.timeSessionsService.startSession(task.id).subscribe({
+      next: (response) => {
+        console.log('Time session started for task', task.id, response);
+        this.TaskCurrentlyInProgress.set(task.id);
+      },
+      error: (err) => {
+        console.error('Failed to start time session for task', task.id, err);
+      }
+    });
+  }
+
+  pauseTaskProgress() {
+    this.timeSessionsService.pauseSession().subscribe({
+      next: (response) => {
+        console.log('Time session paused', response);
+        this.TaskCurrentlyInProgress.set(null);
+      },
+      error: (err) => {
+        console.error('Failed to pause time session', err);
+      }
     });
   }
 

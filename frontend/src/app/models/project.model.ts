@@ -1,3 +1,4 @@
+// models/project.model.ts
 import { Task } from "./task.model";
 
 export interface Project {

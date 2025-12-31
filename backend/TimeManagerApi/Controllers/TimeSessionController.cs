@@ -1,0 +1,75 @@
+// backend/TimeManagerApi/Controllers/TimeSessionController.cs
+
+namespace TimeManagerApi.Controllers
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    [ApiController]
+    [Route("api/[controller]")]
+    public class TimeSessionController : ControllerBase
+    {
+        private readonly ITimeSessionService _timeSessionService;
+
+        public TimeSessionController(ITimeSessionService timeSessionService)
+        {
+            _timeSessionService = timeSessionService;
+        }
+
+        [HttpPost("start/{taskId}")]
+        public async Task<IActionResult> StartTimeSession(int taskId)
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+            int userId = int.Parse(userIdClaim.Value);
+            await _timeSessionService.StartAsync(userId, taskId);
+            return Ok();
+        }
+
+        [HttpPost("stop")]
+        public async Task<IActionResult> StopTimeSession()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+            int userId = int.Parse(userIdClaim.Value);
+            await _timeSessionService.PauseAsync(userId);
+            return Ok();
+        }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActiveSession()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+            int userId = int.Parse(userIdClaim.Value);
+            var session = await _timeSessionService.GetActiveSessionAsync(userId);
+            return Ok(session);
+        }
+
+        // get total time worked for a task
+        [HttpGet("task/{taskId}/total-time")]
+        public async Task<IActionResult> GetTotalTimeForTask(int taskId)
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+            int userId = int.Parse(userIdClaim.Value);
+            var totalTime = await _timeSessionService.GetTotalTimeForTaskAsync(userId, taskId);
+            return Ok(totalTime);
+        }
+
+        // Get total time worked for a project
+        [HttpGet("project/{projectId}/total-time")]
+        public async Task<IActionResult> GetTotalTimeForProject(int projectId)
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+            int userId = int.Parse(userIdClaim.Value);
+            var totalTime = await _timeSessionService.GetTotalTimeForProjectAsync(userId, projectId);
+            return Ok(totalTime);
+        }
+    }
+}

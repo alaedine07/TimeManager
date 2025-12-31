@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagementApi.Data;
 
@@ -10,9 +11,11 @@ using TaskManagementApi.Data;
 namespace TimeManagerApi.Migrations
 {
     [DbContext(typeof(TaskManagementDbContext))]
-    partial class TaskManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251216182243_AddTaskTimeSession")]
+    partial class AddTaskTimeSession
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -105,9 +108,6 @@ namespace TimeManagerApi.Migrations
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("TEXT");
 
@@ -118,8 +118,6 @@ namespace TimeManagerApi.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
 
                     b.HasIndex("TaskId");
 
@@ -183,12 +181,6 @@ namespace TimeManagerApi.Migrations
 
             modelBuilder.Entity("TaskManagementApi.Models.TaskTimeSession", b =>
                 {
-                    b.HasOne("TaskManagementApi.Models.Project", "Project")
-                        .WithMany("TimeSessions")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("TaskManagementApi.Models.TaskItem", "Task")
                         .WithMany("TimeSessions")
                         .HasForeignKey("TaskId")
@@ -201,8 +193,6 @@ namespace TimeManagerApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Project");
-
                     b.Navigation("Task");
 
                     b.Navigation("User");
@@ -213,8 +203,6 @@ namespace TimeManagerApi.Migrations
                     b.Navigation("SubProjects");
 
                     b.Navigation("Tasks");
-
-                    b.Navigation("TimeSessions");
                 });
 
             modelBuilder.Entity("TaskManagementApi.Models.TaskItem", b =>

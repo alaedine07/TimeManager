@@ -1,4 +1,4 @@
-// Services/IAuthService.cs
+// backend/TimeManagerApi/Services/IAuthService.cs
 using TaskManagementApi.DTOs;
 using TaskManagementApi.Models;
 
