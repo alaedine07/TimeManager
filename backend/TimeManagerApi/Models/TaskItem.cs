@@ -1,4 +1,4 @@
-// Models/TaskItem.cs
+// backend/TimeManagerApi/Models/TaskItem.cs
 using System;
 
 namespace TaskManagementApi.Models
@@ -16,6 +16,7 @@ namespace TaskManagementApi.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation property
+        public ICollection<TaskTimeSession> TimeSessions { get; set; } = new List<TaskTimeSession>();
         public Project? Project { get; set; }
     }
 }

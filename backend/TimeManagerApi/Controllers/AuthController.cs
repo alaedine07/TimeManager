@@ -1,4 +1,4 @@
-// Controllers/AuthController.cs
+// backend/TimeManagerApi/Controllers/AuthController.cs
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementApi.DTOs;
 using TaskManagementApi.Services;

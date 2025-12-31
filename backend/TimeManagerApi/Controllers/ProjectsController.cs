@@ -1,4 +1,4 @@
-// Controllers/ProjectsController.cs
+// backend/TimeManagerApi/Controllers/ProjectsController.cs
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementApi.DTOs;
 using TaskManagementApi.Services;
@@ -210,6 +210,24 @@ namespace TaskManagementApi.Controllers
                 return NotFound(new { message = $"Task with id {taskId} not found" });
 
             return Ok(task);
+        }
+
+        // Post: api/projects/{id}/tasks
+        [Authorize]
+        [HttpPost("{id}/tasks")]
+        public async Task<ActionResult<TaskDto>> CreateTask(int id, [FromBody] CreateTaskDto dto)
+        {
+            var project = await _projectService.GetProjectByIdAsync(id);
+            if (project == null)
+                return NotFound(new { message = $"Project with id {id} not found" });
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+                return Unauthorized();
+            var isAdmin = User.IsInRole("Admin");
+            if (project.ownerId != userId && !isAdmin)
+                return Forbid();
+            var task = await _taskService.CreateTaskAsync(id, dto);
+            return CreatedAtAction(nameof(GetTaskById), new { id = id, taskId = task.Id }, task);
         }
     }
 }

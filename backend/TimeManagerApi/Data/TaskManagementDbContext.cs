@@ -1,4 +1,4 @@
-// Data/TaskManagementDbContext.cs
+// backend/TimeManagerApi/Data/TaskManagementDbContext.cs
 using Microsoft.EntityFrameworkCore;
 using TaskManagementApi.Models;
 
@@ -13,6 +13,7 @@ namespace TaskManagementApi.Data
 
         public DbSet<Project> Projects { get; set; }
         public DbSet<TaskItem> Tasks { get; set; }
+        public DbSet<TaskTimeSession> TaskTimeSessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,6 +38,24 @@ namespace TaskManagementApi.Data
                 .HasForeignKey(p => p.ownerId)
                 // prevent deletion of User if they own Projects
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskTimeSession>()
+                .HasOne(s => s.Task)
+                .WithMany(t => t.TimeSessions)
+                .HasForeignKey(s => s.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TaskTimeSession>()
+                .HasOne(s => s.User)
+                .WithMany(u => u.TimeSessions)
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TaskTimeSession>()
+                .HasOne(s => s.Project)
+                .WithMany(p => p.TimeSessions)
+                .HasForeignKey(s => s.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Indexes for better query performance
             modelBuilder.Entity<Project>()

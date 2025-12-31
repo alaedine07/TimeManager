@@ -26,6 +26,12 @@
           <p class="project-desc">{{ project()!.description }}</p>
         </div>
 
+        <!-- Total Time Worked Section -->
+        <div class="total-time-worked">
+          <span class="time-label">Total Time Worked:</span>
+          <span class="time-value">{{ currentProjectTotalTime() }}</span> <!-- Static value -->
+        </div>
+
         <!-- Progress Bar -->
         <div class="progress-section">
           <div class="progress-label">
@@ -138,7 +144,11 @@
           } @else {
             <div class="tasks-list">
               @for (task of project()!.tasks ?? []; track task.id) {
-                <div class="task-item" [class.completed]="task.completed">
+                <div
+                  class="task-item"
+                  [class.completed]="task.completed"
+                  [class.active]="TaskCurrentlyInProgress() === task.id"
+                >
                   <div class="task-content">
                     <input
                       type="checkbox"
@@ -148,20 +158,33 @@
                     <div class="task-info">
                       <h3>{{ task.name }}</h3>
                       @if (task.description) {
-                        <p>{{ task.description }}</p>
+                        <p class="task-desc">{{ task.description }}</p>
                       }
                       @if (task.dueDate) {
-                        <span class="due-date">
-                          Due: {{ task.dueDate | date: 'MMM dd, yyyy' }}
-                        </span>
+                        <p class="task-due-date">Due: {{ task.dueDate | date }}</p>
                       }
+                      <p class="task-priority priority-{{ task.priority }}">
+                        {{ task.priority | titlecase }}
+                      </p>
+                      <div class="task-time-worked">
+                        Time Worked: {{ taskTotalTimes()[task.id] || '0h 0m' }}
+                      </div>
                     </div>
                   </div>
                   <div class="task-actions">
-                    @if (task.priority) {
-                      <span class="priority-badge" [class]="'priority-' + task.priority">
-                        {{ task.priority }}
-                      </span>
+                    @if (TaskCurrentlyInProgress() === task.id) {
+                      <button
+                        class="btn-play"
+                        (click)="pauseTaskProgress()"
+                      >
+                        ⏸
+                      </button>
+                    } @else {
+                      <button
+                        class="btn-play"
+                        (click)="toggleTaskProgress(task)">
+                        ▶
+                      </button>
                     }
                     <button class="btn-delete" (click)="deleteTask(task.id)">×</button>
                   </div>
@@ -237,6 +260,10 @@
                 <a [routerLink]="['/projects', subProject.id]" class="subproject-card">
                   <h3>{{ subProject.name }}</h3>
                   <p>{{ subProject.description }}</p>
+                  <div class="subproject-time-worked">
+                    <span class="time-label">Total Time Worked:</span>
+                    <span class="time-value">{{ subProjectTotalTimes()[subProject.id] || '0h 0m' }}</span>
+                  </div>
                   <span class="view-link">View →</span>
                 </a>
               }

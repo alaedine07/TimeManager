@@ -1,4 +1,4 @@
-// DTO/AuthResponseDto.cs
+// backend/TimeManagerApi/DTO/AuthResponseDto.cs
 namespace TaskManagementApi.DTOs
 {
     public class AuthResponseDto

@@ -1,4 +1,4 @@
-// services/project.service.ts
+// frontend/src/app/services/project.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
