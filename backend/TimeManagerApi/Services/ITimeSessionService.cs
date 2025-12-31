@@ -1,4 +1,4 @@
-// Service/ITimeSessionService.cs
+// backend/TimeManagerApi/Services/ITimeSessionService.cs
 
 using TaskManagementApi.Models;
 

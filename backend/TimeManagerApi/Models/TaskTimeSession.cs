@@ -1,4 +1,4 @@
-// model/TaskTimeSession.cs
+// backend/TimeManagerApi/Models/TaskTimeSession.cs
 using System;
 
 namespace TaskManagementApi.Models

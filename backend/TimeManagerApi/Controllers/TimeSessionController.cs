@@ -1,4 +1,4 @@
-// controller/TimeSessionController.cs
+// backend/TimeManagerApi/Controllers/TimeSessionController.cs
 
 namespace TimeManagerApi.Controllers
 {

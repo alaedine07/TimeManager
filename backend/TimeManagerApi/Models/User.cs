@@ -1,3 +1,4 @@
+// backend/TimeManagerApi/Models/User.cs
 using System.ComponentModel.DataAnnotations;
 
 namespace TaskManagementApi.Models

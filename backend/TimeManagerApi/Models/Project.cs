@@ -1,4 +1,4 @@
-// Models/Project.cs
+// backend/TimeManagerApi/Models/Project.cs
 using System;
 using System.Collections.Generic;
 

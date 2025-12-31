@@ -1,4 +1,4 @@
-// Controllers/ProjectsController.cs
+// backend/TimeManagerApi/Controllers/ProjectsController.cs
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementApi.DTOs;
 using TaskManagementApi.Services;

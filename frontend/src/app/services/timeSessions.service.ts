@@ -1,4 +1,4 @@
-// services/timeSessions.service.ts
+// frontend/src/app/services/timeSessions.service.ts
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { environment } from "../../environments/environment";

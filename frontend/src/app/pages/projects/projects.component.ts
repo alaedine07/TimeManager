@@ -1,4 +1,4 @@
-// projects.component.ts
+// frontend/src/app/pages/projects/projects.component.ts
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';

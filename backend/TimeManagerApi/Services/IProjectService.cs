@@ -1,4 +1,4 @@
-// Services/IProjectService.cs
+// backend/TimeManagerApi/Services/IProjectService.cs
 using TaskManagementApi.DTOs;
 
 namespace TaskManagementApi.Services
