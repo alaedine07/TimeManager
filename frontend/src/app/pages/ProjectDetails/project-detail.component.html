@@ -148,6 +148,7 @@
                   class="task-item"
                   [class.completed]="task.completed"
                   [class.active]="TaskCurrentlyInProgress() === task.id"
+                  [class.toBeDeleted]="taskBeingDeleted() === task.id"
                 >
                   <div class="task-content">
                     <input
@@ -172,21 +173,32 @@
                     </div>
                   </div>
                   <div class="task-actions">
-                    @if (TaskCurrentlyInProgress() === task.id) {
-                      <button
-                        class="btn-play"
-                        (click)="pauseTaskProgress()"
-                      >
-                        ⏸
-                      </button>
-                    } @else {
-                      <button
-                        class="btn-play"
-                        (click)="toggleTaskProgress(task)">
-                        ▶
-                      </button>
+                    @if (taskBeingDeleted() === task.id) {
+                    <!-- Delete confirmation buttons -->
+                    <button class="btn-confirm" (click)="confirmDelete(task.id)">
+                      Confirm
+                    </button>
+                    <button class="btn-cancel" (click)="cancelDelete()">
+                      Cancel
+                    </button>
+                  } @else {
+                      <!-- Play/Pause and Delete buttons -->
+                      @if (TaskCurrentlyInProgress() === task.id) {
+                        <button
+                          class="btn-play"
+                          (click)="pauseTaskProgress()"
+                        >
+                          ⏸
+                        </button>
+                      } @else {
+                        <button
+                          class="btn-play"
+                          (click)="toggleTaskProgress(task)">
+                          ▶
+                        </button>
+                      }
+                      <button class="btn-delete" (click)="startDelete(task.id)">×</button>
                     }
-                    <button class="btn-delete" (click)="deleteTask(task.id)">×</button>
                   </div>
                 </div>
               }

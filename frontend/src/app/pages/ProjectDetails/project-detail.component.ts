@@ -26,6 +26,7 @@ export class ProjectDetailComponent implements OnInit {
   taskTotalTimes = signal<{ [taskId: number]: string }>({});
   subProjectTotalTimes = signal<{ [subProjectId: number]: string }>({});
   currentProjectTotalTime = signal<string | null>(null);
+  taskBeingDeleted = signal<number | null>(null);
 
   // Task form
   showTaskForm = signal(false);
@@ -130,6 +131,19 @@ export class ProjectDetailComponent implements OnInit {
         }
       });
     });
+  }
+
+  startDelete(taskId: number) {
+    this.taskBeingDeleted.set(taskId);
+  }
+
+  confirmDelete(taskId: number) {
+    this.deleteTask(taskId);
+    this.taskBeingDeleted.set(null);
+  }
+
+  cancelDelete() {
+    this.taskBeingDeleted.set(null);
   }
 
   toggleTaskCompletion(task: Task) {

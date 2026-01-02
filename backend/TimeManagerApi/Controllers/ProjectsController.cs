@@ -39,6 +39,7 @@ namespace TaskManagementApi.Controllers
         }
 
         // GET: api/projects/{id}
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<ProjectDto>> GetProjectById(int id)
         {
@@ -74,6 +75,7 @@ namespace TaskManagementApi.Controllers
         }
 
         // PUT: api/projects/{id}
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<ActionResult<ProjectDto>> UpdateProject(int id, [FromBody] UpdateProjectDto dto)
         {
@@ -121,6 +123,7 @@ namespace TaskManagementApi.Controllers
         }
 
         // GET: api/projects/{id}/subprojects
+        [Authorize]
         [HttpGet("{id}/subprojects")]
         public async Task<ActionResult<List<ProjectDto>>> GetSubProjects(int id)
         {
@@ -202,6 +205,7 @@ namespace TaskManagementApi.Controllers
         }
 
         // GET: api/projects/{id}/tasks/{taskId}
+        [Authorize]
         [HttpGet("{id}/tasks/{taskId}")]
         public async Task<ActionResult<TaskDto>> GetTaskById(int id, int taskId)
         {
@@ -210,6 +214,51 @@ namespace TaskManagementApi.Controllers
                 return NotFound(new { message = $"Task with id {taskId} not found" });
 
             return Ok(task);
+        }
+
+        // PUT: api/projects/{id}/tasks/{taskId}
+        [Authorize]
+        [HttpPut("{id}/tasks/{taskId}")]
+        public async Task<ActionResult<TaskDto>> UpdateTask(int id, int taskId, [FromBody] UpdateTaskDto dto)
+        {
+            var project = await _projectService.GetProjectByIdAsync(id);
+            if (project == null)
+                return NotFound(new { message = $"Project with id {id} not found" });
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+                return Unauthorized();
+            var isAdmin = User.IsInRole("Admin");
+            if (project.ownerId != userId && !isAdmin)
+                return Forbid();
+            try
+            {
+                var task = await _taskService.UpdateTaskAsync(taskId, dto);
+                return Ok(task);
+            }
+            catch (Exception)
+            {
+                return NotFound(new { message = $"Task with id {taskId} not updated" });
+            }
+        }
+
+        // DELETE: api/projects/{id}/tasks/{taskId}
+        [Authorize]
+        [HttpDelete("{id}/tasks/{taskId}")]
+        public async Task<IActionResult> DeleteTask(int id, int taskId)
+        {
+            var project = await _projectService.GetProjectByIdAsync(id);
+            if (project == null)
+                return NotFound(new { message = $"Project with id {id} not found" });
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+                return Unauthorized();
+            var isAdmin = User.IsInRole("Admin");
+            if (project.ownerId != userId && !isAdmin)
+                return Forbid();
+            var result = await _taskService.DeleteTaskAsync(taskId);
+            if (!result)
+                return NotFound(new { message = $"Task with id {taskId} not found" });
+            return NoContent();
         }
 
         // Post: api/projects/{id}/tasks
