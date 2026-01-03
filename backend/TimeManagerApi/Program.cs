@@ -17,8 +17,18 @@ builder.Logging.AddConsole();
 builder.Services.AddControllers();
 
 // Add DbContext
-builder.Services.AddDbContext<TaskManagementDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+var connextionString = builder.Configuration.GetConnectionString("DefaultConnection")
+?? Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+builder.Services.AddDbContext<TaskManagementDbContext>(options => {
+    if (builder.Environment.IsDevelopment())
+    {
+        options.UseSqlite(connextionString);
+    }
+    else
+    {
+        options.UseNpgsql(connextionString);
+    }
+});
 
 // Add Repositories
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();

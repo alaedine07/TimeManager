@@ -11,7 +11,7 @@ using TaskManagementApi.Data;
 namespace TimeManagerApi.Migrations
 {
     [DbContext(typeof(TaskManagementDbContext))]
-    [Migration("20251104003914_InitialCreate")]
+    [Migration("20260103174939_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -49,9 +49,14 @@ namespace TimeManagerApi.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ownerId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ParentProjectId");
+
+                    b.HasIndex("ownerId");
 
                     b.ToTable("Projects");
                 });
@@ -94,12 +99,76 @@ namespace TimeManagerApi.Migrations
                     b.ToTable("Tasks");
                 });
 
+            modelBuilder.Entity("TaskManagementApi.Models.TaskTimeSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TaskTimeSessions");
+                });
+
+            modelBuilder.Entity("TaskManagementApi.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("User");
+                });
+
             modelBuilder.Entity("TaskManagementApi.Models.Project", b =>
                 {
                     b.HasOne("TaskManagementApi.Models.Project", "ParentProject")
                         .WithMany("SubProjects")
                         .HasForeignKey("ParentProjectId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TaskManagementApi.Models.User", "Owner")
+                        .WithMany("Projects")
+                        .HasForeignKey("ownerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
 
                     b.Navigation("ParentProject");
                 });
@@ -115,11 +184,52 @@ namespace TimeManagerApi.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("TaskManagementApi.Models.TaskTimeSession", b =>
+                {
+                    b.HasOne("TaskManagementApi.Models.Project", "Project")
+                        .WithMany("TimeSessions")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagementApi.Models.TaskItem", "Task")
+                        .WithMany("TimeSessions")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagementApi.Models.User", "User")
+                        .WithMany("TimeSessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TaskManagementApi.Models.Project", b =>
                 {
                     b.Navigation("SubProjects");
 
                     b.Navigation("Tasks");
+
+                    b.Navigation("TimeSessions");
+                });
+
+            modelBuilder.Entity("TaskManagementApi.Models.TaskItem", b =>
+                {
+                    b.Navigation("TimeSessions");
+                });
+
+            modelBuilder.Entity("TaskManagementApi.Models.User", b =>
+                {
+                    b.Navigation("Projects");
+
+                    b.Navigation("TimeSessions");
                 });
 #pragma warning restore 612, 618
         }
