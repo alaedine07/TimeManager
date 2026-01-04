@@ -17,16 +17,19 @@ builder.Logging.AddConsole();
 builder.Services.AddControllers();
 
 // Add DbContext
-var connextionString = builder.Configuration.GetConnectionString("DefaultConnection")
-?? Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+?? Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
+?? throw new InvalidOperationException("Database connection string is not configured.");
+
 builder.Services.AddDbContext<TaskManagementDbContext>(options => {
     if (builder.Environment.IsDevelopment())
     {
-        options.UseSqlite(connextionString);
+        options.UseSqlite(connectionString);
+        options.EnableSensitiveDataLogging();
     }
     else
     {
-        options.UseNpgsql(connextionString);
+        options.UseNpgsql(connectionString);
     }
 });
 
