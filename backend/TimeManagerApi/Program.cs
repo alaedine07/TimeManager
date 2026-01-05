@@ -21,14 +21,17 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 ?? Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
 ?? throw new InvalidOperationException("Database connection string is not configured.");
 
-builder.Services.AddDbContext<TaskManagementDbContext>(options => {
+builder.Services.AddDbContext<TaskManagementDbContext>(options =>
+{
     if (builder.Environment.IsDevelopment())
     {
-        options.UseSqlite(connectionString);
+        Console.WriteLine("Using SQLite");
+        options.UseSqlite("Data Source=taskmanagement.db");
         options.EnableSensitiveDataLogging();
     }
     else
     {
+        Console.WriteLine("Using PostgreSQL");
         options.UseNpgsql(connectionString);
     }
 });

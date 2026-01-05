@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace TimeManagerApi.Migrations
+namespace TimeManagerApi.Migrations.Postgres
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialPostgresMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,11 +16,11 @@ namespace TimeManagerApi.Migrations
                 name: "User",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Username = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
-                    Role = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -30,16 +31,16 @@ namespace TimeManagerApi.Migrations
                 name: "Projects",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false),
-                    Category = table.Column<string>(type: "TEXT", nullable: true),
-                    ParentProjectId = table.Column<int>(type: "INTEGER", nullable: true),
-                    Completed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ownerId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    Category = table.Column<string>(type: "text", nullable: true),
+                    ParentProjectId = table.Column<int>(type: "integer", nullable: true),
+                    Completed = table.Column<bool>(type: "boolean", nullable: false),
+                    ownerId = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -62,16 +63,16 @@ namespace TimeManagerApi.Migrations
                 name: "Tasks",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: true),
-                    Completed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Priority = table.Column<string>(type: "TEXT", nullable: true),
-                    DueDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ProjectId = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    Completed = table.Column<bool>(type: "boolean", nullable: false),
+                    Priority = table.Column<string>(type: "text", nullable: true),
+                    DueDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -88,13 +89,13 @@ namespace TimeManagerApi.Migrations
                 name: "TaskTimeSessions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    TaskId = table.Column<int>(type: "INTEGER", nullable: false),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TaskId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    ProjectId = table.Column<int>(type: "integer", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {

@@ -2,20 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagementApi.Data;
 
 #nullable disable
 
-namespace TimeManagerApi.Migrations
+namespace TimeManagerApi.Migrations.Sqlite
 {
-    [DbContext(typeof(TaskManagementDbContext))]
-    [Migration("20260103174939_InitialCreate")]
-    partial class InitialCreate
+    [DbContext(typeof(SqliteTaskManagementDbContext))]
+    partial class SqliteTaskManagementDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
