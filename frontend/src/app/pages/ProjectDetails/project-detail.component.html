@@ -155,7 +155,8 @@
                       type="checkbox"
                       [checked]="task.completed"
                       (change)="toggleTaskCompletion(task)"
-                      class="task-checkbox">
+                      class="task-checkbox"
+                    />
                     <div class="task-info">
                       <h3>{{ task.name }}</h3>
                       @if (task.description) {
@@ -170,6 +171,8 @@
                       <div class="task-time-worked">
                         Time Worked: {{ taskTotalTimes()[task.id] || '0h 0m' }}
                       </div>
+                      <!-- Timer Display with formatted time -->
+                      <div class="task-timer">Timer: {{ formatTime(taskTimers()[task.id] || 0) }}</div>
                     </div>
                   </div>
                   <div class="task-actions">
@@ -190,11 +193,25 @@
                         >
                           ⏸
                         </button>
+                        <button
+                          class="btn-reset"
+                          title="Reset timer"
+                          (click)="resetTaskTimer(task)"
+                        >
+                          ↻
+                        </button>
                       } @else {
                         <button
                           class="btn-play"
                           (click)="toggleTaskProgress(task)">
                           ▶
+                        </button>
+                        <button
+                          class="btn-reset"
+                          title="Reset timer"
+                          (click)="resetTaskTimer(task)"
+                        >
+                          ↻
                         </button>
                       }
                       <button class="btn-delete" (click)="startDelete(task.id)">×</button>
