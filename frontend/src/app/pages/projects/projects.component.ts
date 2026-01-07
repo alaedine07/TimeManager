@@ -48,7 +48,7 @@ export class ProjectsComponent implements OnInit {
         });
       },
       error: (err) => {
-        this.error.set('Failed to load projects :(');
+        this.error.set('Failed to load projects 😔');
         this.loading.set(false);
         console.error(err);
       }
