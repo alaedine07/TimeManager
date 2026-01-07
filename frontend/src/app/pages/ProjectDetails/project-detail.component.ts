@@ -9,6 +9,7 @@ import { Project } from '../../models/project.model';
 import { Task } from '../../models/task.model';
 import { TimeSessionsService } from '../../services/timeSessions.service';
 import { formatTimeSpan } from '../../utils/time-format.util';
+import { TaskTimer } from '../../models/taskTimer.model';
 
 @Component({
   selector: 'app-project-detail',
@@ -27,6 +28,7 @@ export class ProjectDetailComponent implements OnInit {
   subProjectTotalTimes = signal<{ [subProjectId: number]: string }>({});
   currentProjectTotalTime = signal<string | null>(null);
   taskBeingDeleted = signal<number | null>(null);
+  taskTimers = signal<{ [taskId: number]: number }>({});
 
   // Task form
   showTaskForm = signal(false);
@@ -36,12 +38,14 @@ export class ProjectDetailComponent implements OnInit {
   showSubProjectForm = signal(false);
   subProjectForm!: FormGroup;
 
+  private tickInterval: number | null = null;
+
   constructor(
     private projectService: ProjectService,
     private route: ActivatedRoute,
     private location: Location,
     private fb: FormBuilder,
-    private timeSessionsService: TimeSessionsService
+    private timeSessionsService: TimeSessionsService,
   ) {
     this.initializeForm();
   }
@@ -54,6 +58,41 @@ export class ProjectDetailComponent implements OnInit {
       }
     });
     this.getCurrentlyInProgressSession();
+    this.tickInterval = window.setInterval(() => {
+      this.updateTaskTimers();
+    }, 1000);
+  }
+
+  ngOnDestroy() {
+    if (this.tickInterval) {
+      clearInterval(this.tickInterval);
+    }
+  }
+
+  updateTaskTimers() {
+    const stored = localStorage.getItem('taskTimers');
+    if (!stored) return;
+    const timers: { [taskId: number]: TaskTimer } = JSON.parse(stored);
+    const display: { [taskId: number]: number } = {};
+    Object.values(timers).forEach(timer => {
+      let elapsed = timer.elapsedTime;
+      if (timer.isRunning && timer.startTime) {
+        elapsed += Date.now() - timer.startTime;
+      }
+      display[timer.taskId] = elapsed;
+    });
+    this.taskTimers.set(display);
+  }
+
+  formatTime(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+
+  return `${h.toString().padStart(2,'0')}:` +
+         `${m.toString().padStart(2,'0')}:` +
+         `${s.toString().padStart(2,'0')}`;
   }
 
   initializeForm(): void {
@@ -166,7 +205,6 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   getCurrentlyInProgressSession() {
-    console.log('Fetching current active time session...');
     this.timeSessionsService.getCurrentActiveSession().subscribe({
       next: (data: any) => {
         if (data && data.taskId) {
@@ -183,11 +221,14 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   toggleTaskProgress(task: Task) {
-    console.log('Toggling task progress for task', task.id);
     this.timeSessionsService.startSession(task.id).subscribe({
-      next: (response) => {
-        console.log('Time session started for task', task.id, response);
+      next: () => {
+        // pause the previous task if any
+        if (this.TaskCurrentlyInProgress() && this.TaskCurrentlyInProgress() !== task.id) {
+          this.pauseTaskTimer();
+        }
         this.TaskCurrentlyInProgress.set(task.id);
+        this.startTaskTimer();
       },
       error: (err) => {
         console.error('Failed to start time session for task', task.id, err);
@@ -197,14 +238,66 @@ export class ProjectDetailComponent implements OnInit {
 
   pauseTaskProgress() {
     this.timeSessionsService.pauseSession().subscribe({
-      next: (response) => {
-        console.log('Time session paused', response);
+      next: () => {
+        this.pauseTaskTimer();
         this.TaskCurrentlyInProgress.set(null);
       },
       error: (err) => {
         console.error('Failed to pause time session', err);
       }
     });
+  }
+
+  pauseTaskTimer() {
+    // Retrieve existing timers from localStorage
+    const storedTimers = localStorage.getItem('taskTimers');
+    if (!storedTimers) return;
+    let taskTimers: { [taskId: number]: TaskTimer } = storedTimers ? JSON.parse(storedTimers) : {};
+    const currentTaskId = this.TaskCurrentlyInProgress();
+    if (currentTaskId && taskTimers[currentTaskId]) {
+      const taskTimer = taskTimers[currentTaskId];
+      if (taskTimer.isRunning && taskTimer.startTime) {
+        taskTimer.elapsedTime += Date.now() - taskTimer.startTime!;
+        taskTimer.startTime = null;
+        taskTimer.isRunning = false;
+        // Update the timer in localStorage
+        taskTimers[currentTaskId] = taskTimer;
+        localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
+      }
+    }
+  }
+
+  startTaskTimer() {
+    const stored = localStorage.getItem('taskTimers');
+    if (!stored) return;
+    let taskTimers: { [taskId: number]: TaskTimer } = stored ? JSON.parse(stored) : {};
+    // if timer doesn't exist for this task, create it
+    if (!taskTimers[this.TaskCurrentlyInProgress()!]) {
+      let taskTime = {
+        taskId: this.TaskCurrentlyInProgress()!,
+        elapsedTime: 0,
+        isRunning: false,
+        startTime: null
+      }
+      taskTimers[taskTime.taskId] = taskTime;
+    }
+    taskTimers[this.TaskCurrentlyInProgress()!].isRunning = true;
+    taskTimers[this.TaskCurrentlyInProgress()!].startTime = Date.now();
+    localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
+  }
+
+  resetTaskTimer(task: Task) {
+    const stored = localStorage.getItem('taskTimers');
+    if (!stored) return;
+    let taskTimers: { [taskId: number]: TaskTimer } = JSON.parse(stored);
+    if (taskTimers[task.id]) {
+      const taskTimer = taskTimers[task.id];
+      taskTimer.elapsedTime = 0;
+      taskTimer.startTime = Date.now();
+      taskTimers[task.id] = taskTimer;
+      localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
+      this.updateTaskTimers();
+    }
   }
 
   deleteTask(taskId: number) {
@@ -215,6 +308,15 @@ export class ProjectDetailComponent implements OnInit {
         if (proj && proj.tasks) {
           proj.tasks = proj.tasks.filter(t => t.id !== taskId);
           this.project.set({ ...proj });
+        }
+        const stored = localStorage.getItem('taskTimers');
+        if (stored) {
+          let taskTimers: { [taskId: number]: TaskTimer } = JSON.parse(stored);
+          if (taskTimers[taskId]) {
+            delete taskTimers[taskId];
+            localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
+            this.updateTaskTimers();
+          }
         }
       },
       error: (err) => console.error('Failed to delete task', err)
