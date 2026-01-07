@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
 export interface AuthResponse {
   token: string;
   username: string;
-  role: string; // e.g., 'User', 'Admin'
+  role: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -41,6 +41,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('taskTimers');
     this._token.next(null);
   }
 
