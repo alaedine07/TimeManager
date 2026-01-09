@@ -58,7 +58,9 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
             "http://localhost:4200",
             "http://localhost:5173",
-            "http://217.182.64.83")
+            "http://217.182.64.83",
+            "https://taskmanagerframework.alaspace.me",
+            "http://taskmanagerframework.alaspace.me")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
