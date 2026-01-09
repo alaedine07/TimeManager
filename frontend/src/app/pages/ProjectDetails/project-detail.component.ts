@@ -269,7 +269,6 @@ export class ProjectDetailComponent implements OnInit {
 
   startTaskTimer() {
     const stored = localStorage.getItem('taskTimers');
-    if (!stored) return;
     let taskTimers: { [taskId: number]: TaskTimer } = stored ? JSON.parse(stored) : {};
     // if timer doesn't exist for this task, create it
     if (!taskTimers[this.TaskCurrentlyInProgress()!]) {
