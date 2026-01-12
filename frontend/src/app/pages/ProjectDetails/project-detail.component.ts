@@ -32,7 +32,9 @@ export class ProjectDetailComponent implements OnInit {
 
   // Task form
   showTaskForm = signal(false);
+  editingTaskId = signal<number | null>(null);
   taskForm!: FormGroup;
+  editTaskForm!: FormGroup;
 
   // Sub-project form
   showSubProjectForm = signal(false);
@@ -102,6 +104,13 @@ export class ProjectDetailComponent implements OnInit {
       priority: ['medium'],
       dueDate: ['']
     });
+    this.editTaskForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      priority: ['medium'],
+      dueDate: [''],
+      completed: [false]
+    });
   }
 
   initializeSubProjectForm(): void {
@@ -170,6 +179,64 @@ export class ProjectDetailComponent implements OnInit {
         }
       });
     });
+  }
+
+  startEditTask(task: Task) {
+    this.editingTaskId.set(task.id);
+    this.editTaskForm.patchValue({
+      name: task.name,
+      description: task.description || '',
+      priority: task.priority,
+      dueDate: task.dueDate ? this.formatDateForInput(task.dueDate) : '',
+      completed: task.completed
+    });
+  }
+
+  saveEditTask() {
+    if (!this.editTaskForm.valid || !this.project()) return;
+
+    const taskId = this.editingTaskId();
+    if (!taskId) return;
+
+    const updates = {
+      name: this.editTaskForm.value.name,
+      description: this.editTaskForm.value.description || undefined,
+      priority: this.editTaskForm.value.priority,
+      dueDate: this.editTaskForm.value.dueDate
+        ? new Date(this.editTaskForm.value.dueDate)
+        : undefined,
+      completed: this.editTaskForm.value.completed
+    };
+
+  this.projectService.updateTask(this.project()!.id, taskId, updates).subscribe({
+    next: (updatedTask) => {
+      const proj = this.project();
+      if (proj && proj.tasks) {
+        const index = proj.tasks.findIndex(t => t.id === taskId);
+        if (index !== -1) {
+          proj.tasks[index] = updatedTask;
+          this.project.set({ ...proj });
+        }
+      }
+      this.cancelEditTask();
+    },
+    error: (err) => {
+        console.error('Failed to update task', err);
+        this.error.set('Failed to update task');
+      }
+    });
+  }
+
+  cancelEditTask() {
+    this.editingTaskId.set(null);
+    this.editTaskForm.reset();
+  }
+
+  private formatDateForInput(date: Date): string {
+    const d = new Date(date);
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${month}-${day}`;
   }
 
   startDelete(taskId: number) {

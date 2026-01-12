@@ -6,11 +6,12 @@ import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
 import { TimeSessionsService } from '../../services/timeSessions.service';
 import { formatTimeSpan } from '../../utils/time-format.util';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-projects',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.scss'
 })
@@ -20,6 +21,12 @@ export class ProjectsComponent implements OnInit {
   error = signal<string | null>(null);
   activeProjectMenu = signal<number | null>(null);
   projectTotalTimes = signal<{ [projectId: number]: string }>({});
+
+  // Edit mode signals
+  editingProjectId = signal<number | null>(null);
+  editFormData = signal<Partial<Project>>({});
+  editFormLoading = signal(false);
+  editFormError = signal<string | null>(null);
 
   constructor(
     private projectService: ProjectService,
@@ -84,10 +91,62 @@ export class ProjectsComponent implements OnInit {
     this.activeProjectMenu.set(current === project.id ? null : project.id);
   }
 
-  editProject(event: Event, project: Project) {
-    console.log('Edit project:', project);
-    alert('Edit form coming soon!');
+  // Edit Mode Methods
+  startEditProject(event: Event, project: Project) {
+    event.stopPropagation();
+    this.editingProjectId.set(project.id);
+    this.editFormData.set({
+      name: project.name,
+      description: project.description,
+      category: project.category
+    });
+    this.editFormError.set(null);
     this.closeProjectMenu();
+  }
+
+  cancelEditProject(event: Event) {
+    event.stopPropagation();
+    this.editingProjectId.set(null);
+    this.editFormData.set({});
+    this.editFormError.set(null);
+  }
+
+  saveEditProject(event: Event, project: Project) {
+    event.stopPropagation();
+
+    const formData = this.editFormData();
+
+    // Validation
+    if (!formData.name || !formData.name.trim()) {
+      this.editFormError.set('Project name is required');
+      return;
+    }
+
+    this.editFormLoading.set(true);
+    this.editFormError.set(null);
+
+    this.projectService.updateProject(project.id, {
+      name: formData.name?.trim(),
+      description: formData.description?.trim() || '',
+      category: formData.category?.trim() || 'General'
+    }).subscribe({
+      next: (updated) => {
+        const projects = this.projects();
+        const index = projects.findIndex(p => p.id === project.id);
+        if (index !== -1) {
+          projects[index] = updated;
+          this.projects.set([...projects]);
+        }
+        this.editingProjectId.set(null);
+        this.editFormData.set({});
+        this.editFormLoading.set(false);
+      },
+      error: (err) => {
+        this.editFormError.set('Failed to update project. Please try again.');
+        this.editFormLoading.set(false);
+        console.error('Failed to update project', err);
+      }
+    });
   }
 
   toggleProjectComplete(event: Event, project: Project) {

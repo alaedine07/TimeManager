@@ -29,7 +29,7 @@
         <!-- Total Time Worked Section -->
         <div class="total-time-worked">
           <span class="time-label">Total Time Worked:</span>
-          <span class="time-value">{{ currentProjectTotalTime() }}</span> <!-- Static value -->
+          <span class="time-value">{{ currentProjectTotalTime() }}</span>
         </div>
 
         <!-- Progress Bar -->
@@ -144,80 +144,149 @@
           } @else {
             <div class="tasks-list">
               @for (task of project()!.tasks ?? []; track task.id) {
-                <div
-                  class="task-item"
-                  [class.completed]="task.completed"
-                  [class.active]="TaskCurrentlyInProgress() === task.id"
-                  [class.toBeDeleted]="taskBeingDeleted() === task.id"
-                >
-                  <div class="task-content">
-                    <input
-                      type="checkbox"
-                      [checked]="task.completed"
-                      (change)="toggleTaskCompletion(task)"
-                      class="task-checkbox"
-                    />
-                    <div class="task-info">
-                      <h3>{{ task.name }}</h3>
-                      @if (task.description) {
-                        <p class="task-desc">{{ task.description }}</p>
-                      }
-                      @if (task.dueDate) {
-                        <p class="task-due-date">Due: {{ task.dueDate | date }}</p>
-                      }
-                      <p class="task-priority priority-{{ task.priority }}">
-                        {{ task.priority | titlecase }}
-                      </p>
-                      <div class="task-time-worked">
-                        Time Worked: {{ taskTotalTimes()[task.id] || '0h 0m' }}
+                @if (editingTaskId() === task.id) {
+                  <!-- EDIT MODE -->
+                  <div class="task-item editing">
+                    <form [formGroup]="editTaskForm" (ngSubmit)="saveEditTask()" class="task-edit-form">
+                      <div class="edit-form-content">
+                        <div class="form-row">
+                          <div class="form-group">
+                            <label for="editTaskName">Task Name *</label>
+                            <input
+                              id="editTaskName"
+                              type="text"
+                              formControlName="name"
+                              placeholder="Enter task name"
+                              class="form-input"
+                              autofocus>
+                            @if (editTaskForm.get('name')?.invalid && editTaskForm.get('name')?.touched) {
+                              <span class="error-text">
+                                @if (editTaskForm.get('name')?.errors?.['required']) {
+                                  Task name is required
+                                } @else if (editTaskForm.get('name')?.errors?.['minlength']) {
+                                  Task name must be at least 3 characters
+                                }
+                              </span>
+                            }
+                          </div>
+                          <div class="form-group">
+                            <label for="editTaskPriority">Priority</label>
+                            <select id="editTaskPriority" formControlName="priority" class="form-input">
+                              <option value="low">Low</option>
+                              <option value="medium">Medium</option>
+                              <option value="high">High</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label for="editTaskDueDate">Due Date</label>
+                            <input
+                              id="editTaskDueDate"
+                              type="date"
+                              formControlName="dueDate"
+                              class="form-input">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="editTaskDesc">Description</label>
+                          <textarea
+                            id="editTaskDesc"
+                            formControlName="description"
+                            placeholder="Add task description"
+                            rows="3"
+                            class="form-input"></textarea>
+                        </div>
                       </div>
-                      <!-- Timer Display with formatted time -->
-                      <div class="task-timer">Timer: {{ formatTime(taskTimers()[task.id] || 0) }}</div>
-                    </div>
-                  </div>
-                  <div class="task-actions">
-                    @if (taskBeingDeleted() === task.id) {
-                    <!-- Delete confirmation buttons -->
-                    <button class="btn-confirm" (click)="confirmDelete(task.id)">
-                      Confirm
-                    </button>
-                    <button class="btn-cancel" (click)="cancelDelete()">
-                      Cancel
-                    </button>
-                  } @else {
-                      <!-- Play/Pause and Delete buttons -->
-                      @if (TaskCurrentlyInProgress() === task.id) {
-                        <button
-                          class="btn-play"
-                          (click)="pauseTaskProgress()"
-                        >
-                          ⏸
+                      <div class="edit-form-actions">
+                        <button type="button" class="btn btn-secondary" (click)="cancelEditTask()">
+                          Cancel
                         </button>
-                        <button
-                          class="btn-reset"
-                          title="Reset timer"
-                          (click)="resetTaskTimer(task)"
-                        >
-                          ↻
+                        <button type="submit" class="btn btn-primary" [disabled]="editTaskForm.invalid">
+                          Save Changes
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                } @else {
+                  <!-- VIEW MODE -->
+                  <div
+                    class="task-item"
+                    [class.completed]="task.completed"
+                    [class.active]="TaskCurrentlyInProgress() === task.id"
+                    [class.toBeDeleted]="taskBeingDeleted() === task.id"
+                  >
+                    <div class="task-content">
+                      <input
+                        type="checkbox"
+                        [checked]="task.completed"
+                        (change)="toggleTaskCompletion(task)"
+                        class="task-checkbox"
+                      />
+                      <div class="task-info">
+                        <h3>{{ task.name }}</h3>
+                        @if (task.description) {
+                          <p class="task-desc">{{ task.description }}</p>
+                        }
+                        @if (task.dueDate) {
+                          <p class="task-due-date">Due: {{ task.dueDate | date }}</p>
+                        }
+                        <p class="task-priority priority-{{ task.priority }}">
+                          {{ task.priority | titlecase }}
+                        </p>
+                        <div class="task-time-worked">
+                          Time Worked: {{ taskTotalTimes()[task.id] || '0h 0m' }}
+                        </div>
+                        <div class="task-timer">Timer: {{ formatTime(taskTimers()[task.id] || 0) }}</div>
+                      </div>
+                    </div>
+                    <div class="task-actions">
+                      @if (taskBeingDeleted() === task.id) {
+                        <!-- Delete confirmation buttons -->
+                        <button class="btn-confirm" (click)="confirmDelete(task.id)">
+                          Confirm
+                        </button>
+                        <button class="btn-cancel" (click)="cancelDelete()">
+                          Cancel
                         </button>
                       } @else {
-                        <button
-                          class="btn-play"
-                          (click)="toggleTaskProgress(task)">
-                          ▶
+                        <!-- Play/Pause and Delete buttons -->
+                        @if (TaskCurrentlyInProgress() === task.id) {
+                          <button
+                            class="btn-play"
+                            (click)="pauseTaskProgress()"
+                          >
+                            ⏸
+                          </button>
+                          <button
+                            class="btn-reset"
+                            title="Reset timer"
+                            (click)="resetTaskTimer(task)"
+                          >
+                            ↻
+                          </button>
+                        } @else {
+                          <button
+                            class="btn-play"
+                            (click)="toggleTaskProgress(task)">
+                            ▶
+                          </button>
+                          <button
+                            class="btn-reset"
+                            title="Reset timer"
+                            (click)="resetTaskTimer(task)"
+                          >
+                            ↻
+                          </button>
+                        }
+                        <button class="btn-edit" title="Edit task" (click)="startEditTask(task)">
+                          ✏
                         </button>
-                        <button
-                          class="btn-reset"
-                          title="Reset timer"
-                          (click)="resetTaskTimer(task)"
-                        >
-                          ↻
+                        <button class="btn-delete" (click)="startDelete(task.id)">
+                          ×
                         </button>
                       }
-                      <button class="btn-delete" (click)="startDelete(task.id)">×</button>
-                    }
+                    </div>
                   </div>
-                </div>
+                }
               }
             </div>
           }
@@ -233,6 +302,7 @@
               {{ showSubProjectForm() ? '✕ Cancel' : '+ Add Sub Projects' }}
             </button>
           </div>
+
           <!-- Expandable Project Form -->
           @if (showSubProjectForm()) {
             <div class="task-form-container">
@@ -260,11 +330,11 @@
                 </div>
 
                 <div class="form-group">
-                  <label for="taskDesc">Description</label>
+                  <label for="projectDesc">Description</label>
                   <textarea
-                    id="taskDesc"
+                    id="projectDesc"
                     formControlName="description"
-                    placeholder="Add task description (optional)"
+                    placeholder="Add project description (optional)"
                     rows="3"
                     class="form-input"></textarea>
                 </div>
@@ -274,7 +344,7 @@
                     Cancel
                   </button>
                   <button type="submit" class="btn btn-primary" [disabled]="subProjectForm.invalid">
-                    Create Sub project
+                    Create Sub Project
                   </button>
                 </div>
               </form>

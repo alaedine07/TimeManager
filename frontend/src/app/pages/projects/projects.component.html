@@ -20,72 +20,184 @@
         <div class="add-icon">+</div>
       </div>
     </div>
-
     <!-- Existing Projects -->
     @for (project of projects(); track project.id) {
-      <div class="project-card" [routerLink]="['/projects', project.id]" [class.menu-open]="activeProjectMenu() === project.id">
-        <div class="project-header">
-          <div class="project-title-section">
-            <h3>{{ project.name }}</h3>
-            <span class="project-category">{{ project.category || 'General' }}</span>
-          </div>
-          <button class="menu-btn" [class.active]="activeProjectMenu() === project.id" (click)="toggleProjectMenu($event, project)">
-            @if (activeProjectMenu() === project.id) {
+      <!-- Edit Mode View -->
+      @if (editingProjectId() === project.id) {
+        <div class="project-card edit-mode-card" (click)="$event.stopPropagation()">
+          <div class="edit-mode-header">
+            <h2 class="edit-mode-title">Edit Project</h2>
+            <button
+              class="edit-mode-close-btn"
+              (click)="cancelEditProject($event)"
+              title="Cancel editing"
+              [disabled]="editFormLoading()"
+            >
               ✕
-            } @else {
-              •••
-            }
-          </button>
-        </div>
-        <p class="project-description">{{ project.description }}</p>
-        <div class="project-stats">
-          <div class="stat">
-            <span class="stat-value">{{ project.totalTasks || 0 }}</span>
-            <span class="stat-label">Tasks</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">{{ project.completedTasks || 0 }}</span>
-            <span class="stat-label">Done</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">{{ getPendingTasks(project) }}</span>
-            <span class="stat-label">Pending</span>
-          </div>
-        </div>
-        <!-- Total Time Worked Section -->
-        <div class="project-time-worked">
-          <span class="time-label">Total Time Worked:</span>
-          <span class="time-value">
-            {{ projectTotalTimes()[project.id] || '0h 0m' }}
-          </span>
-        </div>
-        <div class="progress-section">
-          <div class="progress-label">
-            <span>Progress</span>
-            <span>{{ getProgressPercentage(project) }}%</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="getProgressPercentage(project)"></div>
-          </div>
-        </div>
-        <!-- Action Buttons - Appear when menu is open -->
-        @if (activeProjectMenu() === project.id) {
-          <div class="project-actions">
-            <button class="action-btn complete" (click)="toggleProjectComplete($event, project)" title="Mark as complete">
-              <span class="icon">✓</span>
-            </button>
-            <button class="action-btn edit" (click)="editProject($event, project)" title="Edit">
-              <span class="icon">✎</span>
-            </button>
-            <button class="action-btn archive" (click)="archiveProject($event, project)" title="Archive">
-              <span class="icon">📦</span>
-            </button>
-            <button class="action-btn delete" (click)="deleteProject($event, project)" title="Delete">
-              <span class="icon">🗑</span>
             </button>
           </div>
-        }
-      </div>
+
+          @if (editFormError()) {
+            <div class="edit-form-error">
+              <span class="error-icon">⚠</span>
+              {{ editFormError() }}
+            </div>
+          }
+
+          <form class="edit-form" (ngSubmit)="saveEditProject($event, project)">
+            <!-- Project Name Field -->
+            <div class="form-group">
+              <label for="project-name-{{ project.id }}" class="form-label">
+                Project Name <span class="required">*</span>
+              </label>
+              <input
+                [id]="'project-name-' + project.id"
+                type="text"
+                class="form-input"
+                [(ngModel)]="editFormData().name"
+                name="name"
+                placeholder="Enter project name"
+                [disabled]="editFormLoading()"
+              />
+            </div>
+
+            <!-- Project Category Field -->
+            <div class="form-group">
+              <label for="project-category-{{ project.id }}" class="form-label">
+                Category
+              </label>
+              <select
+                [id]="'project-category-' + project.id"
+                class="form-input form-select"
+                [(ngModel)]="editFormData().category"
+                name="category"
+                [disabled]="editFormLoading()"
+              >
+                <option value="">General</option>
+                <option value="Work">Work</option>
+                <option value="Personal">Personal</option>
+                <option value="Learning">Learning</option>
+                <option value="Health">Health</option>
+                <option value="Finance">Finance</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- Project Description Field -->
+            <div class="form-group">
+              <label for="project-description-{{ project.id }}" class="form-label">
+                Description
+              </label>
+              <textarea
+                [id]="'project-description-' + project.id"
+                class="form-input form-textarea"
+                [(ngModel)]="editFormData().description"
+                name="description"
+                placeholder="Enter project description"
+                rows="4"
+                [disabled]="editFormLoading()"
+              ></textarea>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn-form-cancel"
+                (click)="cancelEditProject($event)"
+                [disabled]="editFormLoading()"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="btn-form-save"
+                [disabled]="editFormLoading()"
+              >
+                @if (editFormLoading()) {
+                  <span class="loading-spinner"></span>
+                  Saving...
+                } @else {
+                  Save Changes
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      } @else {
+        <!-- Normal Card View -->
+        <div
+          class="project-card"
+          [routerLink]="['/projects', project.id]"
+          [class.menu-open]="activeProjectMenu() === project.id"
+        >
+          <div class="project-header">
+            <div class="project-title-section">
+              <h3>{{ project.name }}</h3>
+              <span class="project-category">{{ project.category || 'General' }}</span>
+            </div>
+            <button
+              class="menu-btn"
+              [class.active]="activeProjectMenu() === project.id"
+              (click)="toggleProjectMenu($event, project)"
+            >
+              @if (activeProjectMenu() === project.id) {
+                ✕
+              } @else {
+                •••
+              }
+            </button>
+          </div>
+          <p class="project-description">{{ project.description }}</p>
+          <div class="project-stats">
+            <div class="stat">
+              <span class="stat-value">{{ project.totalTasks || 0 }}</span>
+              <span class="stat-label">Tasks</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">{{ project.completedTasks || 0 }}</span>
+              <span class="stat-label">Done</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">{{ getPendingTasks(project) }}</span>
+              <span class="stat-label">Pending</span>
+            </div>
+          </div>
+          <!-- Total Time Worked Section -->
+          <div class="project-time-worked">
+            <span class="time-label">Total Time Worked:</span>
+            <span class="time-value">
+              {{ projectTotalTimes()[project.id] || '0h 0m' }}
+            </span>
+          </div>
+          <div class="progress-section">
+            <div class="progress-label">
+              <span>Progress</span>
+              <span>{{ getProgressPercentage(project) }}%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="getProgressPercentage(project)"></div>
+            </div>
+          </div>
+          <!-- Action Buttons - Appear when menu is open -->
+          @if (activeProjectMenu() === project.id) {
+            <div class="project-actions">
+              <button class="action-btn complete" (click)="toggleProjectComplete($event, project)" title="Mark as complete">
+                <span class="icon">✓</span>
+              </button>
+              <button class="action-btn edit" (click)="startEditProject($event, project)" title="Edit">
+                <span class="icon">✎</span>
+              </button>
+              <button class="action-btn archive" (click)="archiveProject($event, project)" title="Archive">
+                <span class="icon">📦</span>
+              </button>
+              <button class="action-btn delete" (click)="deleteProject($event, project)" title="Delete">
+                <span class="icon">🗑</span>
+              </button>
+            </div>
+          }
+        </div>
+      }
     }
   </div>
 </div>
