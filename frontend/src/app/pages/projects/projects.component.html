@@ -181,20 +181,47 @@
           </div>
           <!-- Action Buttons - Appear when menu is open -->
           @if (activeProjectMenu() === project.id) {
-            <div class="project-actions">
-              <button class="action-btn complete" (click)="toggleProjectComplete($event, project)" title="Mark as complete">
-                <span class="icon">✓</span>
-              </button>
-              <button class="action-btn edit" (click)="startEditProject($event, project)" title="Edit">
-                <span class="icon">✎</span>
-              </button>
-              <button class="action-btn archive" (click)="archiveProject($event, project)" title="Archive">
-                <span class="icon">📦</span>
-              </button>
-              <button class="action-btn delete" (click)="deleteProject($event, project)" title="Delete">
-                <span class="icon">🗑</span>
-              </button>
-            </div>
+            <!-- Delete Confirmation State -->
+            @if (deleteConfirmingProjectId() === project.id) {
+              <div class="project-actions delete-confirmation">
+                <button
+                  class="action-btn confirm-delete"
+                  (click)="confirmDeleteProject($event, project)"
+                  title="Confirm delete"
+                  [disabled]="deleteInProgress()"
+                >
+                  @if (deleteInProgress()) {
+                    <span class="loading-spinner-small"></span>
+                  } @else {
+                    <span class="icon">✓</span>
+                  }
+                </button>
+                <button
+                  class="action-btn cancel-delete"
+                  (click)="cancelDeleteProject($event)"
+                  title="Cancel delete"
+                  [disabled]="deleteInProgress()"
+                >
+                  <span class="icon">✕</span>
+                </button>
+              </div>
+            } @else {
+              <!-- Normal Actions -->
+              <div class="project-actions">
+                <button class="action-btn complete" (click)="toggleProjectComplete($event, project)" title="Mark as complete">
+                  <span class="icon">✓</span>
+                </button>
+                <button class="action-btn edit" (click)="startEditProject($event, project)" title="Edit">
+                  <span class="icon">✎</span>
+                </button>
+                <button class="action-btn archive" (click)="archiveProject($event, project)" title="Archive">
+                  <span class="icon">📦</span>
+                </button>
+                <button class="action-btn delete" (click)="initiateDeleteProject($event, project)" title="Delete">
+                  <span class="icon">🗑</span>
+                </button>
+              </div>
+            }
           }
         </div>
       }

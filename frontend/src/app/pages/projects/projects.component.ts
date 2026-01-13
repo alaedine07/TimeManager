@@ -21,6 +21,8 @@ export class ProjectsComponent implements OnInit {
   error = signal<string | null>(null);
   activeProjectMenu = signal<number | null>(null);
   projectTotalTimes = signal<{ [projectId: number]: string }>({});
+  deleteConfirmingProjectId = signal<number | null>(null);
+  deleteInProgress = signal(false);
 
   // Edit mode signals
   editingProjectId = signal<number | null>(null);
@@ -173,15 +175,32 @@ export class ProjectsComponent implements OnInit {
     }
   }
 
-  deleteProject(event: Event, project: Project) {
-    if (confirm(`Delete "${project.name}"? This cannot be undone.`)) {
-      this.projectService.deleteProject(project.id).subscribe({
-        next: () => {
-          this.projects.set(this.projects().filter(p => p.id !== project.id));
-          this.closeProjectMenu();
-        },
-        error: (err) => console.error('Failed to delete project', err)
-      });
-    }
+  initiateDeleteProject(event: Event, project: Project) {
+    event.stopPropagation();
+    this.deleteConfirmingProjectId.set(project.id);
+  }
+
+  cancelDeleteProject(event: Event) {
+    event.stopPropagation();
+    this.deleteConfirmingProjectId.set(null);
+  }
+
+  confirmDeleteProject(event: Event, project: Project) {
+    event.stopPropagation();
+    this.deleteInProgress.set(true);
+
+    this.projectService.deleteProject(project.id).subscribe({
+      next: () => {
+        this.projects.set(this.projects().filter(p => p.id !== project.id));
+        this.deleteConfirmingProjectId.set(null);
+        this.deleteInProgress.set(false);
+        this.closeProjectMenu();
+      },
+      error: (err) => {
+        console.error('Failed to delete project', err);
+        this.deleteInProgress.set(false);
+        this.deleteConfirmingProjectId.set(null);
+      }
+    });
   }
 }
