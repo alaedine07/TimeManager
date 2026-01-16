@@ -715,6 +715,139 @@
   }
 }
 
+/* Add these styles to your projects.component.scss */
+
+.project-tags {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.project-category {
+  display: inline-block;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.project-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 2px solid;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+  transition: all 200ms ease;
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  &.type-tasks {
+    border-color: rgba(59, 130, 246, 0.4);
+    color: #60a5fa;
+    background: rgba(59, 130, 246, 0.08);
+
+    &::before {
+      background: #60a5fa;
+    }
+  }
+
+  &.type-subprojects {
+    border-color: rgba(168, 85, 247, 0.4);
+    color: #d8b4fe;
+    background: rgba(168, 85, 247, 0.08);
+
+    &::before {
+      background: #d8b4fe;
+    }
+  }
+}
+
+/* Update the project-title-section to accommodate the new layout */
+.project-title-section {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.project-card h3 {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Responsive updates for project tags */
+@media (max-width: 768px) {
+  .project-tags {
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .project-type {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+
+    &::before {
+      width: 7px;
+      height: 7px;
+    }
+  }
+
+  .project-category {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-tags {
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .project-type {
+    font-size: 0.75rem;
+    padding: 4px 9px;
+
+    &::before {
+      width: 6px;
+      height: 6px;
+    }
+  }
+
+  .project-category {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;

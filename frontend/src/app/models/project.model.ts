@@ -12,6 +12,7 @@ export interface Project {
   subProjects?: Project[];
   totalTasks?: number;
   completedTasks?: number;
+  defaultTabOnOpen?: 'tasks' | 'subprojects';
   createdAt?: Date;
   updatedAt?: Date;
 }

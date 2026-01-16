@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagementApi.Data;
 
@@ -10,9 +11,11 @@ using TaskManagementApi.Data;
 namespace TimeManagerApi.Migrations.Sqlite
 {
     [DbContext(typeof(SqliteTaskManagementDbContext))]
-    partial class SqliteTaskManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260116154726_DefaultTabOnOpen")]
+    partial class DefaultTabOnOpen
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");

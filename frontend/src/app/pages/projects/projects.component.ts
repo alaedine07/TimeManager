@@ -1,4 +1,3 @@
-// frontend/src/app/pages/projects/projects.component.ts
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -100,7 +99,8 @@ export class ProjectsComponent implements OnInit {
     this.editFormData.set({
       name: project.name,
       description: project.description,
-      category: project.category
+      category: project.category,
+      defaultTabOnOpen: project.defaultTabOnOpen || 'tasks'
     });
     this.editFormError.set(null);
     this.closeProjectMenu();
@@ -130,7 +130,8 @@ export class ProjectsComponent implements OnInit {
     this.projectService.updateProject(project.id, {
       name: formData.name?.trim(),
       description: formData.description?.trim() || '',
-      category: formData.category?.trim() || 'General'
+      category: formData.category?.trim() || 'General',
+      defaultTabOnOpen: formData.defaultTabOnOpen || 'tasks'
     }).subscribe({
       next: (updated) => {
         const projects = this.projects();

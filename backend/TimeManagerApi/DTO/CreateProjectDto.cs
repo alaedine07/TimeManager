@@ -8,5 +8,6 @@ namespace TaskManagementApi.DTOs
         public int ownerId { get; set; }
         public string? Category { get; set; }
         public int? ParentProjectId { get; set; }
+        public string DefaultTabOnOpen { get; set; } = "tasks";
     }
 }

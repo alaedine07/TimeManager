@@ -22,7 +22,7 @@ export class ProjectDetailComponent implements OnInit {
   project = signal<Project | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
-  activeTab = signal<'tasks' | 'subprojects'>('tasks');
+  activeTab = signal<'tasks' | 'subprojects' | null >(null);
   TaskCurrentlyInProgress = signal<number | null>(null);
   taskTotalTimes = signal<{ [taskId: number]: string }>({});
   subProjectTotalTimes = signal<{ [subProjectId: number]: string }>({});
@@ -117,6 +117,7 @@ export class ProjectDetailComponent implements OnInit {
     this.subProjectForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
+      defaultTabOnOpen: ['tasks']
     });
   }
 
@@ -138,6 +139,7 @@ export class ProjectDetailComponent implements OnInit {
       // fetch task and sub-project total times
       this.loadTaskTotalTimes(data.tasks ?? []);
       this.loadSubProjectTotalTimes(data.subProjects ?? []);
+      this.setActiveTab(data.defaultTabOnOpen || 'tasks');
       },
       error: (err) => {
         console.error('Error loading project:', err);
@@ -411,6 +413,7 @@ export class ProjectDetailComponent implements OnInit {
         description: this.subProjectForm.value.description || '',
         parentProjectId: this.project()!.id,
         completed: false,
+        defaultTabOnOpen: this.subProjectForm.value.defaultTabOnOpen || 'tasks',
         tasks: [],
         subProjects: []
       };

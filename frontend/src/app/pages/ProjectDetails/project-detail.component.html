@@ -45,18 +45,35 @@
 
         <!-- Tabs -->
         <div class="tabs">
-          <button
-            class="tab"
-            [class.active]="activeTab() === 'tasks'"
-            (click)="setActiveTab('tasks')">
-            Tasks ({{ project()!.tasks?.length || 0 }})
-          </button>
-          <button
-            class="tab"
-            [class.active]="activeTab() === 'subprojects'"
-            (click)="setActiveTab('subprojects')">
-            Sub-Projects ({{ getSubProjectCount() }})
-          </button>
+          @if (project()!.defaultTabOnOpen=== 'subprojects') {
+            <!-- Sub-Projects is default tab -->
+            <button
+              class="tab"
+              [class.active]="activeTab() === 'subprojects'"
+              (click)="setActiveTab('subprojects')">
+              Sub-Projects ({{ getSubProjectCount() }})
+            </button>
+            <button
+              class="tab"
+              [class.active]="activeTab() === 'tasks'"
+              (click)="setActiveTab('tasks')">
+              Tasks ({{ project()!.tasks?.length || 0 }})
+            </button>
+          } @else {
+            <!-- Tasks is default tab -->
+            <button
+              class="tab"
+              [class.active]="activeTab() === 'tasks'"
+              (click)="setActiveTab('tasks')">
+              Tasks ({{ project()!.tasks?.length || 0 }})
+            </button>
+            <button
+              class="tab"
+              [class.active]="activeTab() === 'subprojects'"
+              (click)="setActiveTab('subprojects')">
+              Sub-Projects ({{ getSubProjectCount() }})
+            </button>
+          }
         </div>
       </div>
 
@@ -328,6 +345,17 @@
                     }
                   </div>
                 </div>
+
+                <div class="form-group">
+                    <label for="subProjectType">Default tab when open</label>
+                    <select
+                      id="subProjectType"
+                      class="form-input"
+                      formControlName="defaultTabOnOpen">
+                      <option value="tasks">Tasks</option>
+                      <option value="subprojects">Sub Projects</option>
+                    </select>
+                  </div>
 
                 <div class="form-group">
                   <label for="projectDesc">Description</label>

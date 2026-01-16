@@ -41,6 +41,7 @@ namespace TaskManagementApi.Services
                 Category = dto.Category,
                 ParentProjectId = dto.ParentProjectId,
                 ownerId = dto.ownerId,
+                DefaultTabOnOpen = dto.DefaultTabOnOpen
             };
 
             var created = await _repository.CreateProjectAsync(project);
@@ -64,6 +65,9 @@ namespace TaskManagementApi.Services
 
             if (dto.Completed.HasValue)
                 project.Completed = dto.Completed.Value;
+
+            if (!string.IsNullOrEmpty(dto.DefaultTabOnOpen))
+                project.DefaultTabOnOpen = dto.DefaultTabOnOpen;
 
             var updated = await _repository.UpdateProjectAsync(project);
             return MapToDto(updated);
@@ -96,6 +100,7 @@ namespace TaskManagementApi.Services
                 CreatedAt = project.CreatedAt,
                 UpdatedAt = project.UpdatedAt,
                 SubProjects = project.SubProjects?.Select(MapToDto).ToList() ?? new List<ProjectDto>(),
+                DefaultTabOnOpen = project.DefaultTabOnOpen,
                 Tasks = project.Tasks?.Select(t => new TaskDto
                 {
                     Id = t.Id,

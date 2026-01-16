@@ -5,16 +5,14 @@
       <button class="back-btn" (click)="goBack()">← Back</button>
       <h1>Create New Project</h1>
     </div>
-
     @if (error()) {
       <div class="error-message">
         <p>{{ error() }}</p>
       </div>
     }
-
     <form (ngSubmit)="createProject()" class="project-form">
       <div class="form-group">
-        <label for="projectName">Project Name *</label>
+        <label for="projectName">Project Name <span class="required">*</span></label>
         <input
           type="text"
           id="projectName"
@@ -50,6 +48,42 @@
             <option [value]="cat">{{ cat }}</option>
           }
         </select>
+      </div>
+
+      <!-- Default Tab Configuration -->
+      <div class="form-group default-tab-section">
+        <label class="section-label">📌 Default Tab When Opening This Project</label>
+        <div class="radio-options">
+          <label class="radio-option" [class.selected]="defaultTabOnOpen() === 'tasks'">
+            <input
+              type="radio"
+              name="defaultTabOnOpen"
+              value="tasks"
+              [ngModel]="defaultTabOnOpen()"
+              (change)="defaultTabOnOpen.set('tasks')"
+              class="radio-input"
+            />
+            <div class="radio-content">
+              <span class="radio-title">Tasks</span>
+              <span class="radio-description">Open directly to tasks list</span>
+            </div>
+          </label>
+
+          <label class="radio-option" [class.selected]="defaultTabOnOpen() === 'subprojects'">
+            <input
+              type="radio"
+              name="defaultTabOnOpen"
+              value="subprojects"
+              [ngModel]="defaultTabOnOpen()"
+              (change)="defaultTabOnOpen.set('subprojects')"
+              class="radio-input"
+            />
+            <div class="radio-content">
+              <span class="radio-title">Sub Projects</span>
+              <span class="radio-description">Open to sub-projects structure</span>
+            </div>
+          </label>
+        </div>
       </div>
 
       <div class="form-actions">

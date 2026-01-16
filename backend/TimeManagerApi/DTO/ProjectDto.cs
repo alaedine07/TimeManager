@@ -15,6 +15,7 @@ namespace TaskManagementApi.DTOs
         public bool Completed { get; set; }
         public int TotalTasks { get; set; }
         public int CompletedTasks { get; set; }
+        public string DefaultTabOnOpen { get; set; } = "tasks";
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public List<ProjectDto> SubProjects { get; set; } = new List<ProjectDto>();

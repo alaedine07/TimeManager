@@ -61,6 +61,23 @@
               />
             </div>
 
+            <!-- Project Type Field -->
+            <div class="form-group">
+              <label for="project-type-{{ project.id }}" class="form-label">
+                Default Tab When Open
+              </label>
+              <select
+                [id]="'project-type-' + project.id"
+                class="form-input form-select"
+                [(ngModel)]="editFormData().defaultTabOnOpen"
+                name="type"
+                [disabled]="editFormLoading()"
+              >
+                <option value="tasks">tasks</option>
+                <option value="subprojects">subprojects</option>
+              </select>
+            </div>
+
             <!-- Project Category Field -->
             <div class="form-group">
               <label for="project-category-{{ project.id }}" class="form-label">
@@ -134,7 +151,12 @@
           <div class="project-header">
             <div class="project-title-section">
               <h3>{{ project.name }}</h3>
-              <span class="project-category">{{ project.category || 'General' }}</span>
+              <div class="project-tags">
+                <span class="project-category">{{ project.category || 'General' }}</span>
+                <span class="project-type" [class]="'type-' + (project.defaultTabOnOpen || 'tasks')" title="Default content type">
+                  {{ project.defaultTabOnOpen === 'subprojects' ? 'Sub-Projects' : 'Tasks' }}
+                </span>
+              </div>
             </div>
             <button
               class="menu-btn"

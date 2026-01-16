@@ -14,14 +14,13 @@ import { Project } from '../../models/project.model';
   templateUrl: './create-project.component.html',
   styleUrl: './create-project.component.scss'
 })
-
 export class CreateProjectComponent {
   projectName = signal('');
   projectDescription = signal('');
   projectCategory = signal('General');
+  defaultTabOnOpen = signal<'tasks' | 'subprojects'>('tasks');
   loading = signal(false);
   error = signal<string | null>(null);
-
   categories = ['General', 'Design', 'Development', 'Marketing', 'Research', 'Other'];
 
   constructor(
@@ -43,6 +42,7 @@ export class CreateProjectComponent {
       name: this.projectName().trim(),
       description: this.projectDescription().trim(),
       category: this.projectCategory(),
+      defaultTabOnOpen: this.defaultTabOnOpen(),
       tasks: [],
       subProjects: [],
       totalTasks: 0,

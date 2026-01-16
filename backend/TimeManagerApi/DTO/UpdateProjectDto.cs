@@ -7,5 +7,6 @@ namespace TaskManagementApi.DTOs
         public string? Description { get; set; }
         public string? Category { get; set; }
         public bool? Completed { get; set; }
+        public string? DefaultTabOnOpen { get; set; }
     }
 }

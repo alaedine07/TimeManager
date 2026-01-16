@@ -13,6 +13,9 @@ namespace TaskManagementApi.Models
         public int? ParentProjectId { get; set; }
         public bool Completed { get; set; } = false;
         public int ownerId { get; set; }
+
+        public string DefaultTabOnOpen { get; set; } = "tasks";
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
