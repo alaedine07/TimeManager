@@ -1,6 +1,6 @@
 // models/task.model.ts
 export interface Task {
-  id: number;
+  id: string;
   name: string;
   description?: string;
   completed: boolean;

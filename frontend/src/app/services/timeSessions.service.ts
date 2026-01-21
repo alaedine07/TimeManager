@@ -11,7 +11,7 @@ export class TimeSessionsService {
 
     constructor(private http: HttpClient) {}
 
-    startSession(taskId: number) {
+    startSession(taskId: string) {
         return this.http.post(`${this.apiUrl}/start/${taskId}`, {});
     }
 
@@ -23,11 +23,11 @@ export class TimeSessionsService {
         return this.http.get(`${this.apiUrl}/active`);
     }
 
-    getTotalTimeForTask(taskId: number) {
+    getTotalTimeForTask(taskId: string) {
         return this.http.get<string>(`${this.apiUrl}/task/${taskId}/total-time`);
     }
 
-    getTotalTimeForProject(projectId: number) {
+    getTotalTimeForProject(projectId: string) {
         return this.http.get<string>(`${this.apiUrl}/project/${projectId}/total-time`);
     }
 }

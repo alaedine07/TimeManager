@@ -18,13 +18,13 @@ export class ProjectsComponent implements OnInit {
   projects = signal<Project[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
-  activeProjectMenu = signal<number | null>(null);
-  projectTotalTimes = signal<{ [projectId: number]: string }>({});
-  deleteConfirmingProjectId = signal<number | null>(null);
+  activeProjectMenu = signal<string | null>(null);
+  projectTotalTimes = signal<{ [projectId: string]: string }>({});
+  deleteConfirmingProjectId = signal<string | null>(null);
   deleteInProgress = signal(false);
 
   // Edit mode signals
-  editingProjectId = signal<number | null>(null);
+  editingProjectId = signal<string | null>(null);
   editFormData = signal<Partial<Project>>({});
   editFormLoading = signal(false);
   editFormError = signal<string | null>(null);

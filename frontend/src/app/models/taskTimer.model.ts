@@ -1,5 +1,5 @@
 export interface TaskTimer {
-  taskId: number;
+  taskId: string;
   elapsedTime: number;
   isRunning: boolean;
   startTime?: number | null;

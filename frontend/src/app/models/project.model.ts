@@ -2,11 +2,11 @@
 import { Task } from "./task.model";
 
 export interface Project {
-  id: number;
+  id: string;
   name: string;
   description: string;
   category?: string;
-  parentProjectId?: number; // null for root projects, id for sub-projects
+  parentProjectId?: string; // null for root projects, id for sub-projects
   completed?: boolean;
   tasks?: Task[];
   subProjects?: Project[];

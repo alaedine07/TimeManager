@@ -23,16 +23,16 @@ export class ProjectDetailComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   activeTab = signal<'tasks' | 'subprojects' | null >(null);
-  TaskCurrentlyInProgress = signal<number | null>(null);
-  taskTotalTimes = signal<{ [taskId: number]: string }>({});
-  subProjectTotalTimes = signal<{ [subProjectId: number]: string }>({});
+  TaskCurrentlyInProgress = signal<string | null>(null);
+  taskTotalTimes = signal<{ [taskId: string]: string }>({});
+  subProjectTotalTimes = signal<{ [subProjectId: string]: string }>({});
   currentProjectTotalTime = signal<string | null>(null);
-  taskBeingDeleted = signal<number | null>(null);
-  taskTimers = signal<{ [taskId: number]: number }>({});
+  taskBeingDeleted = signal<string | null>(null);
+  taskTimers = signal<{ [taskId: string]: number }>({});
 
   // Task form
   showTaskForm = signal(false);
-  editingTaskId = signal<number | null>(null);
+  editingTaskId = signal<string | null>(null);
   taskForm!: FormGroup;
   editTaskForm!: FormGroup;
 
@@ -56,7 +56,7 @@ export class ProjectDetailComponent implements OnInit {
     this.route.params.subscribe(params => {
       const id = params['id'];
       if (id) {
-        this.loadProject(Number(id));
+        this.loadProject(String(id));
       }
     });
     this.getCurrentlyInProgressSession();
@@ -74,8 +74,8 @@ export class ProjectDetailComponent implements OnInit {
   updateTaskTimers() {
     const stored = localStorage.getItem('taskTimers');
     if (!stored) return;
-    const timers: { [taskId: number]: TaskTimer } = JSON.parse(stored);
-    const display: { [taskId: number]: number } = {};
+    const timers: { [taskId: string]: TaskTimer } = JSON.parse(stored);
+    const display: { [taskId: string]: number } = {};
     Object.values(timers).forEach(timer => {
       let elapsed = timer.elapsedTime;
       if (timer.isRunning && timer.startTime) {
@@ -121,7 +121,7 @@ export class ProjectDetailComponent implements OnInit {
     });
   }
 
-  loadProject(id: number) {
+  loadProject(id: string) {
     this.loading.set(true);
     this.projectService.getProjectById(id).subscribe({
       next: (data) => {
@@ -241,11 +241,11 @@ export class ProjectDetailComponent implements OnInit {
     return `${d.getFullYear()}-${month}-${day}`;
   }
 
-  startDelete(taskId: number) {
+  startDelete(taskId: string) {
     this.taskBeingDeleted.set(taskId);
   }
 
-  confirmDelete(taskId: number) {
+  confirmDelete(taskId: string) {
     this.deleteTask(taskId);
     this.taskBeingDeleted.set(null);
   }
@@ -321,7 +321,7 @@ export class ProjectDetailComponent implements OnInit {
     // Retrieve existing timers from localStorage
     const storedTimers = localStorage.getItem('taskTimers');
     if (!storedTimers) return;
-    let taskTimers: { [taskId: number]: TaskTimer } = storedTimers ? JSON.parse(storedTimers) : {};
+    let taskTimers: { [taskId: string]: TaskTimer } = storedTimers ? JSON.parse(storedTimers) : {};
     const currentTaskId = this.TaskCurrentlyInProgress();
     if (currentTaskId && taskTimers[currentTaskId]) {
       const taskTimer = taskTimers[currentTaskId];
@@ -338,7 +338,7 @@ export class ProjectDetailComponent implements OnInit {
 
   startTaskTimer() {
     const stored = localStorage.getItem('taskTimers');
-    let taskTimers: { [taskId: number]: TaskTimer } = stored ? JSON.parse(stored) : {};
+    let taskTimers: { [taskId: string]: TaskTimer } = stored ? JSON.parse(stored) : {};
     // if timer doesn't exist for this task, create it
     if (!taskTimers[this.TaskCurrentlyInProgress()!]) {
       let taskTime = {
@@ -357,7 +357,7 @@ export class ProjectDetailComponent implements OnInit {
   resetTaskTimer(task: Task) {
     const stored = localStorage.getItem('taskTimers');
     if (!stored) return;
-    let taskTimers: { [taskId: number]: TaskTimer } = JSON.parse(stored);
+    let taskTimers: { [taskId: string]: TaskTimer } = JSON.parse(stored);
     if (taskTimers[task.id]) {
       const taskTimer = taskTimers[task.id];
       taskTimer.elapsedTime = 0;
@@ -368,7 +368,7 @@ export class ProjectDetailComponent implements OnInit {
     }
   }
 
-  deleteTask(taskId: number) {
+  deleteTask(taskId: string) {
     if (!this.project()) return;
     this.projectService.deleteTask(this.project()!.id, taskId).subscribe({
       next: () => {
@@ -379,7 +379,7 @@ export class ProjectDetailComponent implements OnInit {
         }
         const stored = localStorage.getItem('taskTimers');
         if (stored) {
-          let taskTimers: { [taskId: number]: TaskTimer } = JSON.parse(stored);
+          let taskTimers: { [taskId: string]: TaskTimer } = JSON.parse(stored);
           if (taskTimers[taskId]) {
             delete taskTimers[taskId];
             localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
@@ -408,8 +408,7 @@ export class ProjectDetailComponent implements OnInit {
   addsubProject(): void {
     if (this.subProjectForm.valid && this.project()) {
 
-      const newSubProject: Project = {
-        id: Date.now(),
+      const newSubProject: Omit<Project, 'id'> = {
         name: this.subProjectForm.value.name,
         description: this.subProjectForm.value.description || '',
         parentProjectId: this.project()!.id,
