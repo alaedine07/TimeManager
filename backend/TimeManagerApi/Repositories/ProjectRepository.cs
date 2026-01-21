@@ -24,7 +24,7 @@ namespace TaskManagementApi.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<Project>> GetUserRootProjectsAsync(int userId)
+        public async Task<List<Project>> GetUserRootProjectsAsync(Guid userId)
         {
             return await _context.Projects
                 .Where(p => p.ParentProjectId == null && p.ownerId == userId)
@@ -34,7 +34,7 @@ namespace TaskManagementApi.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Project?> GetProjectByIdAsync(int id)
+        public async Task<Project?> GetProjectByIdAsync(Guid id)
         {
             return await _context.Projects
                 .Include(p => p.Tasks)
@@ -58,7 +58,7 @@ namespace TaskManagementApi.Repositories
             return project;
         }
 
-        public async Task<bool> DeleteProjectAsync(int id)
+        public async Task<bool> DeleteProjectAsync(Guid id)
         {
             var project = await _context.Projects.FindAsync(id);
             if (project == null)
@@ -69,7 +69,7 @@ namespace TaskManagementApi.Repositories
             return true;
         }
 
-        public async Task<List<Project>> GetSubProjectsAsync(int parentProjectId)
+        public async Task<List<Project>> GetSubProjectsAsync(Guid parentProjectId)
         {
             return await _context.Projects
                 .Where(p => p.ParentProjectId == parentProjectId)

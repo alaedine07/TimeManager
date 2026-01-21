@@ -6,11 +6,11 @@ namespace TaskManagementApi.Repositories
     public interface IProjectRepository
     {
         Task<List<Project>> GetAllRootProjectsAsync();
-        Task<List<Project>> GetUserRootProjectsAsync(int userId);
-        Task<Project?> GetProjectByIdAsync(int id);
+        Task<List<Project>> GetUserRootProjectsAsync(Guid userId);
+        Task<Project?> GetProjectByIdAsync(Guid id);
         Task<Project> CreateProjectAsync(Project project);
         Task<Project> UpdateProjectAsync(Project project);
-        Task<bool> DeleteProjectAsync(int id);
-        Task<List<Project>> GetSubProjectsAsync(int parentProjectId);
+        Task<bool> DeleteProjectAsync(Guid id);
+        Task<List<Project>> GetSubProjectsAsync(Guid parentProjectId);
     }
 }

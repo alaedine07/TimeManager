@@ -14,12 +14,12 @@ namespace TaskManagementApi.Repositories
             _context = context;
         }
 
-        public async Task<TaskItem?> GetTaskByIdAsync(int id)
+        public async Task<TaskItem?> GetTaskByIdAsync(Guid id)
         {
             return await _context.Tasks.FindAsync(id);
         }
 
-        public async Task<List<TaskItem>> GetTasksByProjectIdAsync(int projectId)
+        public async Task<List<TaskItem>> GetTasksByProjectIdAsync(Guid projectId)
         {
             return await _context.Tasks
                 .Where(t => t.ProjectId == projectId)
@@ -42,7 +42,7 @@ namespace TaskManagementApi.Repositories
             return task;
         }
 
-        public async Task<bool> DeleteTaskAsync(int id)
+        public async Task<bool> DeleteTaskAsync(Guid id)
         {
             var task = await _context.Tasks.FindAsync(id);
             if (task == null)

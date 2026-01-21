@@ -13,7 +13,7 @@ public class TimeSessionService : ITimeSessionService
     }
 
     // Start a session for a task
-    public async Task StartAsync(int userId, int taskId)
+    public async Task StartAsync(Guid userId, Guid taskId)
     {
         var now = DateTime.UtcNow;
 
@@ -36,7 +36,7 @@ public class TimeSessionService : ITimeSessionService
             .FirstOrDefaultAsync(t => t.Id == taskId);
         if (task == null)
             throw new KeyNotFoundException($"Task with id {taskId} not found");
-        int projectId = task.ProjectId;
+        Guid projectId = task.ProjectId;
 
         // Start new session
         var session = new TaskTimeSession
@@ -52,7 +52,7 @@ public class TimeSessionService : ITimeSessionService
     }
 
     // get current active session
-    public async Task<TaskTimeSession?> GetActiveSessionAsync(int userId)
+    public async Task<TaskTimeSession?> GetActiveSessionAsync(Guid userId)
     {
         // the active session is the one without an end time
         return await _context.TaskTimeSessions
@@ -60,7 +60,7 @@ public class TimeSessionService : ITimeSessionService
     }
 
     // Pause currently active session
-    public async Task PauseAsync(int userId)
+    public async Task PauseAsync(Guid userId)
     {
         var activeSession = await _context.TaskTimeSessions
             .FirstOrDefaultAsync(s => s.UserId == userId && s.EndTime == null);
@@ -73,7 +73,7 @@ public class TimeSessionService : ITimeSessionService
     }
 
     // get total time worked on a task
-    public async Task<TimeSpan> GetTotalTimeForTaskAsync(int userId, int taskId)
+    public async Task<TimeSpan> GetTotalTimeForTaskAsync(Guid userId, Guid taskId)
     {
         var sessions = await _context.TaskTimeSessions
             .Where(s => s.UserId == userId && s.TaskId == taskId)
@@ -88,7 +88,7 @@ public class TimeSessionService : ITimeSessionService
     }
 
     // get total time worked on a project
-    public async Task<TimeSpan> GetTotalTimeForProjectAsync(int userId, int projectId)
+    public async Task<TimeSpan> GetTotalTimeForProjectAsync(Guid userId, Guid projectId)
     {
         var sessions = await _context.TaskTimeSessions
             .Where(s => s.UserId == userId && s.ProjectId == projectId)

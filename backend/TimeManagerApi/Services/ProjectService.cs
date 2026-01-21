@@ -20,13 +20,13 @@ namespace TaskManagementApi.Services
             return projects.Select(MapToDto).ToList();
         }
 
-        public async Task<List<ProjectDto>> GetUserRootProjectsAsync(int userId)
+        public async Task<List<ProjectDto>> GetUserRootProjectsAsync(Guid userId)
         {
             var projects = await _repository.GetUserRootProjectsAsync(userId);
             return projects.Select(MapToDto).ToList();
         }
 
-        public async Task<ProjectDto?> GetProjectByIdAsync(int id)
+        public async Task<ProjectDto?> GetProjectByIdAsync(Guid id)
         {
             var project = await _repository.GetProjectByIdAsync(id);
             return project == null ? null : MapToDto(project);
@@ -48,7 +48,7 @@ namespace TaskManagementApi.Services
             return MapToDto(created);
         }
 
-        public async Task<ProjectDto> UpdateProjectAsync(int id, UpdateProjectDto dto)
+        public async Task<ProjectDto> UpdateProjectAsync(Guid id, UpdateProjectDto dto)
         {
             var project = await _repository.GetProjectByIdAsync(id);
             if (project == null)
@@ -73,12 +73,12 @@ namespace TaskManagementApi.Services
             return MapToDto(updated);
         }
 
-        public async Task<bool> DeleteProjectAsync(int id)
+        public async Task<bool> DeleteProjectAsync(Guid id)
         {
             return await _repository.DeleteProjectAsync(id);
         }
 
-        public async Task<List<ProjectDto>> GetSubProjectsAsync(int parentProjectId)
+        public async Task<List<ProjectDto>> GetSubProjectsAsync(Guid parentProjectId)
         {
             var subProjects = await _repository.GetSubProjectsAsync(parentProjectId);
             return subProjects.Select(MapToDto).ToList();

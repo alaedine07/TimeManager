@@ -5,8 +5,8 @@ namespace TaskManagementApi.Models
 {
     public class TaskItem
     {
-        public int Id { get; set; }
-        public int ProjectId { get; set; }
+        public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public bool Completed { get; set; } = false;

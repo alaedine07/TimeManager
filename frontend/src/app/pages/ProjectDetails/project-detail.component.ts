@@ -407,6 +407,7 @@ export class ProjectDetailComponent implements OnInit {
 
   addsubProject(): void {
     if (this.subProjectForm.valid && this.project()) {
+
       const newSubProject: Project = {
         id: Date.now(),
         name: this.subProjectForm.value.name,
@@ -439,12 +440,13 @@ export class ProjectDetailComponent implements OnInit {
 
   addTask(): void {
     if (this.taskForm.valid && this.project()) {
-      const newTask: Task = {
-        id: Date.now(),
+      const newTask: Omit<Task, 'id'> = {
         name: this.taskForm.value.name,
         description: this.taskForm.value.description || undefined,
         completed: false,
-        dueDate: this.taskForm.value.dueDate ? new Date(this.taskForm.value.dueDate) : undefined,
+        dueDate: this.taskForm.value.dueDate
+          ? new Date(this.taskForm.value.dueDate)
+          : undefined,
         priority: this.taskForm.value.priority
       };
 

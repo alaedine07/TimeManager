@@ -16,19 +16,19 @@ namespace TaskManagementApi.Services
             _projectRepository = projectRepository;
         }
 
-        public async Task<TaskDto?> GetTaskByIdAsync(int id)
+        public async Task<TaskDto?> GetTaskByIdAsync(Guid id)
         {
             var task = await _repository.GetTaskByIdAsync(id);
             return task == null ? null : MapToDto(task);
         }
 
-        public async Task<List<TaskDto>> GetTasksByProjectIdAsync(int projectId)
+        public async Task<List<TaskDto>> GetTasksByProjectIdAsync(Guid projectId)
         {
             var tasks = await _repository.GetTasksByProjectIdAsync(projectId);
             return tasks.Select(MapToDto).ToList();
         }
 
-        public async Task<TaskDto> CreateTaskAsync(int projectId, CreateTaskDto dto)
+        public async Task<TaskDto> CreateTaskAsync(Guid projectId, CreateTaskDto dto)
         {
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
             if (project == null)
@@ -47,7 +47,7 @@ namespace TaskManagementApi.Services
             return MapToDto(created);
         }
 
-        public async Task<TaskDto> UpdateTaskAsync(int taskId, UpdateTaskDto dto)
+        public async Task<TaskDto> UpdateTaskAsync(Guid taskId, UpdateTaskDto dto)
         {
             var task = await _repository.GetTaskByIdAsync(taskId);
             if (task == null)
@@ -72,7 +72,7 @@ namespace TaskManagementApi.Services
             return MapToDto(updated);
         }
 
-        public async Task<bool> DeleteTaskAsync(int id)
+        public async Task<bool> DeleteTaskAsync(Guid id)
         {
             return await _repository.DeleteTaskAsync(id);
         }

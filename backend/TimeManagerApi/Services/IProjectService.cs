@@ -6,11 +6,11 @@ namespace TaskManagementApi.Services
     public interface IProjectService
     {
         Task<List<ProjectDto>> GetAllRootProjectsAsync();
-        Task<List<ProjectDto>> GetUserRootProjectsAsync(int userId);
-        Task<ProjectDto?> GetProjectByIdAsync(int id);
+        Task<List<ProjectDto>> GetUserRootProjectsAsync(Guid userId);
+        Task<ProjectDto?> GetProjectByIdAsync(Guid id);
         Task<ProjectDto> CreateProjectAsync(CreateProjectDto dto);
-        Task<ProjectDto> UpdateProjectAsync(int id, UpdateProjectDto dto);
-        Task<bool> DeleteProjectAsync(int id);
-        Task<List<ProjectDto>> GetSubProjectsAsync(int parentProjectId);
+        Task<ProjectDto> UpdateProjectAsync(Guid id, UpdateProjectDto dto);
+        Task<bool> DeleteProjectAsync(Guid id);
+        Task<List<ProjectDto>> GetSubProjectsAsync(Guid parentProjectId);
     }
 }

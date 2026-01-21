@@ -6,13 +6,13 @@ namespace TaskManagementApi.Models
 {
     public class Project
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string? Category { get; set; }
-        public int? ParentProjectId { get; set; }
+        public Guid? ParentProjectId { get; set; }
         public bool Completed { get; set; } = false;
-        public int ownerId { get; set; }
+        public Guid ownerId { get; set; }
 
         public string DefaultTabOnOpen { get; set; } = "tasks";
 

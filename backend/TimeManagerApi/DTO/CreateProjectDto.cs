@@ -5,9 +5,9 @@ namespace TaskManagementApi.DTOs
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public int ownerId { get; set; }
+        public Guid ownerId { get; set; }
         public string? Category { get; set; }
-        public int? ParentProjectId { get; set; }
+        public Guid? ParentProjectId { get; set; }
         public string DefaultTabOnOpen { get; set; } = "tasks";
     }
 }

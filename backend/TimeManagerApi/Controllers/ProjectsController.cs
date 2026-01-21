@@ -27,7 +27,7 @@ namespace TaskManagementApi.Controllers
         public async Task<ActionResult<List<ProjectDto>>> GetAllProjects()
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (!int.TryParse(userIdClaim, out var userId))
+            if (!Guid.TryParse(userIdClaim, out var userId))
                 return Unauthorized();
 
             var isAdmin = User.IsInRole("Admin");
@@ -41,14 +41,14 @@ namespace TaskManagementApi.Controllers
         // GET: api/projects/{id}
         [Authorize]
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProjectDto>> GetProjectById(int id)
+        public async Task<ActionResult<ProjectDto>> GetProjectById(Guid id)
         {
             var project = await _projectService.GetProjectByIdAsync(id);
             if (project == null)
                 return NotFound(new { message = $"Project with id {id} not found" });
             // ensure only owner or admin can access
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
                 return Unauthorized();
             var isAdmin = User.IsInRole("Admin");
             if (project.ownerId != userId && !isAdmin)
@@ -67,7 +67,7 @@ namespace TaskManagementApi.Controllers
 
             // extract ownerId from the authenticated user
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var ownerId))
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var ownerId))
                 return Unauthorized();
             dto.ownerId = ownerId;
             var project = await _projectService.CreateProjectAsync(dto);
@@ -77,14 +77,14 @@ namespace TaskManagementApi.Controllers
         // PUT: api/projects/{id}
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<ActionResult<ProjectDto>> UpdateProject(int id, [FromBody] UpdateProjectDto dto)
+        public async Task<ActionResult<ProjectDto>> UpdateProject(Guid id, [FromBody] UpdateProjectDto dto)
         {
             // ensure only owner or admin can update
             var existingProject = await _projectService.GetProjectByIdAsync(id);
             if (existingProject == null)
                 return NotFound(new { message = $"Project with id {id} not found" });
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
                 return Unauthorized();
             var isAdmin = User.IsInRole("Admin");
             if (existingProject.ownerId != userId && !isAdmin)
@@ -103,14 +103,14 @@ namespace TaskManagementApi.Controllers
         // DELETE: api/projects/{id}
         [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProject(int id)
+        public async Task<IActionResult> DeleteProject(Guid id)
         {
             // ensure only owner or admin can delete
             var project = await _projectService.GetProjectByIdAsync(id);
             if (project == null)
                 return NotFound(new { message = $"Project with id {id} not found" });
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
                 return Unauthorized();
             var isAdmin = User.IsInRole("Admin");
             if (project.ownerId != userId && !isAdmin)
@@ -125,7 +125,7 @@ namespace TaskManagementApi.Controllers
         // GET: api/projects/{id}/subprojects
         [Authorize]
         [HttpGet("{id}/subprojects")]
-        public async Task<ActionResult<List<ProjectDto>>> GetSubProjects(int id)
+        public async Task<ActionResult<List<ProjectDto>>> GetSubProjects(Guid id)
         {
             var subProjects = await _projectService.GetSubProjectsAsync(id);
             return Ok(subProjects);
@@ -134,14 +134,14 @@ namespace TaskManagementApi.Controllers
         // POST: api/projects/{id}/subprojects
         [Authorize]
         [HttpPost("{id}/subprojects")]
-        public async Task<ActionResult<ProjectDto>> CreateSubProject(int id, [FromBody] CreateProjectDto dto)
+        public async Task<ActionResult<ProjectDto>> CreateSubProject(Guid id, [FromBody] CreateProjectDto dto)
         {
             var parentProject = await _projectService.GetProjectByIdAsync(id);
             if (parentProject == null)
                 return NotFound(new { message = $"Parent project with id {id} not found" });
 
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
                 return Unauthorized();
             var isAdmin = User.IsInRole("Admin");
             if (parentProject.ownerId != userId && !isAdmin)
@@ -157,14 +157,14 @@ namespace TaskManagementApi.Controllers
         // PUT: api/projects/{parentId}/subprojects/{subId}
         [Authorize]
         [HttpPut("{parentId}/subprojects/{subId}")]
-        public async Task<ActionResult<ProjectDto>> UpdateSubProject(int parentId, int subId, [FromBody] UpdateProjectDto dto)
+        public async Task<ActionResult<ProjectDto>> UpdateSubProject(Guid parentId, Guid subId, [FromBody] UpdateProjectDto dto)
         {
             var parentProject = await _projectService.GetProjectByIdAsync(parentId);
             if (parentProject == null)
                 return NotFound(new { message = $"Parent project with id {parentId} not found" });
 
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
                 return Unauthorized();
             var isAdmin = User.IsInRole("Admin");
             if (parentProject.ownerId != userId && !isAdmin)
@@ -184,14 +184,14 @@ namespace TaskManagementApi.Controllers
         // DELETE: api/projects/{parentId}/subprojects/{subId}
         [Authorize]
         [HttpDelete("{parentId}/subprojects/{subId}")]
-        public async Task<IActionResult> DeleteSubProject(int parentId, int subId)
+        public async Task<IActionResult> DeleteSubProject(Guid parentId, Guid subId)
         {
             var parentProject = await _projectService.GetProjectByIdAsync(parentId);
             if (parentProject == null)
                 return NotFound(new { message = $"Parent project with id {parentId} not found" });
 
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
                 return Unauthorized();
             var isAdmin = User.IsInRole("Admin");
             if (parentProject.ownerId != userId && !isAdmin)
@@ -207,7 +207,7 @@ namespace TaskManagementApi.Controllers
         // GET: api/projects/{id}/tasks/{taskId}
         [Authorize]
         [HttpGet("{id}/tasks/{taskId}")]
-        public async Task<ActionResult<TaskDto>> GetTaskById(int id, int taskId)
+        public async Task<ActionResult<TaskDto>> GetTaskById(Guid id, Guid taskId)
         {
             var task = await _taskService.GetTaskByIdAsync(taskId);
             if (task == null)
@@ -219,13 +219,13 @@ namespace TaskManagementApi.Controllers
         // PUT: api/projects/{id}/tasks/{taskId}
         [Authorize]
         [HttpPut("{id}/tasks/{taskId}")]
-        public async Task<ActionResult<TaskDto>> UpdateTask(int id, int taskId, [FromBody] UpdateTaskDto dto)
+        public async Task<ActionResult<TaskDto>> UpdateTask(Guid id, Guid taskId, [FromBody] UpdateTaskDto dto)
         {
             var project = await _projectService.GetProjectByIdAsync(id);
             if (project == null)
                 return NotFound(new { message = $"Project with id {id} not found" });
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
                 return Unauthorized();
             var isAdmin = User.IsInRole("Admin");
             if (project.ownerId != userId && !isAdmin)
@@ -244,13 +244,13 @@ namespace TaskManagementApi.Controllers
         // DELETE: api/projects/{id}/tasks/{taskId}
         [Authorize]
         [HttpDelete("{id}/tasks/{taskId}")]
-        public async Task<IActionResult> DeleteTask(int id, int taskId)
+        public async Task<IActionResult> DeleteTask(Guid id, Guid taskId)
         {
             var project = await _projectService.GetProjectByIdAsync(id);
             if (project == null)
                 return NotFound(new { message = $"Project with id {id} not found" });
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
                 return Unauthorized();
             var isAdmin = User.IsInRole("Admin");
             if (project.ownerId != userId && !isAdmin)
@@ -264,13 +264,13 @@ namespace TaskManagementApi.Controllers
         // Post: api/projects/{id}/tasks
         [Authorize]
         [HttpPost("{id}/tasks")]
-        public async Task<ActionResult<TaskDto>> CreateTask(int id, [FromBody] CreateTaskDto dto)
+        public async Task<ActionResult<TaskDto>> CreateTask(Guid id, [FromBody] CreateTaskDto dto)
         {
             var project = await _projectService.GetProjectByIdAsync(id);
             if (project == null)
                 return NotFound(new { message = $"Project with id {id} not found" });
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
                 return Unauthorized();
             var isAdmin = User.IsInRole("Admin");
             if (project.ownerId != userId && !isAdmin)

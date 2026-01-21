@@ -24,11 +24,9 @@ namespace TimeManagerApi.Migrations.Postgres
 
             modelBuilder.Entity("TaskManagementApi.Models.Project", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Category")
                         .HasColumnType("text");
@@ -51,14 +49,14 @@ namespace TimeManagerApi.Migrations.Postgres
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ParentProjectId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("ParentProjectId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("ownerId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ownerId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -71,11 +69,9 @@ namespace TimeManagerApi.Migrations.Postgres
 
             modelBuilder.Entity("TaskManagementApi.Models.TaskItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("Completed")
                         .HasColumnType("boolean");
@@ -96,8 +92,8 @@ namespace TimeManagerApi.Migrations.Postgres
                     b.Property<string>("Priority")
                         .HasColumnType("text");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -111,26 +107,24 @@ namespace TimeManagerApi.Migrations.Postgres
 
             modelBuilder.Entity("TaskManagementApi.Models.TaskTimeSession", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("TaskId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -145,11 +139,9 @@ namespace TimeManagerApi.Migrations.Postgres
 
             modelBuilder.Entity("TaskManagementApi.Models.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

@@ -6,12 +6,12 @@ namespace TaskManagementApi.DTOs
 {
     public class ProjectDto
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string? Category { get; set; }
-        public int ownerId { get; set; }
-        public int? ParentProjectId { get; set; }
+        public Guid ownerId { get; set; }
+        public Guid? ParentProjectId { get; set; }
         public bool Completed { get; set; }
         public int TotalTasks { get; set; }
         public int CompletedTasks { get; set; }
