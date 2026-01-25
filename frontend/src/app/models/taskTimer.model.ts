@@ -1,3 +1,4 @@
+// frontend/src/app/models/taskTimer.model.ts
 export interface TaskTimer {
   taskId: string;
   elapsedTime: number;
