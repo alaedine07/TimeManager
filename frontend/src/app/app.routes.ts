@@ -3,10 +3,10 @@ import { Routes } from '@angular/router';
 import { ProjectsComponent } from './pages/projects/projects.component';
 import { ProjectDetailComponent } from './pages/ProjectDetails/project-detail.component';
 import { CreateProjectComponent } from './pages/create-project/create-project.component';
-import { AuthGuard } from './services/auth.guard';
+import { AuthGuard } from './guards/auth.guard';
 import { LoginComponent } from './pages/Login/login.component';
 import { RegisterComponent } from './pages/Register/register.component';
-import { RedirectIfAuthenticatedGuard } from './services/redirect-if-authenticated.guard';
+import { RedirectIfAuthenticatedGuard } from './guards/redirect-if-authenticated.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
