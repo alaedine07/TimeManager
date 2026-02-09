@@ -11,6 +11,11 @@ import { TimeSessionsService } from '../../services/timeSessions.service';
 import { formatTimeSpan } from '../../utils/time-format.util';
 import { TaskTimer } from '../../models/taskTimer.model';
 
+interface DurationOption {
+  label: string;
+  minutes: number;
+}
+
 @Component({
   selector: 'app-project-detail',
   standalone: true,
@@ -39,6 +44,20 @@ export class ProjectDetailComponent implements OnInit {
   // Sub-project form
   showSubProjectForm = signal(false);
   subProjectForm!: FormGroup;
+
+  // Duration selection
+  taskSelectingDuration = signal<string | null>(null);
+  selectedDuration = signal<number | null>(null);
+  durationOptions = signal<DurationOption[]>([
+    { label: 'free', minutes: 0 },
+    { label: '15m', minutes: 15 },
+    { label: '30m', minutes: 30 },
+    { label: '45m', minutes: 45 },
+    { label: '1h', minutes: 60 },
+    { label: '1.5h', minutes: 90 },
+    { label: '2h', minutes: 120 },
+    { label: '3h', minutes: 180 }
+  ]);
 
   private tickInterval: number | null = null;
 
@@ -289,20 +308,50 @@ export class ProjectDetailComponent implements OnInit {
     });
   }
 
-  toggleTaskProgress(task: Task) {
-    this.timeSessionsService.startSession(task.id).subscribe({
-      next: () => {
-        // pause the previous task if any
-        if (this.TaskCurrentlyInProgress() && this.TaskCurrentlyInProgress() !== task.id) {
-          this.pauseTaskTimer();
+  // Duration Selection Methods
+  openDurationSelector(task: Task) {
+    this.taskSelectingDuration.set(task.id);
+    this.selectedDuration.set(null);
+  }
+
+  cancelDurationSelection() {
+    this.taskSelectingDuration.set(null);
+    this.selectedDuration.set(null);
+  }
+
+  toggleTaskProgress(task: Task, durationMinutes: number) {
+    // not limit duration, user should manually pause the timer when they want to stop
+    if (durationMinutes === 0) {
+      this.timeSessionsService.startSession(task.id).subscribe({
+        next: () => {
+          // Pause the previous task if any
+          if (this.TaskCurrentlyInProgress() && this.TaskCurrentlyInProgress() !== task.id) {
+            this.pauseTaskTimer();
+          }
+          this.TaskCurrentlyInProgress.set(task.id);
+          this.startTaskTimer();
+
+          // Set up duration timer (countdown)
+          // this.setupDurationTimer(task.id, durationMinutes);
+
+          // Close the selector
+          this.cancelDurationSelection();
+        },
+        error: (err) => {
+          console.error('Failed to start time session for task', task.id, err);
         }
-        this.TaskCurrentlyInProgress.set(task.id);
-        this.startTaskTimer();
-      },
-      error: (err) => {
-        console.error('Failed to start time session for task', task.id, err);
-      }
-    });
+      });
+    }
+  }
+
+  private setupDurationTimer(taskId: string, durationMinutes: number) {
+    const durationMs = durationMinutes * 60 * 1000;
+    const sessionStartTime = Date.now();
+
+    // Store the session end time in localStorage
+    const sessionEndTimes = JSON.parse(localStorage.getItem('sessionEndTimes') || '{}');
+    sessionEndTimes[taskId] = sessionStartTime + durationMs;
+    localStorage.setItem('sessionEndTimes', JSON.stringify(sessionEndTimes));
   }
 
   pauseTaskProgress() {

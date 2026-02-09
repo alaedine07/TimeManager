@@ -230,6 +230,7 @@
                     [class.completed]="task.completed"
                     [class.active]="TaskCurrentlyInProgress() === task.id"
                     [class.toBeDeleted]="taskBeingDeleted() === task.id"
+                    [class.selecting-duration]="taskSelectingDuration() === task.id"
                   >
                     <div class="task-content">
                       <input
@@ -256,7 +257,25 @@
                       </div>
                     </div>
                     <div class="task-actions">
-                      @if (taskBeingDeleted() === task.id) {
+                      @if (taskSelectingDuration() === task.id) {
+                        <!-- Duration selection -->
+                        <div class="duration-selector">
+                          <span class="duration-label">Select duration:</span>
+                          <div class="duration-buttons">
+                            @for (duration of durationOptions(); track duration.minutes) {
+                              <button
+                                class="duration-btn"
+                                [class.selected]="selectedDuration() === duration.minutes"
+                                (click)="toggleTaskProgress(task, duration.minutes)">
+                                {{ duration.label }}
+                              </button>
+                            }
+                          </div>
+                          <button class="btn-cancel-duration" (click)="cancelDurationSelection()">
+                            ✕
+                          </button>
+                        </div>
+                      } @else if (taskBeingDeleted() === task.id) {
                         <!-- Delete confirmation buttons -->
                         <button class="btn-confirm" (click)="confirmDelete(task.id)">
                           Confirm
@@ -283,7 +302,7 @@
                         } @else {
                           <button
                             class="btn-play"
-                            (click)="toggleTaskProgress(task)">
+                            (click)="openDurationSelector(task)">
                             ▶
                           </button>
                           <button

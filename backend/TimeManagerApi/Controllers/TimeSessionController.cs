@@ -71,5 +71,17 @@ namespace TimeManagerApi.Controllers
             var totalTime = await _timeSessionService.GetTotalTimeForProjectAsync(userId, projectId);
             return Ok(totalTime);
         }
+
+        // start task with a specific duration (e.g. 25 minutes)
+        [HttpPost("start-with-duration/{taskId}")]
+        public async Task<IActionResult> StartTimeSessionWithDuration(Guid taskId, [FromQuery] int durationMinutes)
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+            Guid userId = Guid.Parse(userIdClaim.Value);
+            await _timeSessionService.StartTaskWithDurationAsync(userId, taskId, durationMinutes);
+            return Ok();
+        }
     }
 }

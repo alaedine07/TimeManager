@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using TaskManagementApi.Data;
 using TaskManagementApi.Repositories;
 using TaskManagementApi.Services;
+using Hangfire;
+using Hangfire.Storage.SQLite;
+using Hangfire.PostgreSql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,11 +19,30 @@ builder.Logging.AddConsole();
 // Add services to the container
 builder.Services.AddControllers();
 
-// Add DbContext
+// get connection string from config or environment variable
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
 ?? Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
 ?? throw new InvalidOperationException("Database connection string is not configured.");
 
+// add hangfire
+builder.Services.AddHangfire(config =>
+{
+    config.UseSimpleAssemblyNameTypeSerializer()
+          .UseRecommendedSerializerSettings();
+
+    if (builder.Environment.IsDevelopment())
+    {
+        Console.WriteLine("Hangfire using SQLite");
+        config.UseSQLiteStorage("Data Source=hangfire.db");
+    }
+    else
+    {
+        Console.WriteLine("Hangfire using PostgreSQL");
+        config.UsePostgreSqlStorage(connectionString);
+    }
+});
+
+// Add DbContext
 if (builder.Environment.IsDevelopment())
 {
     Console.WriteLine("Using SQLite");
@@ -49,6 +71,7 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITimeSessionService, TimeSessionService>();
+builder.Services.AddHangfireServer();
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -138,6 +161,11 @@ app.UseCors("AllowAngularApp");
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = [new HangfireAuthorizationFilter()]
+});
 
 app.MapControllers();
 

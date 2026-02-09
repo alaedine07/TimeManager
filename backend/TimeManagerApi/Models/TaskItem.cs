@@ -11,6 +11,7 @@ namespace TaskManagementApi.Models
         public string? Description { get; set; }
         public bool Completed { get; set; } = false;
         public string? Priority { get; set; } // "low", "medium", "high"
+        public int? PlannedDurationSeconds { get; set; }
         public DateTime? DueDate { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

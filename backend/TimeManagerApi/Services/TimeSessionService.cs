@@ -1,4 +1,5 @@
 // backend/TimeManagerApi/Services/TimeSessionService.cs
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementApi.Data;
 using TaskManagementApi.Models;
@@ -100,5 +101,12 @@ public class TimeSessionService : ITimeSessionService
             totalTime += endTime - session.StartTime;
         }
         return totalTime;
+    }
+
+    // start task with a specific duration
+    public async Task StartTaskWithDurationAsync(Guid userId, Guid taskId, int durationSeconds)
+    {
+        await StartAsync(userId, taskId);
+        var jobId = BackgroundJob.Schedule(() => PauseAsync(userId), TimeSpan.FromSeconds(durationSeconds));
     }
 }

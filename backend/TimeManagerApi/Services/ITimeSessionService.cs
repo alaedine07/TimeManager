@@ -9,4 +9,5 @@ public interface ITimeSessionService
     Task<TaskTimeSession?> GetActiveSessionAsync(Guid userId);
     Task<TimeSpan> GetTotalTimeForTaskAsync(Guid userId, Guid taskId);
     Task<TimeSpan>GetTotalTimeForProjectAsync(Guid userId, Guid projectId);
+    Task StartTaskWithDurationAsync(Guid userId, Guid taskId, int durationSeconds);
 }

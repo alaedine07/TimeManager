@@ -77,16 +77,16 @@
   margin-bottom: 30px;
 
   h1 {
-    color: #1d4ed8; /* Distinct blue for emphasis */
-    font-size: 2.5rem; /* Larger font size */
-    font-weight: 900; /* Extra bold for clarity */
+    color: #1d4ed8;
+    font-size: 2.5rem;
+    font-weight: 900;
     margin: 0 0 10px 0;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   }
 
   .project-desc {
-    color: #6b7280; /* Muted gray for description */
-    font-size: 1.1rem; /* Slightly larger font */
+    color: #6b7280;
+    font-size: 1.1rem;
     line-height: 1.6;
     margin: 0;
   }
@@ -98,25 +98,25 @@
   .progress-label {
     display: flex;
     justify-content: space-between;
-    font-size: 1rem; /* Slightly larger font */
-    color: #1e293b; /* Darker color for better contrast */
+    font-size: 1rem;
+    color: #1e293b;
     margin-bottom: 8px;
-    font-weight: 700; /* Bold text */
+    font-weight: 700;
   }
 
   .progress-bar {
-    height: 12px; /* Increased height for better visibility */
-    background: rgba(148, 163, 184, 0.2); /* Softer background */
-    border-radius: 999px; /* Fully rounded edges */
+    height: 12px;
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 999px;
     overflow: hidden;
     border: 1px solid rgba(148, 163, 184, 0.3);
 
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981); /* Modern gradient */
+      background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
       width: 0%;
       transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
-      border-radius: 999px; /* Fully rounded edges */
+      border-radius: 999px;
     }
   }
 }
@@ -202,7 +202,7 @@
 
 /* Task item styles */
 .task-item {
-  background-color: #f9fafb; /* Softer background for better contrast */
+  background-color: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 16px;
@@ -210,15 +210,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: all 0.3s ease;
 
   &.active {
     animation: pulse-bg 2s infinite;
-    border-radius: 8px;
   }
 
   &.completed {
-    background-color: #e7f5e9; /* Background for completed tasks */
+    background-color: #e7f5e9;
     border-color: #4caf50;
     opacity: 0.8;
     .task-content {
@@ -228,8 +227,14 @@
 
   &.toBeDeleted {
     opacity: 0.6;
-    background-color: #fef2f2; /* Light red background to indicate deletion */
+    background-color: #fef2f2;
     border-color: #f87171;
+  }
+
+  &.selecting-duration {
+    background-color: #f0f7ff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
   }
 }
 
@@ -247,7 +252,7 @@
 }
 
 .btn-confirm {
-  background: #ef4444; /* Red for confirm delete */
+  background: #ef4444;
   color: white;
 
   &:hover {
@@ -258,7 +263,7 @@
 }
 
 .btn-cancel {
-  background: #6b7280; /* Gray for cancel */
+  background: #6b7280;
   color: white;
 
   &:hover {
@@ -288,22 +293,22 @@
 
   h3 {
     margin: 0;
-    font-size: 1.1rem; /* Slightly larger font for better readability */
+    font-size: 1.1rem;
     font-weight: 600;
-    color: #1f2937; /* Darker color for better contrast */
-    font-family: 'Inter', sans-serif; /* Modern and clean font */
+    color: #1f2937;
+    font-family: 'Inter', sans-serif;
   }
 
   p {
     margin: 4px 0 0;
     font-size: 0.95rem;
-    color: #4b5563; /* Softer gray for descriptions */
+    color: #4b5563;
     font-family: 'Inter', sans-serif;
   }
 
   .due-date {
     font-size: 0.85rem;
-    color: #6b7280; /* Muted gray for due dates */
+    color: #6b7280;
   }
 
   .task-priority {
@@ -316,40 +321,39 @@
     color: #fff;
 
     &.priority-low {
-      background-color: #10b981; /* Green for low priority */
+      background-color: #10b981;
     }
 
     &.priority-medium {
-      background-color: #f59e0b; /* Yellow for medium priority */
+      background-color: #f59e0b;
     }
 
     &.priority-high {
-      background-color: #ef4444; /* Red for high priority */
+      background-color: #ef4444;
     }
   }
 
   .task-time-worked {
     margin-top: 12px;
-    font-size: 1rem; /* Increased font size for better visibility */
-    color: #1d4ed8; /* Distinct blue color to draw attention */
-    font-weight: 600; /* Bold text for emphasis */
+    font-size: 1rem;
+    color: #1d4ed8;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 8px; /* Space between icon and text */
+    gap: 8px;
 
     .time-label {
-      font-weight: 700; /* Stronger emphasis on the label */
-      color: #2563eb; /* Slightly lighter blue for contrast */
+      font-weight: 700;
+      color: #2563eb;
     }
 
     .time-value {
       font-weight: 700;
-      color: #3b82f6; /* Bright blue for the value */
+      color: #3b82f6;
     }
 
-    /* Optional: Add an icon for better visual cue */
     &::before {
-      content: '\1F551'; /* Clock emoji as an icon */
+      content: '\1F551';
       font-size: 1.2rem;
       color: #2563eb;
     }
@@ -362,6 +366,8 @@
   align-items: center;
   gap: 8px;
   transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  flex-wrap: wrap;
+  justify-content: flex-end;
 
   button {
     animation: fadeInScale 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -438,6 +444,123 @@
       transform: scale(0.95);
     }
   }
+
+  .btn-edit {
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      background: #2563eb;
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+// ===== DURATION SELECTOR STYLES =====
+.duration-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 12px 8px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(3, 102, 214, 0.05) 100%);
+  border-radius: 6px;
+  animation: slideInDuration 300ms ease-out;
+
+  .duration-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1f2937;
+    white-space: nowrap;
+  }
+
+  .duration-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .duration-btn {
+    padding: 6px 12px;
+    border: 1.5px solid #3b82f6;
+    background: white;
+    color: #3b82f6;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 200ms ease;
+    white-space: nowrap;
+
+    &:hover {
+      background: #eff6ff;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+    }
+
+    &.selected {
+      background: #3b82f6;
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .btn-cancel-duration {
+    padding: 6px 12px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 200ms ease;
+    white-space: nowrap;
+
+    &:hover {
+      background: #dc2626;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.2);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+@keyframes slideInDuration {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    max-height: 100px;
+    transform: translateY(0);
+  }
 }
 
 .task-item.editing {
@@ -448,7 +571,6 @@
   animation: smoothExpand 400ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
 
-// Smooth expand animation - slower and more graceful
 @keyframes smoothExpand {
   from {
     opacity: 0;
@@ -464,7 +586,6 @@
   }
 }
 
-// Form transitions
 .task-edit-form {
   display: flex;
   flex-direction: column;
@@ -478,7 +599,6 @@
   animation: fadeInUp 500ms ease-out 100ms backwards;
 }
 
-// Staggered fade-in for form elements
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -490,7 +610,6 @@
   }
 }
 
-// Smooth collapse when exiting edit mode
 .task-item.editing.closing {
   animation: smoothCollapse 300ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
@@ -510,7 +629,6 @@
   }
 }
 
-// Form input focus animations - smooth transitions
 .form-group {
   display: flex;
   flex-direction: column;
@@ -560,7 +678,6 @@
   }
 }
 
-// Shake animation for invalid fields
 @keyframes shake {
   0%, 100% {
     transform: translateX(0);
@@ -573,7 +690,6 @@
   }
 }
 
-// Slide down animation for error messages
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -585,58 +701,6 @@
   }
 }
 
-// Checkbox animations
-.checkbox-group {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  color: #cbd5e1;
-  font-weight: 500;
-  margin: 0;
-  transition: color 250ms ease;
-
-  &:hover {
-    color: #e2e8f0;
-  }
-
-  .checkbox-input {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: #3b82f6;
-    transition: transform 200ms ease;
-
-    &:hover {
-      transform: scale(1.1);
-    }
-
-    &:checked {
-      animation: checkBounce 300ms ease-out;
-    }
-  }
-}
-
-// Bounce animation for checkbox
-@keyframes checkBounce {
-  0% {
-    transform: scale(0.8);
-  }
-  50% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-// Form action buttons animation
 .edit-form-actions {
   display: flex;
   gap: 10px;
@@ -646,7 +710,6 @@
   animation: fadeInUp 500ms ease-out 200ms backwards;
 }
 
-// Smooth button transitions
 .btn {
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -697,89 +760,82 @@
   }
 }
 
-// Edit button smooth transitions
-.btn-edit {
-  background: #3b82f6;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 1rem;
-  cursor: pointer;
+.total-time-worked {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: #2563eb;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 8px;
 
-  &:hover {
-    background: #2563eb;
-    transform: scale(1.1) rotate(10deg);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  .time-label {
+    font-weight: 800;
+    color: #1e40af;
   }
 
-  &:active {
-    transform: scale(0.95);
+  .time-value {
+    font-weight: 800;
+    color: #3b82f6;
+  }
+
+  &::before {
+    content: '\1F551';
+    font-size: 1.5rem;
+    color: #2563eb;
   }
 }
 
-// Smooth transitions for task item state changes
-.task-item {
-  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+.task-time-worked {
+  margin-top: 12px;
+  font-size: 1rem;
+  color: #1d4ed8;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
-  &.completed {
-    animation: completeTask 400ms ease-out;
+  .time-label {
+    font-weight: 700;
+    color: #2563eb;
   }
 
-  &.active {
-    animation: pulse-bg 2s infinite;
+  .time-value {
+    font-weight: 700;
+    color: #3b82f6;
+  }
+
+  &::before {
+    content: '\1F551';
+    font-size: 1.2rem;
+    color: #2563eb;
   }
 }
 
-@keyframes completeTask {
-  from {
-    opacity: 1;
-    background-color: #f9fafb;
+.subproject-time-worked {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .time-label {
+    font-weight: 500;
+    color: #cbd5e1;
   }
-  to {
-    opacity: 0.8;
-    background-color: #e7f5e9;
+
+  .time-value {
+    font-weight: 600;
+    color: #60a5fa;
   }
 }
 
-@keyframes pulse-bg {
-  0% {
-    background-color: #e0f7fa;
-  }
-  50% {
-    background-color: #b2ebf2;
-  }
-  100% {
-    background-color: #e0f7fa;
-  }
-}
-
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes pulse-bg {
-  0% {
-    background-color: #e0f7fa; /* light cyan */
-  }
-  50% {
-    background-color: #b2ebf2; /* slightly darker cyan */
-  }
-  100% {
-    background-color: #e0f7fa; /* back to initial color */
-  }
+.task-timer {
+  margin-top: 8px;
+  font-size: 1rem;
+  color: #2563eb;
+  font-weight: 600;
 }
 
 // Sub-Projects
@@ -844,7 +900,6 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    line-clamp: 2; /* Added standard property for compatibility */
   }
 }
 
@@ -855,8 +910,6 @@
   transition: color 200ms ease;
   margin-top: auto;
 }
-
-// ===== EXPANDABLE TASK FORM STYLES =====
 
 // Task Form Container
 .task-form-container {
@@ -884,7 +937,6 @@
   border: 1px solid rgba(148, 163, 184, 0.1);
 }
 
-// Form Row (for horizontal layout)
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -892,9 +944,8 @@
   margin-bottom: 16px;
 }
 
-// Form Groups
-.form-group {
-  margin-bottom: 0;
+.task-form .form-group {
+  margin-bottom: 16px;
 
   label {
     display: block;
@@ -903,10 +954,6 @@
     color: #cbd5e1;
     font-size: 0.95rem;
   }
-}
-
-.task-form .form-group {
-  margin-bottom: 16px;
 }
 
 .form-input {
@@ -941,7 +988,6 @@ textarea.form-input {
   min-height: 80px;
 }
 
-// Error Text
 .error-text {
   display: block;
   color: #fca5a5;
@@ -949,7 +995,6 @@ textarea.form-input {
   margin-top: 6px;
 }
 
-// Form Actions
 .form-actions {
   display: flex;
   gap: 12px;
@@ -959,142 +1004,38 @@ textarea.form-input {
   border-top: 1px solid rgba(148, 163, 184, 0.1);
 }
 
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
-
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+@keyframes completeTask {
+  from {
+    opacity: 1;
+    background-color: #f9fafb;
   }
-
-  &:disabled {
-    background: rgba(148, 163, 184, 0.2);
-    cursor: not-allowed;
-    opacity: 0.5;
+  to {
+    opacity: 0.8;
+    background-color: #e7f5e9;
   }
 }
 
-.btn-secondary {
-  background: rgba(148, 163, 184, 0.1);
-  color: #cbd5e1;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-
-  &:hover {
-    background: rgba(148, 163, 184, 0.15);
-    border-color: rgba(148, 163, 184, 0.3);
+@keyframes pulse-bg {
+  0% {
+    background-color: #e0f7fa;
+  }
+  50% {
+    background-color: #b2ebf2;
+  }
+  100% {
+    background-color: #e0f7fa;
   }
 }
 
-.btn-play {
-  background: #10b981;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  font-size: 1.1rem;
-  margin-right: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-
-  &:hover {
-    background: #059669;
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
   }
-}
-
-.total-time-worked {
-  margin-bottom: 20px;
-  font-size: 1.2rem; /* Increased font size */
-  color: #2563eb; /* Bright blue for visibility */
-  font-weight: 700; /* Bold text */
-  display: flex;
-  align-items: center;
-  gap: 8px; /* Space between icon and text */
-
-  .time-label {
-    font-weight: 800; /* Stronger emphasis on the label */
-    color: #1e40af; /* Darker blue for contrast */
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
-
-  .time-value {
-    font-weight: 800;
-    color: #3b82f6; /* Bright blue for the value */
-  }
-
-  /* Optional: Add an icon for better visual cue */
-  &::before {
-    content: '\1F551'; /* Clock emoji as an icon */
-    font-size: 1.5rem;
-    color: #2563eb;
-  }
-}
-
-.task-time-worked {
-  margin-top: 12px;
-  font-size: 1rem; /* Increased font size for better visibility */
-  color: #1d4ed8; /* Distinct blue color to draw attention */
-  font-weight: 600; /* Bold text for emphasis */
-  display: flex;
-  align-items: center;
-  gap: 8px; /* Space between icon and text */
-
-  .time-label {
-    font-weight: 700; /* Stronger emphasis on the label */
-    color: #2563eb; /* Slightly lighter blue for contrast */
-  }
-
-  .time-value {
-    font-weight: 700;
-    color: #3b82f6; /* Bright blue for the value */
-  }
-
-  /* Optional: Add an icon for better visual cue */
-  &::before {
-    content: '\1F551'; /* Clock emoji as an icon */
-    font-size: 1.2rem;
-    color: #2563eb;
-  }
-}
-
-.subproject-time-worked {
-  margin-top: 8px;
-  font-size: 0.9rem;
-  color: #94a3b8;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .time-label {
-    font-weight: 500;
-    color: #cbd5e1;
-  }
-
-  .time-value {
-    font-weight: 600;
-    color: #60a5fa;
-  }
-}
-
-.task-timer {
-  margin-top: 8px;
-  font-size: 1rem;
-  color: #2563eb; /* Bright blue for visibility */
-  font-weight: 600;
 }
 
 // ===== RESPONSIVE =====
@@ -1124,6 +1065,12 @@ textarea.form-input {
   .task-item {
     flex-direction: column;
     align-items: flex-start;
+
+    &.selecting-duration {
+      .task-actions {
+        width: 100%;
+      }
+    }
   }
 
   .task-actions {
@@ -1131,8 +1078,12 @@ textarea.form-input {
     justify-content: flex-end;
   }
 
-  .modal-dialog {
-    width: 95%;
+  .duration-selector {
+    justify-content: space-between;
+
+    .duration-buttons {
+      flex: 1;
+    }
   }
 
   .form-actions {
@@ -1164,5 +1115,31 @@ textarea.form-input {
   .tab {
     font-size: 0.9rem;
     padding: 10px 12px;
+  }
+
+  .duration-selector {
+    flex-direction: column;
+    align-items: stretch;
+
+    .duration-label {
+      margin-bottom: 8px;
+    }
+
+    .duration-buttons {
+      width: 100%;
+    }
+
+    .btn-cancel-duration {
+      width: 100%;
+    }
+  }
+
+  .task-actions {
+    flex-direction: column;
+    gap: 8px;
+
+    > button {
+      width: 100%;
+    }
   }
 }
