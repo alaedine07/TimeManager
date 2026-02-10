@@ -8,6 +8,7 @@ export interface Project {
   category?: string;
   parentProjectId?: string; // null for root projects, id for sub-projects
   completed?: boolean;
+  archived?: boolean;
   tasks?: Task[];
   subProjects?: Project[];
   totalTasks?: number;
