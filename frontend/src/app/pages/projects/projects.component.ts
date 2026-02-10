@@ -152,7 +152,7 @@ export class ProjectsComponent implements OnInit {
     });
   }
 
-  toggleProjectComplete(event: Event, project: Project) {
+  toggleProjectComplete(project: Project) {
     const completed = !project.completed;
     this.projectService.updateProject(project.id, { completed }).subscribe({
       next: (updated) => {
@@ -168,7 +168,7 @@ export class ProjectsComponent implements OnInit {
     });
   }
 
-  archiveProject(event: Event, project: Project) {
+  archiveProject(project: Project) {
     if (confirm(`Archive "${project.name}"?`)) {
       console.log('Archive project:', project);
       alert('Archive functionality coming soon!');

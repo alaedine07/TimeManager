@@ -384,15 +384,76 @@
           } @else {
             <div class="subprojects-list">
               @for (subProject of project()!.subProjects ?? []; track subProject.id) {
-                <a [routerLink]="['/projects', subProject.id]" class="subproject-card">
-                  <h3>{{ subProject.name }}</h3>
-                  <p>{{ subProject.description }}</p>
-                  <div class="subproject-time-worked">
-                    <span class="time-label">Total Time Worked:</span>
-                    <span class="time-value">{{ subProjectTotalTimes()[subProject.id] || '0h 0m' }}</span>
+                @if (subProjectBeingDeleted() === subProject.id) {
+                  <!-- DELETE CONFIRMATION -->
+                  <div class="subproject-card deleting">
+                    <div class="delete-confirmation">
+                      <div class="confirmation-content">
+                        <h4>Delete "{{ subProject.name }}"?</h4>
+                        <p>This action cannot be undone.</p>
+                      </div>
+                      <div class="confirmation-actions">
+                        <button class="btn-confirm" (click)="confirmDeleteSubProject(subProject.id)">
+                          Delete
+                        </button>
+                        <button class="btn-cancel" (click)="cancelDeleteSubProject()">
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <span class="view-link">View →</span>
-                </a>
+                } @else {
+                  <!-- VIEW MODE -->
+                  <div class="subproject-card" [class.completed]="subProject.completed" [class.archived]="subProject.archived">
+                    <div class="subproject-header">
+                      <div class="subproject-title-section">
+                        <div class="subproject-info">
+                          <h3>{{ subProject.name }}</h3>
+                          @if (subProject.archived) {
+                            <span class="archived-badge">Archived</span>
+                          }
+                        </div>
+                      </div>
+                      <button class="btn-actions-menu" (click)="toggleSubProjectActions(subProject.id)" title="More options">
+                        ⋮
+                      </button>
+                    </div>
+
+                    <!-- Actions Dropdown -->
+                    @if (subProjectActionsOpen() === subProject.id) {
+                      <div class="actions-dropdown">
+                        <button
+                          class="action-item complete"
+                          [title]="subProject.completed ? 'Mark as Incomplete' : 'Mark as Completed'">
+                          <span class="icon">{{ subProject.completed ? '↩' : '✓' }}</span>
+                          {{ subProject.completed ? 'Mark as Incomplete' : 'Mark as Completed' }}
+                        </button>
+                        <button class="action-item edit">
+                          <span class="icon">✎</span>
+                          Edit
+                        </button>
+                        <button
+                          class="action-item archive"
+                          [title]="subProject.archived ? 'Unarchive' : 'Archive'">
+                          <span class="icon">{{ subProject.archived ? '↩ Unarchive' : '📦 Archive' }}</span>
+                        </button>
+                        <button class="action-item delete" (click)="startDeleteSubProject(subProject.id)">
+                          <span class="icon">×</span>
+                          Delete
+                        </button>
+                      </div>
+                    }
+
+                    <p class="subproject-description">{{ subProject.description }}</p>
+
+                    <div class="subproject-time-worked">
+                      <span class="time-label">Total Time Worked:</span>
+                      <span class="time-value">{{ subProjectTotalTimes()[subProject.id] || '0h 0m' }}</span>
+                    </div>
+
+                    <a [routerLink]="['/projects', subProject.id]" class="view-link">View →</a>
+                  </div>
+                }
               }
             </div>
           }

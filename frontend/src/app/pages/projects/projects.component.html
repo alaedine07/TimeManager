@@ -230,13 +230,13 @@
             } @else {
               <!-- Normal Actions -->
               <div class="project-actions">
-                <button class="action-btn complete" (click)="toggleProjectComplete($event, project)" title="Mark as complete">
+                <button class="action-btn complete" (click)="toggleProjectComplete(project)" title="Mark as complete">
                   <span class="icon">✓</span>
                 </button>
                 <button class="action-btn edit" (click)="startEditProject($event, project)" title="Edit">
                   <span class="icon">✎</span>
                 </button>
-                <button class="action-btn archive" (click)="archiveProject($event, project)" title="Archive">
+                <button class="action-btn archive" (click)="archiveProject(project)" title="Archive">
                   <span class="icon">📦</span>
                 </button>
                 <button class="action-btn delete" (click)="initiateDeleteProject($event, project)" title="Delete">

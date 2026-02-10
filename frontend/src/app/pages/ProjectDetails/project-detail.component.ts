@@ -30,6 +30,10 @@ export class ProjectDetailComponent implements OnInit {
   taskBeingDeleted = signal<string | null>(null);
   taskTimers = signal<{ [taskId: string]: number }>({});
 
+  // Sub-project management
+  subProjectBeingDeleted = signal<string | null>(null);
+  subProjectActionsOpen = signal<string | null>(null);
+
   // Task form
   showTaskForm = signal(false);
   editingTaskId = signal<string | null>(null);
@@ -435,6 +439,39 @@ export class ProjectDetailComponent implements OnInit {
         }
       });
     }
+  }
+
+  toggleSubProjectActions(subProjectId: string) {
+    this.subProjectActionsOpen.set(
+      this.subProjectActionsOpen() === subProjectId ? null : subProjectId
+    );
+  }
+
+  startDeleteSubProject(subProjectId: string) {
+    this.subProjectBeingDeleted.set(subProjectId);
+    this.subProjectActionsOpen.set(null);
+  }
+
+  confirmDeleteSubProject(subProjectId: string) {
+    this.deleteSubProject(subProjectId);
+    this.subProjectBeingDeleted.set(null);
+  }
+
+  cancelDeleteSubProject() {
+    this.subProjectBeingDeleted.set(null);
+  }
+
+  deleteSubProject(subProjectId: string) {
+    this.projectService.deleteProject(subProjectId).subscribe({
+      next: () => {
+        const proj = this.project();
+        if (proj && proj.subProjects) {
+          proj.subProjects = proj.subProjects.filter(sp => sp.id !== subProjectId);
+          this.project.set({ ...proj });
+        }
+      },
+      error: (err) => console.error('Failed to delete sub-project', err)
+    });
   }
 
   addTask(): void {
