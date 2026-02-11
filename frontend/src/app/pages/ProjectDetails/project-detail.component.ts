@@ -33,6 +33,7 @@ export class ProjectDetailComponent implements OnInit {
   // Sub-project management
   subProjectBeingDeleted = signal<string | null>(null);
   subProjectActionsOpen = signal<string | null>(null);
+  editingSubProjectId = signal<string | null>(null);
 
   // Task form
   showTaskForm = signal(false);
@@ -43,6 +44,7 @@ export class ProjectDetailComponent implements OnInit {
   // Sub-project form
   showSubProjectForm = signal(false);
   subProjectForm!: FormGroup;
+  editSubProjectForm!: FormGroup;
 
   private tickInterval: number | null = null;
 
@@ -108,17 +110,18 @@ export class ProjectDetailComponent implements OnInit {
       priority: ['medium'],
       dueDate: ['']
     });
-    this.editTaskForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
-      priority: ['medium'],
-      dueDate: [''],
-      completed: [false]
-    });
   }
 
   initializeSubProjectForm(): void {
     this.subProjectForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      defaultTabOnOpen: ['tasks']
+    });
+  }
+
+  initializeEditSubProjectForm(): void {
+    this.editSubProjectForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
       defaultTabOnOpen: ['tasks']
@@ -504,6 +507,52 @@ export class ProjectDetailComponent implements OnInit {
       });
     }
   }
+
+  startEditSubProject(subProject: Project) {
+  this.editingSubProjectId.set(subProject.id);
+  this.initializeEditSubProjectForm();
+  this.editSubProjectForm.patchValue({
+    name: subProject.name,
+    description: subProject.description || '',
+    defaultTabOnOpen: subProject.defaultTabOnOpen || 'tasks'
+  });
+}
+
+saveEditSubProject() {
+  if (!this.editSubProjectForm.valid) return;
+
+  const subProjectId = this.editingSubProjectId();
+  if (!subProjectId) return;
+
+  const updates = {
+    name: this.editSubProjectForm.value.name,
+    description: this.editSubProjectForm.value.description || '',
+    defaultTabOnOpen: this.editSubProjectForm.value.defaultTabOnOpen
+  };
+
+  this.projectService.updateProject(subProjectId, updates).subscribe({
+    next: (updatedSubProject) => {
+      const proj = this.project();
+      if (proj && proj.subProjects) {
+        const index = proj.subProjects.findIndex(sp => sp.id === subProjectId);
+        if (index !== -1) {
+          proj.subProjects[index] = updatedSubProject;
+          this.project.set({ ...proj });
+        }
+      }
+      this.cancelEditSubProject();
+    },
+    error: (err) => {
+      console.error('Failed to update sub-project', err);
+      this.error.set('Failed to update sub-project');
+    }
+  });
+}
+
+cancelEditSubProject() {
+  this.editingSubProjectId.set(null);
+  this.editSubProjectForm.reset();
+}
 
   getProgressPercentage(): number {
     const proj = this.project();

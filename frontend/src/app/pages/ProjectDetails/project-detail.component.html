@@ -384,7 +384,58 @@
           } @else {
             <div class="subprojects-list">
               @for (subProject of project()!.subProjects ?? []; track subProject.id) {
-                @if (subProjectBeingDeleted() === subProject.id) {
+                @if (editingSubProjectId() === subProject.id) {
+                  <!-- EDIT MODE -->
+                  <div class="subproject-card editing">
+                    <form [formGroup]="editSubProjectForm" (ngSubmit)="saveEditSubProject()" class="subproject-edit-form">
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label for="editSubProjectName">Project name *</label>
+                          <input
+                            id="editSubProjectName"
+                            type="text"
+                            formControlName="name"
+                            placeholder="Enter project name"
+                            class="form-input"
+                            autofocus>
+                          @if (editSubProjectForm.get('name')?.invalid && editSubProjectForm.get('name')?.touched) {
+                            <span class="error-text">
+                              @if (editSubProjectForm.get('name')?.errors?.['required']) {
+                                Project name is required
+                              } @else if (editSubProjectForm.get('name')?.errors?.['minlength']) {
+                                Project name must be at least 3 characters
+                              }
+                            </span>
+                          }
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="editSubProjectType">Default tab when open</label>
+                        <select id="editSubProjectType" formControlName="defaultTabOnOpen" class="form-input">
+                          <option value="tasks">Tasks</option>
+                          <option value="subprojects">Sub Projects</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="editSubProjectDesc">Description</label>
+                        <textarea
+                          id="editSubProjectDesc"
+                          formControlName="description"
+                          placeholder="Add project description"
+                          rows="3"
+                          class="form-input"></textarea>
+                      </div>
+                      <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" (click)="cancelEditSubProject()">
+                          Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" [disabled]="editSubProjectForm.invalid">
+                          Save Changes
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                } @else if (subProjectBeingDeleted() === subProject.id) {
                   <!-- DELETE CONFIRMATION -->
                   <div class="subproject-card deleting">
                     <div class="delete-confirmation">
@@ -428,7 +479,7 @@
                           <span class="icon">{{ subProject.completed ? '↩' : '✓' }}</span>
                           {{ subProject.completed ? 'Mark as Incomplete' : 'Mark as Completed' }}
                         </button>
-                        <button class="action-item edit">
+                        <button class="action-item edit" (click)="startEditSubProject(subProject)">
                           <span class="icon">✎</span>
                           Edit
                         </button>
