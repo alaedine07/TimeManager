@@ -541,6 +541,7 @@ saveEditSubProject() {
         }
       }
       this.cancelEditSubProject();
+      this.subProjectActionsOpen.set(null);
     },
     error: (err) => {
       console.error('Failed to update sub-project', err);
@@ -549,10 +550,11 @@ saveEditSubProject() {
   });
 }
 
-cancelEditSubProject() {
-  this.editingSubProjectId.set(null);
-  this.editSubProjectForm.reset();
-}
+  cancelEditSubProject() {
+    this.editingSubProjectId.set(null);
+    this.editSubProjectForm.reset();
+    this.subProjectActionsOpen.set(null);
+  }
 
   getProgressPercentage(): number {
     const proj = this.project();
