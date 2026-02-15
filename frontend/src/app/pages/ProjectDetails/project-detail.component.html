@@ -160,7 +160,7 @@
             <p class="empty-state">No tasks yet. Create one to get started!</p>
           } @else {
             <div class="tasks-list">
-              @for (task of project()!.tasks ?? []; track task.id) {
+              @for (task of getTasksSortedByCompletion(); track task.id) {
                 @if (editingTaskId() === task.id) {
                   <!-- EDIT MODE -->
                   <div class="task-item editing">

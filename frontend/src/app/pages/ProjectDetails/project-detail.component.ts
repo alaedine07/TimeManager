@@ -566,6 +566,12 @@ saveEditSubProject() {
     this.activeTab.set(tab);
   }
 
+  /** Returns tasks with incomplete first, completed (done) at the bottom. */
+  getTasksSortedByCompletion(): Task[] {
+    const tasks = this.project()?.tasks ?? [];
+    return [...tasks].sort((a, b) => (a.completed === b.completed) ? 0 : (a.completed ? 1 : -1));
+  }
+
   getSubProjectCount(): number {
     return this.project()?.subProjects?.length || 0;
   }

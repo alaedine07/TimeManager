@@ -226,10 +226,49 @@
     }
   }
 
+  /* Smooth "move to bottom" when marking task done */
+  &.completing {
+    animation: taskCompletingOut 0.38s ease-out forwards;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  &.just-appeared {
+    animation: taskAppearAtBottom 0.28s ease-out;
+  }
+
   &.toBeDeleted {
     opacity: 0.6;
     background-color: #fef2f2;
     border-color: #f87171;
+  }
+}
+
+@keyframes taskCompletingOut {
+  from {
+    max-height: 280px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-width: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes taskAppearAtBottom {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 0.8;
+    transform: translateY(0);
   }
 }
 
