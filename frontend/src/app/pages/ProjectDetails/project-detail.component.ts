@@ -5,8 +5,10 @@ import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project.service';
+import { CheckpointService } from '../../services/checkpoint.service';
 import { Project } from '../../models/project.model';
 import { Task } from '../../models/task.model';
+import { Checkpoint } from '../../models/task.model';
 import { TimeSessionsService } from '../../services/timeSessions.service';
 import { formatTimeSpan } from '../../utils/time-format.util';
 import { TaskTimer } from '../../models/taskTimer.model';
@@ -46,16 +48,34 @@ export class ProjectDetailComponent implements OnInit {
   subProjectForm!: FormGroup;
   editSubProjectForm!: FormGroup;
 
+  // Checkpoints
+  checkpointsOpen = signal<string | null>(null);
+  showCheckpointForm = signal<string | null>(null);
+  editingCheckpoint = signal<{ taskId: string; cpId: string } | null>(null);
+  checkpointForm!: FormGroup;
+  editCheckpointForm!: FormGroup;
+
   private tickInterval: number | null = null;
 
   constructor(
     private projectService: ProjectService,
+    private checkpointService: CheckpointService,
     private route: ActivatedRoute,
     private location: Location,
     private fb: FormBuilder,
     private timeSessionsService: TimeSessionsService,
   ) {
     this.initializeForm();
+    this.initializeCheckpointForms();
+  }
+
+  initializeCheckpointForms() {
+    this.checkpointForm = this.fb.group({
+      name: ['', Validators.required]
+    });
+    this.editCheckpointForm = this.fb.group({
+      name: ['', Validators.required]
+    });
   }
 
   ngOnInit() {
@@ -147,12 +167,34 @@ export class ProjectDetailComponent implements OnInit {
       this.loadTaskTotalTimes(data.tasks ?? []);
       this.loadSubProjectTotalTimes(data.subProjects ?? []);
       this.setActiveTab(data.defaultTabOnOpen || 'tasks');
+      // Load checkpoints for tasks
+      data.tasks?.forEach(task => {
+        this.loadCheckpoints(task.id);
+      });
       },
       error: (err) => {
         console.error('Error loading project:', err);
         this.error.set('Failed to load project');
         this.loading.set(false);
       }
+    });
+  }
+
+  loadCheckpoints(taskId: string) {
+    const projectId = this.project()?.id;
+    if (!projectId) return;
+    this.checkpointService.getCheckpoints(projectId, taskId).subscribe({
+      next: (checkpoints) => {
+        const proj = this.project();
+        if (proj && proj.tasks) {
+          const task: any = proj.tasks.find(t => t.id === taskId);
+          if (task) {
+            task.checkpoints = checkpoints;
+            this.project.set({ ...proj } as Project);
+          }
+        }
+      },
+      error: (err) => console.error('Failed to load checkpoints for task ' + taskId, err)
     });
   }
 
@@ -224,7 +266,7 @@ export class ProjectDetailComponent implements OnInit {
         const index = proj.tasks.findIndex(t => t.id === taskId);
         if (index !== -1) {
           proj.tasks[index] = updatedTask;
-          this.project.set({ ...proj });
+          this.project.set({ ...proj } as Project);
         }
       }
       this.cancelEditTask();
@@ -272,7 +314,7 @@ export class ProjectDetailComponent implements OnInit {
           const index = proj.tasks.findIndex(t => t.id === task.id);
           if (index !== -1) {
             proj.tasks[index] = updatedTask;
-            this.project.set({ ...proj });
+            this.project.set({ ...proj } as Project);
           }
         }
       },
@@ -382,7 +424,7 @@ export class ProjectDetailComponent implements OnInit {
         const proj = this.project();
         if (proj && proj.tasks) {
           proj.tasks = proj.tasks.filter(t => t.id !== taskId);
-          this.project.set({ ...proj });
+          this.project.set({ ...proj } as Project);
         }
         const stored = localStorage.getItem('taskTimers');
         if (stored) {
@@ -431,7 +473,7 @@ export class ProjectDetailComponent implements OnInit {
           const proj = this.project();
           if (proj && proj.subProjects) {
             proj.subProjects.push(createdSubProject);
-            this.project.set({ ...proj });
+            this.project.set({ ...proj } as Project);
           }
           this.toggleSubProjectForm();
           this.initializeForm();
@@ -470,7 +512,7 @@ export class ProjectDetailComponent implements OnInit {
         const proj = this.project();
         if (proj && proj.subProjects) {
           proj.subProjects = proj.subProjects.filter(sp => sp.id !== subProjectId);
-          this.project.set({ ...proj });
+          this.project.set({ ...proj } as Project);
         }
       },
       error: (err) => console.error('Failed to delete sub-project', err)
@@ -491,11 +533,12 @@ export class ProjectDetailComponent implements OnInit {
 
       // Add task via service
       this.projectService.addTask(this.project()!.id, newTask).subscribe({
-        next: (createdTask) => {
+        next: (createdTask: any) => {
+          createdTask.checkpoints = [];
           const proj = this.project();
           if (proj && proj.tasks) {
             proj.tasks.push(createdTask);
-            this.project.set({ ...proj });
+            this.project.set({ ...proj } as Project);
           }
           this.toggleTaskForm();
           this.initializeForm();
@@ -537,7 +580,7 @@ saveEditSubProject() {
         const index = proj.subProjects.findIndex(sp => sp.id === subProjectId);
         if (index !== -1) {
           proj.subProjects[index] = updatedSubProject;
-          this.project.set({ ...proj });
+          this.project.set({ ...proj } as Project);
         }
       }
       this.cancelEditSubProject();
@@ -578,5 +621,125 @@ saveEditSubProject() {
 
   goBack(): void {
     this.location.back();
+  }
+
+  toggleCheckpoints(taskId: string) {
+    this.checkpointsOpen.set(this.checkpointsOpen() === taskId ? null : taskId);
+  }
+
+  toggleCheckpointForm(taskId: string) {
+    this.showCheckpointForm.set(this.showCheckpointForm() === taskId ? null : taskId);
+    if (this.showCheckpointForm() === taskId) {
+      this.checkpointForm.reset();
+    }
+  }
+
+  addCheckpoint(taskId: string) {
+    if (!this.checkpointForm.valid) return;
+
+    const projectId = this.project()?.id;
+    if (!projectId) return;
+
+    const newCp = {
+      name: this.checkpointForm.value.name,
+      completed: false
+    };
+
+    this.checkpointService.addCheckpoint(projectId, taskId, newCp).subscribe({
+      next: (created) => {
+        const proj = this.project();
+        const task: any = proj?.tasks?.find(t => t.id === taskId);
+        if (task) {
+          if (!task.checkpoints) task.checkpoints = [];
+          task.checkpoints.push(created);
+          this.project.set({ ...proj } as Project);
+        }
+        this.checkpointForm.reset();
+        this.showCheckpointForm.set(null);
+      },
+      error: (err) => {
+        console.error('Failed to add checkpoint', err);
+      }
+    });
+  }
+
+  toggleCheckpointCompletion(taskId: string, cpId: string) {
+    const proj = this.project();
+    if (!proj) return;
+
+    const task: any = proj.tasks?.find(t => t.id === taskId);
+    if (!task || !task.checkpoints) return;
+
+    const checkpoint = task.checkpoints.find((c: Checkpoint) => c.id === cpId);
+    if (checkpoint) {
+      const newCompleted = !checkpoint.completed;
+      this.checkpointService.updateCheckpoint(proj.id, taskId, cpId, { completed: newCompleted }).subscribe({
+        next: () => {
+          checkpoint.completed = newCompleted;
+          this.project.set({ ...proj } as Project);
+        },
+        error: (err) => console.error('Failed to update checkpoint', err)
+      });
+    }
+  }
+
+  startEditCheckpoint(taskId: string, cpId: string) {
+    const proj = this.project();
+    if (!proj) return;
+
+    const task: any = proj.tasks?.find(t => t.id === taskId);
+    if (!task || !task.checkpoints) return;
+
+    const checkpoint = task.checkpoints.find((c: Checkpoint) => c.id === cpId);
+    if (checkpoint) {
+      this.editCheckpointForm.patchValue({ name: checkpoint.name });
+      this.editingCheckpoint.set({ taskId, cpId });
+    }
+  }
+
+  saveEditCheckpoint() {
+    if (!this.editCheckpointForm.valid) return;
+
+    const edit = this.editingCheckpoint();
+    if (!edit) return;
+
+    const proj = this.project();
+    if (!proj) return;
+
+    this.checkpointService.updateCheckpoint(proj.id, edit.taskId, edit.cpId, { name: this.editCheckpointForm.value.name }).subscribe({
+      next: () => {
+        const task: any = proj.tasks?.find(t => t.id === edit.taskId);
+        if (task && task.checkpoints) {
+          const cp = task.checkpoints.find((c: Checkpoint) => c.id === edit.cpId);
+          if (cp) {
+            cp.name = this.editCheckpointForm.value.name;
+            this.project.set({ ...proj } as Project);
+          }
+        }
+        this.editingCheckpoint.set(null);
+      },
+      error: (err) => console.error('Failed to update checkpoint', err)
+    });
+  }
+
+  cancelEditCheckpoint() {
+    this.editingCheckpoint.set(null);
+    this.editCheckpointForm.reset();
+  }
+
+  deleteCheckpoint(taskId: string, cpId: string) {
+    const proj = this.project();
+    if (!proj) return;
+
+    this.checkpointService.deleteCheckpoint(proj.id, taskId, cpId).subscribe({
+      next: () => {
+        const task: any = proj.tasks?.find(t => t.id === taskId);
+        if (task && task.checkpoints) {
+          task.checkpoints = task.checkpoints.filter((c: Checkpoint) => c.id !== cpId);
+          this.project.set({ ...proj } as Project);
+        }
+      },
+      error: (err) => console.error('Failed to delete checkpoint', err)
+    });
   }
 }

@@ -17,6 +17,7 @@ namespace TaskManagementApi.Models
 
         // Navigation property
         public ICollection<TaskTimeSession> TimeSessions { get; set; } = new List<TaskTimeSession>();
+        public ICollection<Checkpoint> Checkpoints { get; set; } = new List<Checkpoint>();
         public Project? Project { get; set; }
     }
 }

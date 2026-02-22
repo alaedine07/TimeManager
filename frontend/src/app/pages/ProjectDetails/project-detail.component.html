@@ -302,6 +302,101 @@
                         </button>
                       }
                     </div>
+                    <!-- Checkpoints Collapse -->
+                    <div class="checkpoints-section">
+                      <button class="toggle-checkpoints" (click)="toggleCheckpoints(task.id)">
+                        {{ checkpointsOpen() === task.id ? '▲ Hide Checkpoints' : '▼ Show Checkpoints' }} ({{ task.checkpoints?.length || 0 }})
+                      </button>
+                      @if (checkpointsOpen() === task.id) {
+                        <div class="checkpoints-container">
+                          @if ((task.checkpoints?.length || 0) === 0) {
+                            <p class="empty-state">No checkpoints yet.</p>
+                          } @else {
+                            <div class="checkpoints-list">
+                              @for (checkpoint of task.checkpoints; track checkpoint.id) {
+                                @if (editingCheckpoint()?.taskId === task.id && editingCheckpoint()?.cpId === checkpoint.id) {
+                                  <!-- Edit Checkpoint Mode -->
+                                  <div class="checkpoint-item editing">
+                                    <form [formGroup]="editCheckpointForm" (ngSubmit)="saveEditCheckpoint()">
+                                      <div class="form-group">
+                                        <input
+                                          formControlName="name"
+                                          placeholder="Checkpoint name"
+                                          class="form-input"
+                                          autofocus>
+                                        @if (editCheckpointForm.get('name')?.invalid && editCheckpointForm.get('name')?.touched) {
+                                          <span class="error-text">
+                                            @if (editCheckpointForm.get('name')?.errors?.['required']) {
+                                              Checkpoint name is required
+                                            }
+                                          </span>
+                                        }
+                                      </div>
+                                      <div class="form-actions">
+                                        <button type="button" class="btn btn-secondary small" (click)="cancelEditCheckpoint()">
+                                          Cancel
+                                        </button>
+                                        <button type="submit" class="btn btn-primary small" [disabled]="editCheckpointForm.invalid">
+                                          Save
+                                        </button>
+                                      </div>
+                                    </form>
+                                  </div>
+                                } @else {
+                                  <!-- View Checkpoint Mode -->
+                                  <div class="checkpoint-item" [class.completed]="checkpoint.completed">
+                                    <input
+                                      type="checkbox"
+                                      [checked]="checkpoint.completed"
+                                      (change)="toggleCheckpointCompletion(task.id, checkpoint.id)"
+                                      class="checkpoint-checkbox"
+                                    />
+                                    <span class="checkpoint-name">{{ checkpoint.name }}</span>
+                                    <div class="checkpoint-actions">
+                                      <button class="btn-edit small" (click)="startEditCheckpoint(task.id, checkpoint.id)">✏</button>
+                                      <button class="btn-delete small" (click)="deleteCheckpoint(task.id, checkpoint.id)">×</button>
+                                    </div>
+                                  </div>
+                                }
+                              }
+                            </div>
+                          }
+                          <!-- Add Checkpoint Form -->
+                          @if (showCheckpointForm() === task.id) {
+                            <div class="checkpoint-form-container">
+                              <form [formGroup]="checkpointForm" (ngSubmit)="addCheckpoint(task.id)">
+                                <div class="form-group">
+                                  <input
+                                    formControlName="name"
+                                    placeholder="Enter checkpoint name"
+                                    class="form-input"
+                                    autofocus>
+                                  @if (checkpointForm.get('name')?.invalid && checkpointForm.get('name')?.touched) {
+                                    <span class="error-text">
+                                      @if (checkpointForm.get('name')?.errors?.['required']) {
+                                        Checkpoint name is required
+                                      }
+                                    </span>
+                                  }
+                                </div>
+                                <div class="form-actions">
+                                  <button type="button" class="btn btn-secondary small" (click)="toggleCheckpointForm(task.id)">
+                                    Cancel
+                                  </button>
+                                  <button type="submit" class="btn btn-primary small" [disabled]="checkpointForm.invalid">
+                                    Add Checkpoint
+                                  </button>
+                                </div>
+                              </form>
+                            </div>
+                          } @else {
+                            <button class="btn-add small" (click)="toggleCheckpointForm(task.id)">
+                              + Add Checkpoint
+                            </button>
+                          }
+                        </div>
+                      }
+                    </div>
                   </div>
                 }
               }

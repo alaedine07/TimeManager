@@ -1,4 +1,10 @@
 // frontend/src/app/models/task.model.ts
+export interface Checkpoint {
+  id: string;
+  name: string;
+  completed: boolean;
+}
+
 export interface Task {
   id: string;
   name: string;
@@ -6,4 +12,5 @@ export interface Task {
   completed: boolean;
   dueDate?: Date;
   priority?: 'low' | 'medium' | 'high';
+  checkpoints?: Checkpoint[];
 }

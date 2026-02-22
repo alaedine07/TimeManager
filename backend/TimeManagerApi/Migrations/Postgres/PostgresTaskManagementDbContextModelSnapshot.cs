@@ -22,6 +22,35 @@ namespace TimeManagerApi.Migrations.Postgres
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("TaskManagementApi.Models.Checkpoint", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("Checkpoints");
+                });
+
             modelBuilder.Entity("TaskManagementApi.Models.Project", b =>
                 {
                     b.Property<Guid>("Id")
@@ -161,6 +190,17 @@ namespace TimeManagerApi.Migrations.Postgres
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("TaskManagementApi.Models.Checkpoint", b =>
+                {
+                    b.HasOne("TaskManagementApi.Models.TaskItem", "Task")
+                        .WithMany("Checkpoints")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
             modelBuilder.Entity("TaskManagementApi.Models.Project", b =>
                 {
                     b.HasOne("TaskManagementApi.Models.Project", "ParentProject")
@@ -228,6 +268,8 @@ namespace TimeManagerApi.Migrations.Postgres
 
             modelBuilder.Entity("TaskManagementApi.Models.TaskItem", b =>
                 {
+                    b.Navigation("Checkpoints");
+
                     b.Navigation("TimeSessions");
                 });
 
