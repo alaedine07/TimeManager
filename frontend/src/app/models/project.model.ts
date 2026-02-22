@@ -17,9 +17,3 @@ export interface Project {
   createdAt?: Date;
   updatedAt?: Date;
 }
-
-export interface ProjectWithStats extends Project {
-  isSubProject: boolean;
-  totalTasksRecursive: number;
-  completedTasksRecursive: number;
-}

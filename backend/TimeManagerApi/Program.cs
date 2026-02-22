@@ -43,12 +43,14 @@ else
 // Add Repositories
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ICheckpointRepository, CheckpointRepository>();
 
 // Add Services
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITimeSessionService, TimeSessionService>();
+builder.Services.AddScoped<ICheckpointService, CheckpointService>();
 
 // Add CORS
 builder.Services.AddCors(options =>
