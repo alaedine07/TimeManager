@@ -1,0 +1,37 @@
+<!-- components/task-list/task-list.component.html -->
+<div class="tab-content">
+  <div class="content-header">
+    <h2>Tasks</h2>
+    <button class="btn-add" (click)="toggleTaskForm()">
+      {{ showTaskForm() ? '✕ Cancel' : '+ Add Task' }}
+    </button>
+  </div>
+
+  @if (showTaskForm()) {
+    <app-task-form
+      mode="add"
+      (saved)="addTask($event)"
+      (cancelled)="toggleTaskForm()"
+    ></app-task-form>
+  }
+
+  @if (tasks.length === 0) {
+    <p class="empty-state">No tasks yet. Create one to get started!</p>
+  } @else {
+    <div class="tasks-list">
+      @for (task of getTasksSortedByCompletion(); track task.id) {
+        <app-task-item
+          [task]="task"
+          [projectId]="projectId"
+          [isInProgress]="TaskCurrentlyInProgress() === task.id"
+          (completionToggled)="toggleTaskCompletion($event)"
+          (progressToggled)="toggleTaskProgress($event)"
+          (progressPaused)="pauseTaskProgress()"
+          (timerReset)="resetTaskTimer($event)"
+          (editSaved)="onEditSaved($event)"
+          (deleted)="deleteTask($event)"
+        ></app-task-item>
+      }
+    </div>
+  }
+</div>

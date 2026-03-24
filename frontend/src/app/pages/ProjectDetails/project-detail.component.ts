@@ -1,22 +1,21 @@
 // components/project-detail/project-detail.component.ts
 import { Component, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project.service';
-import { CheckpointService } from '../../services/checkpoint.service';
 import { Project } from '../../models/project.model';
 import { Task } from '../../models/task.model';
-import { Checkpoint } from '../../models/task.model';
 import { TimeSessionsService } from '../../services/timeSessions.service';
 import { formatTimeSpan } from '../../utils/time-format.util';
-import { TaskTimer } from '../../models/taskTimer.model';
+import { TaskListComponent } from '../../Components/TaskList/task-list.component';
+import { SubProjectListComponent } from '../../Components/SubProjectList/sub-project-list.component';
+import { ProjectHeaderComponent } from '../../Components/projectHeader/project-header.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, TaskListComponent, SubProjectListComponent, ProjectHeaderComponent],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
@@ -24,59 +23,15 @@ export class ProjectDetailComponent implements OnInit {
   project = signal<Project | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
-  activeTab = signal<'tasks' | 'subprojects' | null >(null);
-  TaskCurrentlyInProgress = signal<string | null>(null);
-  taskTotalTimes = signal<{ [taskId: string]: string }>({});
-  subProjectTotalTimes = signal<{ [subProjectId: string]: string }>({});
+  activeTab = signal<'tasks' | 'subprojects'>('tasks');
   currentProjectTotalTime = signal<string | null>(null);
-  taskBeingDeleted = signal<string | null>(null);
-  taskTimers = signal<{ [taskId: string]: number }>({});
-
-  // Sub-project management
-  subProjectBeingDeleted = signal<string | null>(null);
-  subProjectActionsOpen = signal<string | null>(null);
-  editingSubProjectId = signal<string | null>(null);
-
-  // Task form
-  showTaskForm = signal(false);
-  editingTaskId = signal<string | null>(null);
-  taskForm!: FormGroup;
-  editTaskForm!: FormGroup;
-
-  // Sub-project form
-  showSubProjectForm = signal(false);
-  subProjectForm!: FormGroup;
-  editSubProjectForm!: FormGroup;
-
-  // Checkpoints
-  checkpointsOpen = signal<string | null>(null);
-  showCheckpointForm = signal<string | null>(null);
-  editingCheckpoint = signal<{ taskId: string; cpId: string } | null>(null);
-  checkpointForm!: FormGroup;
-  editCheckpointForm!: FormGroup;
-
-  private tickInterval: number | null = null;
 
   constructor(
     private projectService: ProjectService,
-    private checkpointService: CheckpointService,
     private route: ActivatedRoute,
     private location: Location,
-    private fb: FormBuilder,
     private timeSessionsService: TimeSessionsService,
-  ) {
-    this.initializeForm();
-    this.initializeCheckpointForms();
-  }
-
-  initializeCheckpointForms() {
-    this.checkpointForm = this.fb.group({
-      name: ['', Validators.required]
-    });
-    this.editCheckpointForm = this.fb.group({
-      name: ['', Validators.required]
-    });
-  }
+  ) {}
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -85,518 +40,82 @@ export class ProjectDetailComponent implements OnInit {
         this.loadProject(String(id));
       }
     });
-    this.getCurrentlyInProgressSession();
-    this.tickInterval = window.setInterval(() => {
-      this.updateTaskTimers();
-    }, 1000);
-  }
-
-  ngOnDestroy() {
-    if (this.tickInterval) {
-      clearInterval(this.tickInterval);
-    }
-  }
-
-  updateTaskTimers() {
-    const stored = localStorage.getItem('taskTimers');
-    if (!stored) return;
-    const timers: { [taskId: string]: TaskTimer } = JSON.parse(stored);
-    const display: { [taskId: string]: number } = {};
-    Object.values(timers).forEach(timer => {
-      let elapsed = timer.elapsedTime;
-      if (timer.isRunning && timer.startTime) {
-        elapsed += Date.now() - timer.startTime;
-      }
-      display[timer.taskId] = elapsed;
-    });
-    this.taskTimers.set(display);
-  }
-
-  formatTime(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
-
-  return `${h.toString().padStart(2,'0')}:` +
-         `${m.toString().padStart(2,'0')}:` +
-         `${s.toString().padStart(2,'0')}`;
-  }
-
-  initializeForm(): void {
-    this.taskForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
-      priority: ['medium'],
-      dueDate: ['']
-    });
-  }
-
-  initializeSubProjectForm(): void {
-    this.subProjectForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
-      defaultTabOnOpen: ['tasks']
-    });
-  }
-
-  initializeEditSubProjectForm(): void {
-    this.editSubProjectForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
-      defaultTabOnOpen: ['tasks']
-    });
   }
 
   loadProject(id: string) {
     this.loading.set(true);
     this.projectService.getProjectById(id).subscribe({
       next: (data) => {
-        console.log('Project loaded successfully:', data);
         this.project.set(data);
         this.loading.set(false);
-      // fetch current project total times
-      this.timeSessionsService.getTotalTimeForProject(id).subscribe({
-        next: (timeSpan) => {
-          const formatted = formatTimeSpan(timeSpan);
-          this.currentProjectTotalTime.set(formatted);
-        },
-        error: (err) => console.error('Failed to get total time for project', err)
-      });
-      // fetch task and sub-project total times
-      this.loadTaskTotalTimes(data.tasks ?? []);
-      this.loadSubProjectTotalTimes(data.subProjects ?? []);
-      this.setActiveTab(data.defaultTabOnOpen || 'tasks');
-      // Load checkpoints for tasks
-      data.tasks?.forEach(task => {
-        this.loadCheckpoints(task.id);
-      });
+        this.timeSessionsService.getTotalTimeForProject(id).subscribe({
+          next: (timeSpan) => {
+            this.currentProjectTotalTime.set(formatTimeSpan(timeSpan));
+          },
+          error: (err) => console.error('Failed to get total time for project', err)
+        });
+        this.setActiveTab(data.defaultTabOnOpen || 'tasks');
+        // Load checkpoints delegated to TaskList/TaskItem
       },
       error: (err) => {
-        console.error('Error loading project:', err);
         this.error.set('Failed to load project');
         this.loading.set(false);
       }
     });
   }
 
-  loadCheckpoints(taskId: string) {
-    const projectId = this.project()?.id;
-    if (!projectId) return;
-    this.checkpointService.getCheckpoints(projectId, taskId).subscribe({
-      next: (checkpoints) => {
-        const proj = this.project();
-        if (proj && proj.tasks) {
-          const task: any = proj.tasks.find(t => t.id === taskId);
-          if (task) {
-            task.checkpoints = checkpoints;
-            this.project.set({ ...proj } as Project);
-          }
-        }
-      },
-      error: (err) => console.error('Failed to load checkpoints for task ' + taskId, err)
-    });
+  onTaskAdded(newTask: Task) {
+    const proj = this.project();
+    if (proj) {
+      proj.tasks = [...(proj.tasks ?? []), newTask];
+      this.project.set({ ...proj });
+    }
   }
 
-  loadTaskTotalTimes(tasks: Task[]) {
-    tasks.forEach(task => {
-      this.timeSessionsService.getTotalTimeForTask(task.id).subscribe({
-        next: (timeSpan) => {
-          const formatted = formatTimeSpan(timeSpan);
-          this.taskTotalTimes.update(times => ({
-            ...times,
-            [task.id]: formatted
-          }));
-        },
-        error: (err) => {
-          console.error(`Failed to get total time for task ${task.id}`, err);
-        }
-      });
-    });
-  }
-
-  loadSubProjectTotalTimes(subProjects: Project[]) {
-    subProjects.forEach(subProject => {
-      this.timeSessionsService.getTotalTimeForProject(subProject.id).subscribe({
-        next: (timeSpan) => {
-          const formatted = formatTimeSpan(timeSpan);
-          this.subProjectTotalTimes.update(times => ({
-            ...times,
-            [subProject.id]: formatted
-          }));
-        },
-        error: (err) => {
-          console.error(`Failed to get total time for sub-project ${subProject.id}`, err);
-        }
-      });
-    });
-  }
-
-  startEditTask(task: Task) {
-    this.editingTaskId.set(task.id);
-    this.editTaskForm.patchValue({
-      name: task.name,
-      description: task.description || '',
-      priority: task.priority,
-      dueDate: task.dueDate ? this.formatDateForInput(task.dueDate) : '',
-      completed: task.completed
-    });
-  }
-
-  saveEditTask() {
-    if (!this.editTaskForm.valid || !this.project()) return;
-
-    const taskId = this.editingTaskId();
-    if (!taskId) return;
-
-    const updates = {
-      name: this.editTaskForm.value.name,
-      description: this.editTaskForm.value.description || undefined,
-      priority: this.editTaskForm.value.priority,
-      dueDate: this.editTaskForm.value.dueDate
-        ? new Date(this.editTaskForm.value.dueDate)
-        : undefined,
-      completed: this.editTaskForm.value.completed
-    };
-
-  this.projectService.updateTask(this.project()!.id, taskId, updates).subscribe({
-    next: (updatedTask) => {
-      const proj = this.project();
-      if (proj && proj.tasks) {
-        const index = proj.tasks.findIndex(t => t.id === taskId);
-        if (index !== -1) {
-          proj.tasks[index] = updatedTask;
-          this.project.set({ ...proj } as Project);
-        }
-      }
-      this.cancelEditTask();
-    },
-    error: (err) => {
-        console.error('Failed to update task', err);
-        this.error.set('Failed to update task');
-      }
-    });
-  }
-
-  cancelEditTask() {
-    this.editingTaskId.set(null);
-    this.editTaskForm.reset();
-  }
-
-  private formatDateForInput(date: Date): string {
-    const d = new Date(date);
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${d.getFullYear()}-${month}-${day}`;
-  }
-
-  startDelete(taskId: string) {
-    this.taskBeingDeleted.set(taskId);
-  }
-
-  confirmDelete(taskId: string) {
-    this.deleteTask(taskId);
-    this.taskBeingDeleted.set(null);
-  }
-
-  cancelDelete() {
-    this.taskBeingDeleted.set(null);
-  }
-
-  toggleTaskCompletion(task: Task) {
-    if (!this.project()) return;
-    this.projectService.updateTask(this.project()!.id, task.id, {
-      completed: !task.completed
-    }).subscribe({
-      next: (updatedTask) => {
-        const proj = this.project();
-        if (proj && proj.tasks) {
-          const index = proj.tasks.findIndex(t => t.id === task.id);
-          if (index !== -1) {
-            proj.tasks[index] = updatedTask;
-            this.project.set({ ...proj } as Project);
-          }
-        }
-      },
-      error: (err) => console.error('Failed to update task', err)
-    });
-  }
-
-  getCurrentlyInProgressSession() {
-    this.timeSessionsService.getCurrentActiveSession().subscribe({
-      next: (data: any) => {
-        if (data && data.taskId) {
-          this.TaskCurrentlyInProgress.set(data.taskId);
-        } else {
-          this.TaskCurrentlyInProgress.set(null);
-        }
-      },
-      error: (err) => {
-        console.error('Failed to get current active session', err);
-        this.TaskCurrentlyInProgress.set(null);
-      }
-    });
-  }
-
-  toggleTaskProgress(task: Task) {
-    this.timeSessionsService.startSession(task.id).subscribe({
-      next: () => {
-        // pause the previous task if any
-        if (this.TaskCurrentlyInProgress() && this.TaskCurrentlyInProgress() !== task.id) {
-          this.pauseTaskTimer();
-        }
-        this.TaskCurrentlyInProgress.set(task.id);
-        this.startTaskTimer();
-      },
-      error: (err) => {
-        console.error('Failed to start time session for task', task.id, err);
-      }
-    });
-  }
-
-  pauseTaskProgress() {
-    this.timeSessionsService.pauseSession().subscribe({
-      next: () => {
-        this.pauseTaskTimer();
-        this.TaskCurrentlyInProgress.set(null);
-      },
-      error: (err) => {
-        console.error('Failed to pause time session', err);
-      }
-    });
-  }
-
-  pauseTaskTimer() {
-    // Retrieve existing timers from localStorage
-    const storedTimers = localStorage.getItem('taskTimers');
-    if (!storedTimers) return;
-    let taskTimers: { [taskId: string]: TaskTimer } = storedTimers ? JSON.parse(storedTimers) : {};
-    const currentTaskId = this.TaskCurrentlyInProgress();
-    if (currentTaskId && taskTimers[currentTaskId]) {
-      const taskTimer = taskTimers[currentTaskId];
-      if (taskTimer.isRunning && taskTimer.startTime) {
-        taskTimer.elapsedTime += Date.now() - taskTimer.startTime!;
-        taskTimer.startTime = null;
-        taskTimer.isRunning = false;
-        // Update the timer in localStorage
-        taskTimers[currentTaskId] = taskTimer;
-        localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
+  onTaskUpdated(updatedTask: Task) {
+    const proj = this.project();
+    if (proj && proj.tasks) {
+      const index = proj.tasks.findIndex(t => t.id === updatedTask.id);
+      if (index !== -1) {
+        proj.tasks[index] = updatedTask;
+        this.project.set({ ...proj });
       }
     }
   }
 
-  startTaskTimer() {
-    const stored = localStorage.getItem('taskTimers');
-    let taskTimers: { [taskId: string]: TaskTimer } = stored ? JSON.parse(stored) : {};
-    // if timer doesn't exist for this task, create it
-    if (!taskTimers[this.TaskCurrentlyInProgress()!]) {
-      let taskTime = {
-        taskId: this.TaskCurrentlyInProgress()!,
-        elapsedTime: 0,
-        isRunning: false,
-        startTime: null
+  onTaskDeleted(taskId: string) {
+    const proj = this.project();
+    if (proj && proj.tasks) {
+      proj.tasks = proj.tasks.filter(t => t.id !== taskId);
+      this.project.set({ ...proj });
+    }
+  }
+
+  onSubProjectAdded(newSubProject: Project) {
+    const proj = this.project();
+    if (proj) {
+      proj.subProjects = [...(proj.subProjects ?? []), newSubProject];
+      this.project.set({ ...proj });
+    }
+  }
+
+  onSubProjectUpdated(updatedSubProject: Project) {
+    const proj = this.project();
+    if (proj && proj.subProjects) {
+      const index = proj.subProjects.findIndex(sp => sp.id === updatedSubProject.id);
+      if (index !== -1) {
+        proj.subProjects[index] = updatedSubProject;
+        this.project.set({ ...proj });
       }
-      taskTimers[taskTime.taskId] = taskTime;
-    }
-    taskTimers[this.TaskCurrentlyInProgress()!].isRunning = true;
-    taskTimers[this.TaskCurrentlyInProgress()!].startTime = Date.now();
-    localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
-  }
-
-  resetTaskTimer(task: Task) {
-    const stored = localStorage.getItem('taskTimers');
-    if (!stored) return;
-    let taskTimers: { [taskId: string]: TaskTimer } = JSON.parse(stored);
-    if (taskTimers[task.id]) {
-      const taskTimer = taskTimers[task.id];
-      taskTimer.elapsedTime = 0;
-      taskTimer.startTime = Date.now();
-      taskTimers[task.id] = taskTimer;
-      localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
-      this.updateTaskTimers();
     }
   }
 
-  deleteTask(taskId: string) {
-    if (!this.project()) return;
-    this.projectService.deleteTask(this.project()!.id, taskId).subscribe({
-      next: () => {
-        const proj = this.project();
-        if (proj && proj.tasks) {
-          proj.tasks = proj.tasks.filter(t => t.id !== taskId);
-          this.project.set({ ...proj } as Project);
-        }
-        const stored = localStorage.getItem('taskTimers');
-        if (stored) {
-          let taskTimers: { [taskId: string]: TaskTimer } = JSON.parse(stored);
-          if (taskTimers[taskId]) {
-            delete taskTimers[taskId];
-            localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
-            this.updateTaskTimers();
-          }
-        }
-      },
-      error: (err) => console.error('Failed to delete task', err)
-    });
-  }
-
-  toggleTaskForm(): void {
-    this.showTaskForm.update(val => !val);
-    if (this.showTaskForm()) {
-      this.initializeForm();
+  onSubProjectDeleted(subProjectId: string) {
+    const proj = this.project();
+    if (proj && proj.subProjects) {
+      proj.subProjects = proj.subProjects.filter(sp => sp.id !== subProjectId);
+      this.project.set({ ...proj });
     }
-  }
-
-  toggleSubProjectForm(): void {
-    this.showSubProjectForm.update(val => !val);
-    if (this.showSubProjectForm()) {
-      this.initializeSubProjectForm();
-    }
-  }
-
-  addsubProject(): void {
-    if (this.subProjectForm.valid && this.project()) {
-
-      const newSubProject: Omit<Project, 'id'> = {
-        name: this.subProjectForm.value.name,
-        description: this.subProjectForm.value.description || '',
-        parentProjectId: this.project()!.id,
-        completed: false,
-        defaultTabOnOpen: this.subProjectForm.value.defaultTabOnOpen || 'tasks',
-        tasks: [],
-        subProjects: []
-      };
-
-      // Add sub-project via service
-      this.projectService.createSubProject(this.project()!.id, newSubProject).subscribe({
-        next: (createdSubProject) => {
-          const proj = this.project();
-          if (proj && proj.subProjects) {
-            proj.subProjects.push(createdSubProject);
-            this.project.set({ ...proj } as Project);
-          }
-          this.toggleSubProjectForm();
-          this.initializeForm();
-        },
-        error: (err) => {
-          console.error('Failed to create sub-project', err);
-          this.error.set('Failed to create sub-project');
-        }
-      });
-    }
-  }
-
-  toggleSubProjectActions(subProjectId: string) {
-    this.subProjectActionsOpen.set(
-      this.subProjectActionsOpen() === subProjectId ? null : subProjectId
-    );
-  }
-
-  startDeleteSubProject(subProjectId: string) {
-    this.subProjectBeingDeleted.set(subProjectId);
-    this.subProjectActionsOpen.set(null);
-  }
-
-  confirmDeleteSubProject(subProjectId: string) {
-    this.deleteSubProject(subProjectId);
-    this.subProjectBeingDeleted.set(null);
-  }
-
-  cancelDeleteSubProject() {
-    this.subProjectBeingDeleted.set(null);
-  }
-
-  deleteSubProject(subProjectId: string) {
-    this.projectService.deleteProject(subProjectId).subscribe({
-      next: () => {
-        const proj = this.project();
-        if (proj && proj.subProjects) {
-          proj.subProjects = proj.subProjects.filter(sp => sp.id !== subProjectId);
-          this.project.set({ ...proj } as Project);
-        }
-      },
-      error: (err) => console.error('Failed to delete sub-project', err)
-    });
-  }
-
-  addTask(): void {
-    if (this.taskForm.valid && this.project()) {
-      const newTask: Omit<Task, 'id'> = {
-        name: this.taskForm.value.name,
-        description: this.taskForm.value.description || undefined,
-        completed: false,
-        dueDate: this.taskForm.value.dueDate
-          ? new Date(this.taskForm.value.dueDate)
-          : undefined,
-        priority: this.taskForm.value.priority
-      };
-
-      // Add task via service
-      this.projectService.addTask(this.project()!.id, newTask).subscribe({
-        next: (createdTask: any) => {
-          createdTask.checkpoints = [];
-          const proj = this.project();
-          if (proj && proj.tasks) {
-            proj.tasks.push(createdTask);
-            this.project.set({ ...proj } as Project);
-          }
-          this.toggleTaskForm();
-          this.initializeForm();
-        },
-        error: (err) => {
-          console.error('Failed to create task', err);
-          this.error.set('Failed to create task');
-        }
-      });
-    }
-  }
-
-  startEditSubProject(subProject: Project) {
-  this.editingSubProjectId.set(subProject.id);
-  this.initializeEditSubProjectForm();
-  this.editSubProjectForm.patchValue({
-    name: subProject.name,
-    description: subProject.description || '',
-    defaultTabOnOpen: subProject.defaultTabOnOpen || 'tasks'
-  });
-}
-
-saveEditSubProject() {
-  if (!this.editSubProjectForm.valid) return;
-
-  const subProjectId = this.editingSubProjectId();
-  if (!subProjectId) return;
-
-  const updates = {
-    name: this.editSubProjectForm.value.name,
-    description: this.editSubProjectForm.value.description || '',
-    defaultTabOnOpen: this.editSubProjectForm.value.defaultTabOnOpen
-  };
-
-  this.projectService.updateProject(subProjectId, updates).subscribe({
-    next: (updatedSubProject) => {
-      const proj = this.project();
-      if (proj && proj.subProjects) {
-        const index = proj.subProjects.findIndex(sp => sp.id === subProjectId);
-        if (index !== -1) {
-          proj.subProjects[index] = updatedSubProject;
-          this.project.set({ ...proj } as Project);
-        }
-      }
-      this.cancelEditSubProject();
-      this.subProjectActionsOpen.set(null);
-    },
-    error: (err) => {
-      console.error('Failed to update sub-project', err);
-      this.error.set('Failed to update sub-project');
-    }
-  });
-}
-
-  cancelEditSubProject() {
-    this.editingSubProjectId.set(null);
-    this.editSubProjectForm.reset();
-    this.subProjectActionsOpen.set(null);
   }
 
   getProgressPercentage(): number {
@@ -609,137 +128,11 @@ saveEditSubProject() {
     this.activeTab.set(tab);
   }
 
-  /** Returns tasks with incomplete first, completed (done) at the bottom. */
-  getTasksSortedByCompletion(): Task[] {
-    const tasks = this.project()?.tasks ?? [];
-    return [...tasks].sort((a, b) => (a.completed === b.completed) ? 0 : (a.completed ? 1 : -1));
-  }
-
   getSubProjectCount(): number {
     return this.project()?.subProjects?.length || 0;
   }
 
   goBack(): void {
     this.location.back();
-  }
-
-  toggleCheckpoints(taskId: string) {
-    this.checkpointsOpen.set(this.checkpointsOpen() === taskId ? null : taskId);
-  }
-
-  toggleCheckpointForm(taskId: string) {
-    this.showCheckpointForm.set(this.showCheckpointForm() === taskId ? null : taskId);
-    if (this.showCheckpointForm() === taskId) {
-      this.checkpointForm.reset();
-    }
-  }
-
-  addCheckpoint(taskId: string) {
-    if (!this.checkpointForm.valid) return;
-
-    const projectId = this.project()?.id;
-    if (!projectId) return;
-
-    const newCp = {
-      name: this.checkpointForm.value.name,
-      completed: false
-    };
-
-    this.checkpointService.addCheckpoint(projectId, taskId, newCp).subscribe({
-      next: (created) => {
-        const proj = this.project();
-        const task: any = proj?.tasks?.find(t => t.id === taskId);
-        if (task) {
-          if (!task.checkpoints) task.checkpoints = [];
-          task.checkpoints.push(created);
-          this.project.set({ ...proj } as Project);
-        }
-        this.checkpointForm.reset();
-        this.showCheckpointForm.set(null);
-      },
-      error: (err) => {
-        console.error('Failed to add checkpoint', err);
-      }
-    });
-  }
-
-  toggleCheckpointCompletion(taskId: string, cpId: string) {
-    const proj = this.project();
-    if (!proj) return;
-
-    const task: any = proj.tasks?.find(t => t.id === taskId);
-    if (!task || !task.checkpoints) return;
-
-    const checkpoint = task.checkpoints.find((c: Checkpoint) => c.id === cpId);
-    if (checkpoint) {
-      const newCompleted = !checkpoint.completed;
-      this.checkpointService.updateCheckpoint(proj.id, taskId, cpId, { completed: newCompleted }).subscribe({
-        next: () => {
-          checkpoint.completed = newCompleted;
-          this.project.set({ ...proj } as Project);
-        },
-        error: (err) => console.error('Failed to update checkpoint', err)
-      });
-    }
-  }
-
-  startEditCheckpoint(taskId: string, cpId: string) {
-    const proj = this.project();
-    if (!proj) return;
-
-    const task: any = proj.tasks?.find(t => t.id === taskId);
-    if (!task || !task.checkpoints) return;
-
-    const checkpoint = task.checkpoints.find((c: Checkpoint) => c.id === cpId);
-    if (checkpoint) {
-      this.editCheckpointForm.patchValue({ name: checkpoint.name });
-      this.editingCheckpoint.set({ taskId, cpId });
-    }
-  }
-
-  saveEditCheckpoint() {
-    if (!this.editCheckpointForm.valid) return;
-
-    const edit = this.editingCheckpoint();
-    if (!edit) return;
-
-    const proj = this.project();
-    if (!proj) return;
-
-    this.checkpointService.updateCheckpoint(proj.id, edit.taskId, edit.cpId, { name: this.editCheckpointForm.value.name }).subscribe({
-      next: () => {
-        const task: any = proj.tasks?.find(t => t.id === edit.taskId);
-        if (task && task.checkpoints) {
-          const cp = task.checkpoints.find((c: Checkpoint) => c.id === edit.cpId);
-          if (cp) {
-            cp.name = this.editCheckpointForm.value.name;
-            this.project.set({ ...proj } as Project);
-          }
-        }
-        this.editingCheckpoint.set(null);
-      },
-      error: (err) => console.error('Failed to update checkpoint', err)
-    });
-  }
-
-  cancelEditCheckpoint() {
-    this.editingCheckpoint.set(null);
-    this.editCheckpointForm.reset();
-  }
-
-  deleteCheckpoint(taskId: string, cpId: string) {
-    const proj = this.project();
-    if (!proj) return;
-
-    this.checkpointService.deleteCheckpoint(proj.id, taskId, cpId).subscribe({
-      next: () => {
-        const task: any = proj.tasks?.find(t => t.id === taskId);
-        if (task && task.checkpoints) {
-          task.checkpoints = task.checkpoints.filter((c: Checkpoint) => c.id !== cpId);
-          this.project.set({ ...proj } as Project);
-        }
-      },
-      error: (err) => console.error('Failed to delete checkpoint', err)
-    });
   }
 }
