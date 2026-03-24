@@ -1,0 +1,58 @@
+<!-- components/checkpoints/checkpoints.component.html -->
+<div class="checkpoints-section">
+  <button class="toggle-checkpoints" (click)="toggleCheckpoints()">
+    {{ open() ? '▲ Hide Checkpoints' : '▼ Show Checkpoints' }} ({{ checkpoints.length }})
+  </button>
+  @if (open()) {
+    <div class="checkpoints-container">
+      @if (checkpoints.length === 0) {
+        <p class="empty-state">No checkpoints yet.</p>
+      } @else {
+        <div class="checkpoints-list">
+          @for (checkpoint of checkpoints; track checkpoint.id) {
+            <app-checkpoint-item
+              [checkpoint]="checkpoint"
+              [projectId]="projectId"
+              [taskId]="taskId"
+              (completionToggled)="toggleCheckpointCompletion($event)"
+              (updated)="onCheckpointUpdated($event)"
+              (deleted)="onCheckpointDeleted($event)"
+            ></app-checkpoint-item>
+          }
+        </div>
+      }
+      @if (showForm()) {
+        <div class="checkpoint-form-container">
+          <form [formGroup]="checkpointForm" (ngSubmit)="addCheckpoint()">
+            <div class="form-group">
+              <input
+                formControlName="name"
+                placeholder="Enter checkpoint name"
+                class="form-input"
+                autofocus>
+              @if (checkpointForm.get('name')?.invalid && checkpointForm.get('name')?.touched) {
+                <span class="error-text">
+                  @if (checkpointForm.get('name')?.errors?.['required']) {
+                    Checkpoint name is required
+                  }
+                </span>
+              }
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary small" (click)="toggleForm()">
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary small" [disabled]="checkpointForm.invalid">
+                Add Checkpoint
+              </button>
+            </div>
+          </form>
+        </div>
+      } @else {
+        <button class="btn-add small" (click)="toggleForm()">
+          + Add Checkpoint
+        </button>
+      }
+    </div>
+  }
+</div>

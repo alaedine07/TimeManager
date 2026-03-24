@@ -1,0 +1,40 @@
+<div class="checkpoint-item" [class.completed]="checkpoint.completed" [class.editing]="editing()">
+  @if (editing()) {
+    <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
+      <div class="form-group">
+        <input
+          formControlName="name"
+          placeholder="Checkpoint name"
+          class="form-input"
+          autofocus>
+        @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
+          <span class="error-text">
+            @if (editForm.get('name')?.errors?.['required']) {
+              Checkpoint name is required
+            }
+          </span>
+        }
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary small" (click)="cancelEdit()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary small" [disabled]="editForm.invalid">
+          Save
+        </button>
+      </div>
+    </form>
+  } @else {
+    <input
+      type="checkbox"
+      [checked]="checkpoint.completed"
+      (change)="completionToggled.emit(checkpoint)"
+      class="checkpoint-checkbox"
+    />
+    <span class="checkpoint-name">{{ checkpoint.name }}</span>
+    <div class="checkpoint-actions">
+      <button class="btn-edit small" (click)="startEdit()">✏</button>
+      <button class="btn-delete small" (click)="deleted.emit(checkpoint.id)">×</button>
+    </div>
+  }
+</div>

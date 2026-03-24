@@ -1,0 +1,32 @@
+<!-- components/sub-project-list/sub-project-list.component.html -->
+<div class="tab-content">
+  <div class="content-header">
+    <h2>Sub-Projects</h2>
+    <button class="btn-add" (click)="toggleSubProjectForm()">
+      {{ showSubProjectForm() ? '✕ Cancel' : '+ Add Sub Projects' }}
+    </button>
+  </div>
+
+  @if (showSubProjectForm()) {
+    <app-sub-project-form
+      mode="add"
+      [parentProjectId]="parentProjectId"
+      (saved)="addSubProject($event)"
+      (cancelled)="toggleSubProjectForm()"
+    ></app-sub-project-form>
+  }
+
+  @if (subProjects.length === 0) {
+    <p class="empty-state">No sub-projects yet.</p>
+  } @else {
+    <div class="subprojects-list">
+      @for (subProject of subProjects; track subProject.id) {
+        <app-sub-project-item
+          [subProject]="subProject"
+          (updated)="onUpdated($event)"
+          (deleted)="deleteSubProject($event)"
+        ></app-sub-project-item>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,74 @@
+<!-- components/task-item/task-item.component.html -->
+<div
+  class="task-item"
+  [class.completed]="task.completed"
+  [class.active]="isInProgress"
+  [class.toBeDeleted]="taskBeingDeleted()"
+>
+  @if (editing()) {
+    <app-task-form
+      mode="edit"
+      [initialData]="task"
+      (saved)="saveEditTask($event)"
+      (cancelled)="cancelEdit()"
+    ></app-task-form>
+  } @else {
+    <div class="task-content">
+      <input
+        type="checkbox"
+        [checked]="task.completed"
+        (change)="completionToggled.emit(task)"
+        class="task-checkbox"
+      />
+      <div class="task-info">
+        <h3>{{ task.name }}</h3>
+        @if (task.description) {
+          <p class="task-desc">{{ task.description }}</p>
+        }
+        @if (task.dueDate) {
+          <p class="task-due-date">Due: {{ task.dueDate | date }}</p>
+        }
+        <p class="task-priority priority-{{ task.priority }}">
+          {{ task.priority | titlecase }}
+        </p>
+        <div class="task-time-worked">
+          Time Worked: {{ taskTotalTime() || '0h 0m' }}
+        </div>
+        <div class="task-timer">Timer: {{ formatTime(taskTimer() || 0) }}</div>
+      </div>
+    </div>
+    <div class="task-actions">
+      @if (taskBeingDeleted()) {
+        <button class="btn-confirm" (click)="confirmDelete()">
+          Confirm
+        </button>
+        <button class="btn-cancel" (click)="cancelDelete()">
+          Cancel
+        </button>
+      } @else {
+        @if (isInProgress) {
+          <button class="btn-play" (click)="progressPaused.emit()">
+            ⏸
+          </button>
+          <button class="btn-reset" title="Reset timer" (click)="resetTimer()">
+            ↻
+          </button>
+        } @else {
+          <button class="btn-play" (click)="progressToggled.emit(task)">
+            ▶
+          </button>
+          <button class="btn-reset" title="Reset timer" (click)="resetTimer()">
+            ↻
+          </button>
+        }
+        <button class="btn-edit" title="Edit task" (click)="startEdit()">
+          ✏
+        </button>
+        <button class="btn-delete" (click)="startDelete()">
+          ×
+        </button>
+      }
+    </div>
+    <app-checkpoints [projectId]="projectId" [taskId]="task.id" [checkpoints]="task.checkpoints ?? []"></app-checkpoints>
+  }
+</div>

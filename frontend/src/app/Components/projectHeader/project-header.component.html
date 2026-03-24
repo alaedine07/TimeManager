@@ -1,0 +1,12 @@
+<!--<DOCUMENT filename="project-header/project-header.component.html">-->
+<div class="detail-header">
+  <div class="header-top">
+    <button class="back-link" (click)="backClicked.emit()">← Back</button>
+    <a routerLink="/" class="home-link">Home</a>
+  </div>
+
+  <div class="project-title-section">
+    <h1>{{ project.name }}</h1>
+    <p class="project-desc">{{ project.description }}</p>
+  </div>
+</div>

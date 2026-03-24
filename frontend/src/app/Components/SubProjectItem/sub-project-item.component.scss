@@ -1,0 +1,348 @@
+// components/sub-project-item/sub-project-item.component.scss
+.subproject-card {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  text-decoration: none;
+  transition: all 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981, transparent);
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+
+  &:hover {
+    transform: translateY(-6px);
+    border-color: rgba(148, 163, 184, 0.2);
+    box-shadow: 0 12px 32px rgba(3, 102, 214, 0.15);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .view-link {
+      color: #60a5fa;
+    }
+  }
+
+  &.completed {
+    opacity: 0.7;
+
+    .subproject-info h3 {
+      text-decoration: line-through;
+      color: #94a3b8;
+    }
+  }
+
+  &.archived {
+    border-color: rgba(107, 114, 128, 0.3);
+    background: linear-gradient(135deg, rgba(107, 114, 128, 0.1) 0%, rgba(107, 114, 128, 0.05) 100%);
+
+    .archived-badge {
+      display: inline-block;
+      background: #6b7280;
+      color: #f3f4f6;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+  }
+
+  h3 {
+    color: #ffffff;
+    font-size: 1.15rem;
+    margin: 0;
+    font-weight: 700;
+  }
+
+  p {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-clamp: 2;
+  }
+
+  &.deleting {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+    border-color: #ef4444;
+  }
+}
+
+// Sub-project header with checkbox and actions
+.subproject-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.subproject-title-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.subproject-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+}
+
+.archived-badge {
+  display: inline-block;
+  background: #6b7280;
+  color: #f3f4f6;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.btn-actions-menu {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 200ms ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+  }
+}
+
+// Actions dropdown menu
+.actions-dropdown {
+  position: relative;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  padding: 8px 0;
+  margin-top: 12px;
+  animation: slideDown 200ms ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.action-item {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  padding: 12px 16px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 150ms ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+  .icon {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    background: rgba(148, 163, 184, 0.1);
+    color: #e2e8f0;
+  }
+
+  &.edit {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+
+    &:hover {
+      color: #60a5fa;
+    }
+  }
+
+  &.archive {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+
+    &:hover {
+      color: #f59e0b;
+    }
+  }
+
+  &.delete {
+    &:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+  }
+
+  &.complete {
+    &:hover {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+  }
+}
+
+.subproject-description {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  margin: 12px 0 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.view-link {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: color 200ms ease;
+  margin-top: auto;
+}
+
+// Sub-project edit form
+.subproject-item {
+  &.editing {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+    border: 2px solid #3b82f6;
+    padding: 20px;
+    border-radius: 12px;
+    animation: smoothExpand 400ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+}
+
+.subproject-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// Delete confirmation
+.delete-confirmation {
+  padding: 20px;
+  text-align: center;
+  animation: fadeIn 300ms ease-out;
+
+  .confirmation-content {
+    margin-bottom: 16px;
+
+    h4 {
+      color: #ef4444;
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+    }
+
+    p {
+      color: #cbd5e1;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+  }
+
+  .confirmation-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+}
+
+.subproject-time-worked {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .time-label {
+    font-weight: 500;
+    color: #cbd5e1;
+  }
+
+  .time-value {
+    font-weight: 600;
+    color: #60a5fa;
+  }
+}
+
+.btn-confirm {
+  background: #ef4444;
+  color: white;
+
+  &:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+  }
+}
+
+.btn-cancel {
+  background: #6b7280;
+  color: white;
+
+  &:hover {
+    background: #4b5563;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(107, 114, 128, 0.3);
+  }
+}
+
+@media (max-width: 768px) {
+  .subproject-header {
+    flex-direction: column;
+  }
+
+  .actions-dropdown {
+    position: static;
+  }
+}
+
+@media (max-width: 480px) {
+  .subproject-card {
+    padding: 16px;
+  }
+}

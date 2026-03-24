@@ -15,595 +15,78 @@
   @if (project()) {
     <div class="project-detail">
       <!-- Header -->
-      <div class="detail-header">
-        <div class="header-top">
-          <button class="back-link" (click)="goBack()">← Back</button>
-          <a routerLink="/" class="home-link">Home</a>
-        </div>
+      <app-project-header [project]="project()!" (backClicked)="goBack()"></app-project-header>
 
-        <div class="project-title-section">
-          <h1>{{ project()!.name }}</h1>
-          <p class="project-desc">{{ project()!.description }}</p>
-        </div>
+      <!-- Total Time Worked Section -->
+      <div class="total-time-worked">
+        <span class="time-label">Total Time Worked:</span>
+        <span class="time-value">{{ currentProjectTotalTime() }}</span>
+      </div>
 
-        <!-- Total Time Worked Section -->
-        <div class="total-time-worked">
-          <span class="time-label">Total Time Worked:</span>
-          <span class="time-value">{{ currentProjectTotalTime() }}</span>
+      <!-- Progress Bar -->
+      <div class="progress-section">
+        <div class="progress-label">
+          <span>Overall Progress</span>
+          <span>{{ getProgressPercentage() }}%</span>
         </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="getProgressPercentage()"></div>
+        </div>
+      </div>
 
-        <!-- Progress Bar -->
-        <div class="progress-section">
-          <div class="progress-label">
-            <span>Overall Progress</span>
-            <span>{{ getProgressPercentage() }}%</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="getProgressPercentage()"></div>
-          </div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-          @if (project()!.defaultTabOnOpen=== 'subprojects') {
-            <!-- Sub-Projects is default tab -->
-            <button
-              class="tab"
-              [class.active]="activeTab() === 'subprojects'"
-              (click)="setActiveTab('subprojects')">
-              Sub-Projects ({{ getSubProjectCount() }})
-            </button>
-            <button
-              class="tab"
-              [class.active]="activeTab() === 'tasks'"
-              (click)="setActiveTab('tasks')">
-              Tasks ({{ project()!.tasks?.length || 0 }})
-            </button>
-          } @else {
-            <!-- Tasks is default tab -->
-            <button
-              class="tab"
-              [class.active]="activeTab() === 'tasks'"
-              (click)="setActiveTab('tasks')">
-              Tasks ({{ project()!.tasks?.length || 0 }})
-            </button>
-            <button
-              class="tab"
-              [class.active]="activeTab() === 'subprojects'"
-              (click)="setActiveTab('subprojects')">
-              Sub-Projects ({{ getSubProjectCount() }})
-            </button>
-          }
-        </div>
+      <!-- Tabs -->
+      <div class="tabs">
+        @if (project()!.defaultTabOnOpen === 'subprojects') {
+          <!-- Sub-Projects is default tab -->
+          <button
+            class="tab"
+            [class.active]="activeTab() === 'subprojects'"
+            (click)="setActiveTab('subprojects')">
+            Sub-Projects ({{ getSubProjectCount() }})
+          </button>
+          <button
+            class="tab"
+            [class.active]="activeTab() === 'tasks'"
+            (click)="setActiveTab('tasks')">
+            Tasks ({{ project()!.tasks?.length || 0 }})
+          </button>
+        } @else {
+          <!-- Tasks is default tab -->
+          <button
+            class="tab"
+            [class.active]="activeTab() === 'tasks'"
+            (click)="setActiveTab('tasks')">
+            Tasks ({{ project()!.tasks?.length || 0 }})
+          </button>
+          <button
+            class="tab"
+            [class.active]="activeTab() === 'subprojects'"
+            (click)="setActiveTab('subprojects')">
+            Sub-Projects ({{ getSubProjectCount() }})
+          </button>
+        }
       </div>
 
       <!-- Tasks Tab -->
       @if (activeTab() === 'tasks') {
-        <div class="tab-content">
-          <div class="content-header">
-            <h2>Tasks</h2>
-            <button class="btn-add" (click)="toggleTaskForm()">
-              {{ showTaskForm() ? '✕ Cancel' : '+ Add Task' }}
-            </button>
-          </div>
-
-          <!-- Expandable Task Form -->
-          @if (showTaskForm()) {
-            <div class="task-form-container">
-              <form [formGroup]="taskForm" (ngSubmit)="addTask()" class="task-form">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="taskName">Task Name *</label>
-                    <input
-                      id="taskName"
-                      type="text"
-                      formControlName="name"
-                      placeholder="Enter task name"
-                      class="form-input"
-                      autofocus>
-                    @if (taskForm.get('name')?.invalid && taskForm.get('name')?.touched) {
-                      <span class="error-text">
-                        @if (taskForm.get('name')?.errors?.['required']) {
-                          Task name is required
-                        } @else if (taskForm.get('name')?.errors?.['minlength']) {
-                          Task name must be at least 3 characters
-                        }
-                      </span>
-                    }
-                  </div>
-
-                  <div class="form-group">
-                    <label for="taskPriority">Priority</label>
-                    <select
-                      id="taskPriority"
-                      formControlName="priority"
-                      class="form-input">
-                      <option value="low">Low</option>
-                      <option value="medium" selected>Medium</option>
-                      <option value="high">High</option>
-                    </select>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="taskDueDate">Due Date</label>
-                    <input
-                      id="taskDueDate"
-                      type="date"
-                      formControlName="dueDate"
-                      class="form-input">
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="taskDesc">Description</label>
-                  <textarea
-                    id="taskDesc"
-                    formControlName="description"
-                    placeholder="Add task description (optional)"
-                    rows="3"
-                    class="form-input"></textarea>
-                </div>
-
-                <div class="form-actions">
-                  <button type="button" class="btn btn-secondary" (click)="toggleTaskForm()">
-                    Cancel
-                  </button>
-                  <button type="submit" class="btn btn-primary" [disabled]="taskForm.invalid">
-                    Create Task
-                  </button>
-                </div>
-              </form>
-            </div>
-          }
-
-          @if ((project()!.tasks?.length || 0) === 0) {
-            <p class="empty-state">No tasks yet. Create one to get started!</p>
-          } @else {
-            <div class="tasks-list">
-              @for (task of getTasksSortedByCompletion(); track task.id) {
-                @if (editingTaskId() === task.id) {
-                  <!-- EDIT MODE -->
-                  <div class="task-item editing">
-                    <form [formGroup]="editTaskForm" (ngSubmit)="saveEditTask()" class="task-edit-form">
-                      <div class="edit-form-content">
-                        <div class="form-row">
-                          <div class="form-group">
-                            <label for="editTaskName">Task Name *</label>
-                            <input
-                              id="editTaskName"
-                              type="text"
-                              formControlName="name"
-                              placeholder="Enter task name"
-                              class="form-input"
-                              autofocus>
-                            @if (editTaskForm.get('name')?.invalid && editTaskForm.get('name')?.touched) {
-                              <span class="error-text">
-                                @if (editTaskForm.get('name')?.errors?.['required']) {
-                                  Task name is required
-                                } @else if (editTaskForm.get('name')?.errors?.['minlength']) {
-                                  Task name must be at least 3 characters
-                                }
-                              </span>
-                            }
-                          </div>
-                          <div class="form-group">
-                            <label for="editTaskPriority">Priority</label>
-                            <select id="editTaskPriority" formControlName="priority" class="form-input">
-                              <option value="low">Low</option>
-                              <option value="medium">Medium</option>
-                              <option value="high">High</option>
-                            </select>
-                          </div>
-                          <div class="form-group">
-                            <label for="editTaskDueDate">Due Date</label>
-                            <input
-                              id="editTaskDueDate"
-                              type="date"
-                              formControlName="dueDate"
-                              class="form-input">
-                          </div>
-                        </div>
-                        <div class="form-group">
-                          <label for="editTaskDesc">Description</label>
-                          <textarea
-                            id="editTaskDesc"
-                            formControlName="description"
-                            placeholder="Add task description"
-                            rows="3"
-                            class="form-input"></textarea>
-                        </div>
-                      </div>
-                      <div class="edit-form-actions">
-                        <button type="button" class="btn btn-secondary" (click)="cancelEditTask()">
-                          Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary" [disabled]="editTaskForm.invalid">
-                          Save Changes
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                } @else {
-                  <!-- VIEW MODE -->
-                  <div
-                    class="task-item"
-                    [class.completed]="task.completed"
-                    [class.active]="TaskCurrentlyInProgress() === task.id"
-                    [class.toBeDeleted]="taskBeingDeleted() === task.id"
-                  >
-                    <div class="task-content">
-                      <input
-                        type="checkbox"
-                        [checked]="task.completed"
-                        (change)="toggleTaskCompletion(task)"
-                        class="task-checkbox"
-                      />
-                      <div class="task-info">
-                        <h3>{{ task.name }}</h3>
-                        @if (task.description) {
-                          <p class="task-desc">{{ task.description }}</p>
-                        }
-                        @if (task.dueDate) {
-                          <p class="task-due-date">Due: {{ task.dueDate | date }}</p>
-                        }
-                        <p class="task-priority priority-{{ task.priority }}">
-                          {{ task.priority | titlecase }}
-                        </p>
-                        <div class="task-time-worked">
-                          Time Worked: {{ taskTotalTimes()[task.id] || '0h 0m' }}
-                        </div>
-                        <div class="task-timer">Timer: {{ formatTime(taskTimers()[task.id] || 0) }}</div>
-                      </div>
-                    </div>
-                    <div class="task-actions">
-                      @if (taskBeingDeleted() === task.id) {
-                        <!-- Delete confirmation buttons -->
-                        <button class="btn-confirm" (click)="confirmDelete(task.id)">
-                          Confirm
-                        </button>
-                        <button class="btn-cancel" (click)="cancelDelete()">
-                          Cancel
-                        </button>
-                      } @else {
-                        <!-- Play/Pause and Delete buttons -->
-                        @if (TaskCurrentlyInProgress() === task.id) {
-                          <button
-                            class="btn-play"
-                            (click)="pauseTaskProgress()"
-                          >
-                            ⏸
-                          </button>
-                          <button
-                            class="btn-reset"
-                            title="Reset timer"
-                            (click)="resetTaskTimer(task)"
-                          >
-                            ↻
-                          </button>
-                        } @else {
-                          <button
-                            class="btn-play"
-                            (click)="toggleTaskProgress(task)">
-                            ▶
-                          </button>
-                          <button
-                            class="btn-reset"
-                            title="Reset timer"
-                            (click)="resetTaskTimer(task)"
-                          >
-                            ↻
-                          </button>
-                        }
-                        <button class="btn-edit" title="Edit task" (click)="startEditTask(task)">
-                          ✏
-                        </button>
-                        <button class="btn-delete" (click)="startDelete(task.id)">
-                          ×
-                        </button>
-                      }
-                    </div>
-                    <!-- Checkpoints Collapse -->
-                    <div class="checkpoints-section">
-                      <button class="toggle-checkpoints" (click)="toggleCheckpoints(task.id)">
-                        {{ checkpointsOpen() === task.id ? '▲ Hide Checkpoints' : '▼ Show Checkpoints' }} ({{ task.checkpoints?.length || 0 }})
-                      </button>
-                      @if (checkpointsOpen() === task.id) {
-                        <div class="checkpoints-container">
-                          @if ((task.checkpoints?.length || 0) === 0) {
-                            <p class="empty-state">No checkpoints yet.</p>
-                          } @else {
-                            <div class="checkpoints-list">
-                              @for (checkpoint of task.checkpoints; track checkpoint.id) {
-                                @if (editingCheckpoint()?.taskId === task.id && editingCheckpoint()?.cpId === checkpoint.id) {
-                                  <!-- Edit Checkpoint Mode -->
-                                  <div class="checkpoint-item editing">
-                                    <form [formGroup]="editCheckpointForm" (ngSubmit)="saveEditCheckpoint()">
-                                      <div class="form-group">
-                                        <input
-                                          formControlName="name"
-                                          placeholder="Checkpoint name"
-                                          class="form-input"
-                                          autofocus>
-                                        @if (editCheckpointForm.get('name')?.invalid && editCheckpointForm.get('name')?.touched) {
-                                          <span class="error-text">
-                                            @if (editCheckpointForm.get('name')?.errors?.['required']) {
-                                              Checkpoint name is required
-                                            }
-                                          </span>
-                                        }
-                                      </div>
-                                      <div class="form-actions">
-                                        <button type="button" class="btn btn-secondary small" (click)="cancelEditCheckpoint()">
-                                          Cancel
-                                        </button>
-                                        <button type="submit" class="btn btn-primary small" [disabled]="editCheckpointForm.invalid">
-                                          Save
-                                        </button>
-                                      </div>
-                                    </form>
-                                  </div>
-                                } @else {
-                                  <!-- View Checkpoint Mode -->
-                                  <div class="checkpoint-item" [class.completed]="checkpoint.completed">
-                                    <input
-                                      type="checkbox"
-                                      [checked]="checkpoint.completed"
-                                      (change)="toggleCheckpointCompletion(task.id, checkpoint.id)"
-                                      class="checkpoint-checkbox"
-                                    />
-                                    <span class="checkpoint-name">{{ checkpoint.name }}</span>
-                                    <div class="checkpoint-actions">
-                                      <button class="btn-edit small" (click)="startEditCheckpoint(task.id, checkpoint.id)">✏</button>
-                                      <button class="btn-delete small" (click)="deleteCheckpoint(task.id, checkpoint.id)">×</button>
-                                    </div>
-                                  </div>
-                                }
-                              }
-                            </div>
-                          }
-                          <!-- Add Checkpoint Form -->
-                          @if (showCheckpointForm() === task.id) {
-                            <div class="checkpoint-form-container">
-                              <form [formGroup]="checkpointForm" (ngSubmit)="addCheckpoint(task.id)">
-                                <div class="form-group">
-                                  <input
-                                    formControlName="name"
-                                    placeholder="Enter checkpoint name"
-                                    class="form-input"
-                                    autofocus>
-                                  @if (checkpointForm.get('name')?.invalid && checkpointForm.get('name')?.touched) {
-                                    <span class="error-text">
-                                      @if (checkpointForm.get('name')?.errors?.['required']) {
-                                        Checkpoint name is required
-                                      }
-                                    </span>
-                                  }
-                                </div>
-                                <div class="form-actions">
-                                  <button type="button" class="btn btn-secondary small" (click)="toggleCheckpointForm(task.id)">
-                                    Cancel
-                                  </button>
-                                  <button type="submit" class="btn btn-primary small" [disabled]="checkpointForm.invalid">
-                                    Add Checkpoint
-                                  </button>
-                                </div>
-                              </form>
-                            </div>
-                          } @else {
-                            <button class="btn-add small" (click)="toggleCheckpointForm(task.id)">
-                              + Add Checkpoint
-                            </button>
-                          }
-                        </div>
-                      }
-                    </div>
-                  </div>
-                }
-              }
-            </div>
-          }
-        </div>
+        <app-task-list
+          [tasks]="project()!.tasks ?? []"
+          [projectId]="project()!.id"
+          (taskAdded)="onTaskAdded($event)"
+          (taskUpdated)="onTaskUpdated($event)"
+          (taskDeleted)="onTaskDeleted($event)"
+        ></app-task-list>
       }
 
       <!-- Sub-Projects Tab -->
       @if (activeTab() === 'subprojects') {
-        <div class="tab-content">
-          <div class="content-header">
-            <h2>Sub-Projects</h2>
-            <button class="btn-add" (click)="toggleSubProjectForm()">
-              {{ showSubProjectForm() ? '✕ Cancel' : '+ Add Sub Projects' }}
-            </button>
-          </div>
-
-          <!-- Expandable Project Form -->
-          @if (showSubProjectForm()) {
-            <div class="task-form-container">
-              <form [formGroup]="subProjectForm" (ngSubmit)="addsubProject()" class="task-form">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="projectName">Project name *</label>
-                    <input
-                      id="projectName"
-                      type="text"
-                      formControlName="name"
-                      placeholder="Enter project name"
-                      class="form-input"
-                      autofocus>
-                    @if (subProjectForm.get('name')?.invalid && subProjectForm.get('name')?.touched) {
-                      <span class="error-text">
-                        @if (subProjectForm.get('name')?.errors?.['required']) {
-                          Project name is required
-                        } @else if (subProjectForm.get('name')?.errors?.['minlength']) {
-                          Project name must be at least 3 characters
-                        }
-                      </span>
-                    }
-                  </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="subProjectType">Default tab when open</label>
-                    <select
-                      id="subProjectType"
-                      class="form-input"
-                      formControlName="defaultTabOnOpen">
-                      <option value="tasks">Tasks</option>
-                      <option value="subprojects">Sub Projects</option>
-                    </select>
-                  </div>
-
-                <div class="form-group">
-                  <label for="projectDesc">Description</label>
-                  <textarea
-                    id="projectDesc"
-                    formControlName="description"
-                    placeholder="Add project description (optional)"
-                    rows="3"
-                    class="form-input"></textarea>
-                </div>
-
-                <div class="form-actions">
-                  <button type="button" class="btn btn-secondary" (click)="toggleSubProjectForm()">
-                    Cancel
-                  </button>
-                  <button type="submit" class="btn btn-primary" [disabled]="subProjectForm.invalid">
-                    Create Sub Project
-                  </button>
-                </div>
-              </form>
-            </div>
-          }
-
-          @if ((project()!.subProjects?.length || 0) === 0) {
-            <p class="empty-state">No sub-projects yet.</p>
-          } @else {
-            <div class="subprojects-list">
-              @for (subProject of project()!.subProjects ?? []; track subProject.id) {
-                @if (editingSubProjectId() === subProject.id) {
-                  <!-- EDIT MODE -->
-                  <div class="subproject-card editing">
-                    <form [formGroup]="editSubProjectForm" (ngSubmit)="saveEditSubProject()" class="subproject-edit-form">
-                      <div class="form-row">
-                        <div class="form-group">
-                          <label for="editSubProjectName">Project name *</label>
-                          <input
-                            id="editSubProjectName"
-                            type="text"
-                            formControlName="name"
-                            placeholder="Enter project name"
-                            class="form-input"
-                            autofocus>
-                          @if (editSubProjectForm.get('name')?.invalid && editSubProjectForm.get('name')?.touched) {
-                            <span class="error-text">
-                              @if (editSubProjectForm.get('name')?.errors?.['required']) {
-                                Project name is required
-                              } @else if (editSubProjectForm.get('name')?.errors?.['minlength']) {
-                                Project name must be at least 3 characters
-                              }
-                            </span>
-                          }
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <label for="editSubProjectType">Default tab when open</label>
-                        <select id="editSubProjectType" formControlName="defaultTabOnOpen" class="form-input">
-                          <option value="tasks">Tasks</option>
-                          <option value="subprojects">Sub Projects</option>
-                        </select>
-                      </div>
-                      <div class="form-group">
-                        <label for="editSubProjectDesc">Description</label>
-                        <textarea
-                          id="editSubProjectDesc"
-                          formControlName="description"
-                          placeholder="Add project description"
-                          rows="3"
-                          class="form-input"></textarea>
-                      </div>
-                      <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" (click)="cancelEditSubProject()">
-                          Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary" [disabled]="editSubProjectForm.invalid">
-                          Save Changes
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                } @else if (subProjectBeingDeleted() === subProject.id) {
-                  <!-- DELETE CONFIRMATION -->
-                  <div class="subproject-card deleting">
-                    <div class="delete-confirmation">
-                      <div class="confirmation-content">
-                        <h4>Delete "{{ subProject.name }}"?</h4>
-                        <p>This action cannot be undone.</p>
-                      </div>
-                      <div class="confirmation-actions">
-                        <button class="btn-confirm" (click)="confirmDeleteSubProject(subProject.id)">
-                          Delete
-                        </button>
-                        <button class="btn-cancel" (click)="cancelDeleteSubProject()">
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                } @else {
-                  <!-- VIEW MODE -->
-                  <div class="subproject-card" [class.completed]="subProject.completed" [class.archived]="subProject.archived">
-                    <div class="subproject-header">
-                      <div class="subproject-title-section">
-                        <div class="subproject-info">
-                          <h3>{{ subProject.name }}</h3>
-                          @if (subProject.archived) {
-                            <span class="archived-badge">Archived</span>
-                          }
-                        </div>
-                      </div>
-                      <button class="btn-actions-menu" (click)="toggleSubProjectActions(subProject.id)" title="More options">
-                        ⋮
-                      </button>
-                    </div>
-
-                    <!-- Actions Dropdown -->
-                    @if (subProjectActionsOpen() === subProject.id) {
-                      <div class="actions-dropdown">
-                        <button
-                          class="action-item complete"
-                          [title]="subProject.completed ? 'Mark as Incomplete' : 'Mark as Completed'">
-                          <span class="icon">{{ subProject.completed ? '↩' : '✓' }}</span>
-                          {{ subProject.completed ? 'Mark as Incomplete' : 'Mark as Completed' }}
-                        </button>
-                        <button class="action-item edit" (click)="startEditSubProject(subProject)">
-                          <span class="icon">✎</span>
-                          Edit
-                        </button>
-                        <button
-                          class="action-item archive"
-                          [title]="subProject.archived ? 'Unarchive' : 'Archive'">
-                          <span class="icon">{{ subProject.archived ? '↩ Unarchive' : '📦 Archive' }}</span>
-                        </button>
-                        <button class="action-item delete" (click)="startDeleteSubProject(subProject.id)">
-                          <span class="icon">×</span>
-                          Delete
-                        </button>
-                      </div>
-                    }
-
-                    <p class="subproject-description">{{ subProject.description }}</p>
-
-                    <div class="subproject-time-worked">
-                      <span class="time-label">Total Time Worked:</span>
-                      <span class="time-value">{{ subProjectTotalTimes()[subProject.id] || '0h 0m' }}</span>
-                    </div>
-
-                    <a [routerLink]="['/projects', subProject.id]" class="view-link">View →</a>
-                  </div>
-                }
-              }
-            </div>
-          }
-        </div>
+        <app-sub-project-list
+          [subProjects]="project()!.subProjects ?? []"
+          [parentProjectId]="project()!.id"
+          (subProjectAdded)="onSubProjectAdded($event)"
+          (subProjectUpdated)="onSubProjectUpdated($event)"
+          (subProjectDeleted)="onSubProjectDeleted($event)"
+        ></app-sub-project-list>
       }
     </div>
   }

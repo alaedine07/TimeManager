@@ -1,0 +1,66 @@
+<!-- components/task-form/task-form.component.html -->
+<div class="task-form-container">
+  <form [formGroup]="taskForm" (ngSubmit)="save()" class="task-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="taskName">Task Name *</label>
+        <input
+          id="taskName"
+          type="text"
+          formControlName="name"
+          placeholder="Enter task name"
+          class="form-input"
+          autofocus>
+        @if (taskForm.get('name')?.invalid && taskForm.get('name')?.touched) {
+          <span class="error-text">
+            @if (taskForm.get('name')?.errors?.['required']) {
+              Task name is required
+            } @else if (taskForm.get('name')?.errors?.['minlength']) {
+              Task name must be at least 3 characters
+            }
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="taskPriority">Priority</label>
+        <select
+          id="taskPriority"
+          formControlName="priority"
+          class="form-input">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="taskDueDate">Due Date</label>
+        <input
+          id="taskDueDate"
+          type="date"
+          formControlName="dueDate"
+          class="form-input">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="taskDesc">Description</label>
+      <textarea
+        id="taskDesc"
+        formControlName="description"
+        placeholder="Add task description (optional)"
+        rows="3"
+        class="form-input"></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="taskForm.invalid">
+        {{ mode === 'add' ? 'Create Task' : 'Save Changes' }}
+      </button>
+    </div>
+  </form>
+</div>
