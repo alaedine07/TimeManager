@@ -172,18 +172,33 @@
           </div>
           <p class="project-description">{{ project.description }}</p>
           <div class="project-stats">
-            <div class="stat">
-              <span class="stat-value">{{ project.totalTasks || 0 }}</span>
-              <span class="stat-label">Tasks</span>
-            </div>
-            <div class="stat">
-              <span class="stat-value">{{ project.completedTasks || 0 }}</span>
-              <span class="stat-label">Done</span>
-            </div>
-            <div class="stat">
-              <span class="stat-value">{{ getPendingTasks(project) }}</span>
-              <span class="stat-label">Pending</span>
-            </div>
+            @if (shouldShowSubProjectStats(project)) {
+              <div class="stat">
+                <span class="stat-value">{{ getSubProjectCount(project) }}</span>
+                <span class="stat-label">Projects</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ getCompletedSubProjects(project) }}</span>
+                <span class="stat-label">Done</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ getPendingSubProjects(project) }}</span>
+                <span class="stat-label">Pending</span>
+              </div>
+            } @else {
+              <div class="stat">
+                <span class="stat-value">{{ project.totalTasks || 0 }}</span>
+                <span class="stat-label">Tasks</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ project.completedTasks || 0 }}</span>
+                <span class="stat-label">Done</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ getPendingTasks(project) }}</span>
+                <span class="stat-label">Pending</span>
+              </div>
+            }
           </div>
           <!-- Total Time Worked Section -->
           <div class="project-time-worked">

@@ -67,7 +67,14 @@ export class ProjectsComponent implements OnInit {
     alert('Create form coming next!');
   }
 
+  shouldShowSubProjectStats(project: Project): boolean {
+    return project.defaultTabOnOpen === 'subprojects';
+  }
+
   getProgressPercentage(project: Project): number {
+    if (this.shouldShowSubProjectStats(project)) {
+      return this.getSubProjectProgressPercentage(project);
+    }
     if (!project.totalTasks || project.totalTasks === 0) return 0;
     return Math.round(((project.completedTasks ?? 0) / project.totalTasks) * 100);
   }
@@ -75,6 +82,27 @@ export class ProjectsComponent implements OnInit {
   getPendingTasks(project: Project): number {
     if (!project.totalTasks) return 0;
     return project.totalTasks - (project.completedTasks || 0);
+  }
+
+  getSubProjectCount(project: Project): number {
+    return project.subProjects?.length || 0;
+  }
+
+  getCompletedSubProjects(project: Project): number {
+    return (project.subProjects?.filter(sp => sp.completed)?.length || 0);
+  }
+
+  getPendingSubProjects(project: Project): number {
+    const total = this.getSubProjectCount(project);
+    const completed = this.getCompletedSubProjects(project);
+    return total - completed;
+  }
+
+  getSubProjectProgressPercentage(project: Project): number {
+    const total = this.getSubProjectCount(project);
+    if (!total || total === 0) return 0;
+    const completed = this.getCompletedSubProjects(project);
+    return Math.round((completed / total) * 100);
   }
 
   closeProjectMenu() {
