@@ -90,8 +90,11 @@ public class TimeSessionService : ITimeSessionService
     // get total time worked on a project
     public async Task<TimeSpan> GetTotalTimeForProjectAsync(Guid userId, Guid projectId)
     {
+        // Get all project IDs including sub-projects
+        var projectIds = await GetAllProjectIdsIncludingSubProjectsAsync(projectId);
+
         var sessions = await _context.TaskTimeSessions
-            .Where(s => s.UserId == userId && s.ProjectId == projectId)
+            .Where(s => s.UserId == userId && projectIds.Contains(s.ProjectId))
             .ToListAsync();
         TimeSpan totalTime = TimeSpan.Zero;
         foreach (var session in sessions)
@@ -100,5 +103,22 @@ public class TimeSessionService : ITimeSessionService
             totalTime += endTime - session.StartTime;
         }
         return totalTime;
+    }
+
+    // Helper method to recursively get all project IDs including sub-projects
+    private async Task<List<Guid>> GetAllProjectIdsIncludingSubProjectsAsync(Guid projectId)
+    {
+        var projectIds = new List<Guid> { projectId };
+        var subProjects = await _context.Projects
+            .Where(p => p.ParentProjectId == projectId)
+            .ToListAsync();
+
+        foreach (var subProject in subProjects)
+        {
+            var subProjectIds = await GetAllProjectIdsIncludingSubProjectsAsync(subProject.Id);
+            projectIds.AddRange(subProjectIds);
+        }
+
+        return projectIds;
     }
 }
