@@ -1,5 +1,5 @@
 // components/project-detail/project-detail.component.ts
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
@@ -10,16 +10,17 @@ import { TimeSessionsService } from '../../services/timeSessions.service';
 import { formatTimeSpan } from '../../utils/time-format.util';
 import { TaskListComponent } from '../../Components/TaskList/task-list.component';
 import { SubProjectListComponent } from '../../Components/SubProjectList/sub-project-list.component';
-import { ProjectHeaderComponent } from '../../Components/projectHeader/project-header.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, TaskListComponent, SubProjectListComponent, ProjectHeaderComponent],
+  imports: [CommonModule, TaskListComponent, SubProjectListComponent],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
 export class ProjectDetailComponent implements OnInit {
+  @ViewChild('taskList', { static: false }) taskListComponent!: TaskListComponent;
+
   project = signal<Project | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
@@ -134,5 +135,18 @@ export class ProjectDetailComponent implements OnInit {
 
   goBack(): void {
     this.location.back();
+  }
+
+  scrollToTaskForm(): void {
+    if (this.taskListComponent) {
+      this.taskListComponent.toggleTaskForm();
+      // Scroll to the task form
+      setTimeout(() => {
+        const taskForm = document.querySelector('app-task-list app-task-form');
+        if (taskForm) {
+          taskForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
   }
 }

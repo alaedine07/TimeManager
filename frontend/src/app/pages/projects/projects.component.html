@@ -1,59 +1,85 @@
-<!-- components/project-detail/project.component.html -->
-<div class="projects-container">
-  <div class="header-action">
-    <h1>My Projects</h1>
-  </div>
+<!-- pages/projects/projects.component.html -->
+<!-- Main Content Canvas -->
+<main class="pt-12 pb-16 px-8 min-h-screen">
+  <!-- Header Section -->
+  <header class="mb-12">
+    <h1 class="font-headline font-extrabold text-4xl text-on-surface tracking-tight mb-2">
+      My Projects
+    </h1>
+    <p class="text-on-surface-variant font-body">
+      Architecture is the thoughtful making of space for your focus.
+    </p>
+  </header>
+
   @if (loading()) {
-    <div class="loading">
-      <p>Loading projects...</p>
-    </div>
-  }
-  @if (error()) {
-    <div class="error">
-      <p>{{ error() }}</p>
-    </div>
-  }
-  <div class="projects-grid">
-    <!-- Add New Project Card -->
-    <div class="add-project-card" [routerLink]="['/projects/new']">
-      <div class="add-project-content">
-        <div class="add-icon">+</div>
+    <div class="flex items-center justify-center py-12">
+      <div class="text-center">
+        <div class="inline-block text-primary mb-4">
+          <div class="animate-spin">
+            <span class="material-symbols-outlined text-5xl">hourglass_top</span>
+          </div>
+        </div>
+        <p class="text-on-surface-variant font-body">Loading projects...</p>
       </div>
     </div>
+  }
+
+  @if (error()) {
+    <div class="mb-6 p-4 rounded-lg bg-error-container text-error border border-error/20 font-body text-sm">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Projects Grid: Bento-style Asymmetry -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- "Add New Project" Card -->
+    <button
+      class="group relative flex flex-col items-center justify-center h-full min-h-[280px] p-8 border-2 border-dashed border-outline-variant hover:border-primary hover:bg-surface-container-low transition-all duration-300 rounded-xl bg-transparent"
+      [routerLink]="['/projects/new']"
+    >
+      <div
+        class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300"
+      >
+        <span class="material-symbols-outlined text-primary text-3xl">add</span>
+      </div>
+      <span class="font-headline font-bold text-lg text-on-surface">Add New Project</span>
+      <span class="text-sm text-on-surface-variant mt-1">Start a fresh temporal journey</span>
+    </button>
     <!-- Existing Projects -->
-    @for (project of projects(); track project.id) {
+    @for (project of projects(); track project.id; let idx = $index) {
       <!-- Edit Mode View -->
       @if (editingProjectId() === project.id) {
-        <div class="project-card edit-mode-card" (click)="$event.stopPropagation()">
-          <div class="edit-mode-header">
-            <h2 class="edit-mode-title">Edit Project</h2>
+        <div
+          class="bg-surface-container-lowest rounded-xl p-6 shadow-lg border border-primary/20 col-span-full"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="font-headline font-bold text-xl text-on-surface">Edit Project</h2>
             <button
-              class="edit-mode-close-btn"
+              class="text-on-surface-variant hover:text-on-surface transition-colors"
               (click)="cancelEditProject($event)"
-              title="Cancel editing"
               [disabled]="editFormLoading()"
             >
-              ✕
+              <span class="material-symbols-outlined text-xl">close</span>
             </button>
           </div>
 
           @if (editFormError()) {
-            <div class="edit-form-error">
-              <span class="error-icon">⚠</span>
+            <div class="mb-6 p-4 rounded-lg bg-error-container text-error border border-error/20">
               {{ editFormError() }}
             </div>
           }
 
-          <form class="edit-form" (ngSubmit)="saveEditProject($event, project)">
+          <form class="space-y-4" (ngSubmit)="saveEditProject($event, project)">
             <!-- Project Name Field -->
-            <div class="form-group">
-              <label for="project-name-{{ project.id }}" class="form-label">
-                Project Name <span class="required">*</span>
+            <div class="space-y-2">
+              <label for="project-name-{{ project.id }}" class="block font-headline font-bold text-on-surface text-sm">
+                Project Name <span class="text-error">*</span>
               </label>
               <input
                 [id]="'project-name-' + project.id"
                 type="text"
-                class="form-input"
+                class="w-full px-4 py-3 bg-surface-container-lowest border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface placeholder:text-outline-variant font-body transition-all"
                 [(ngModel)]="editFormData().name"
                 name="name"
                 placeholder="Enter project name"
@@ -61,53 +87,17 @@
               />
             </div>
 
-            <!-- Project Type Field -->
-            <div class="form-group">
-              <label for="project-type-{{ project.id }}" class="form-label">
-                Default Tab When Open
-              </label>
-              <select
-                [id]="'project-type-' + project.id"
-                class="form-input form-select"
-                [(ngModel)]="editFormData().defaultTabOnOpen"
-                name="type"
-                [disabled]="editFormLoading()"
-              >
-                <option value="tasks">tasks</option>
-                <option value="subprojects">subprojects</option>
-              </select>
-            </div>
-
-            <!-- Project Category Field -->
-            <div class="form-group">
-              <label for="project-category-{{ project.id }}" class="form-label">
-                Category
-              </label>
-              <select
-                [id]="'project-category-' + project.id"
-                class="form-input form-select"
-                [(ngModel)]="editFormData().category"
-                name="category"
-                [disabled]="editFormLoading()"
-              >
-                <option value="">General</option>
-                <option value="Work">Work</option>
-                <option value="Personal">Personal</option>
-                <option value="Learning">Learning</option>
-                <option value="Health">Health</option>
-                <option value="Finance">Finance</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
             <!-- Project Description Field -->
-            <div class="form-group">
-              <label for="project-description-{{ project.id }}" class="form-label">
+            <div class="space-y-2">
+              <label
+                for="project-description-{{ project.id }}"
+                class="block font-headline font-bold text-on-surface text-sm"
+              >
                 Description
               </label>
               <textarea
                 [id]="'project-description-' + project.id"
-                class="form-input form-textarea"
+                class="w-full px-4 py-3 bg-surface-container-lowest border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface placeholder:text-outline-variant font-body transition-all resize-none"
                 [(ngModel)]="editFormData().description"
                 name="description"
                 placeholder="Enter project description"
@@ -116,11 +106,57 @@
               ></textarea>
             </div>
 
+            <!-- Category & Default Tab Grid -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label
+                  for="project-category-{{ project.id }}"
+                  class="block font-headline font-bold text-on-surface text-sm"
+                >
+                  Category
+                </label>
+                <select
+                  [id]="'project-category-' + project.id"
+                  class="w-full px-4 py-3 bg-surface-container-lowest border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface font-body appearance-none cursor-pointer"
+                  [(ngModel)]="editFormData().category"
+                  name="category"
+                  [disabled]="editFormLoading()"
+                >
+                  <option value="General">General</option>
+                  <option value="Work">Work</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Design">Design</option>
+                  <option value="Development">Development</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="space-y-2">
+                <label
+                  for="project-type-{{ project.id }}"
+                  class="block font-headline font-bold text-on-surface text-sm"
+                >
+                  Default Tab
+                </label>
+                <select
+                  [id]="'project-type-' + project.id"
+                  class="w-full px-4 py-3 bg-surface-container-lowest border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface font-body appearance-none cursor-pointer"
+                  [(ngModel)]="editFormData().defaultTabOnOpen"
+                  name="type"
+                  [disabled]="editFormLoading()"
+                >
+                  <option value="tasks">Tasks</option>
+                  <option value="subprojects">Sub-Projects</option>
+                </select>
+              </div>
+            </div>
+
             <!-- Form Actions -->
-            <div class="form-actions">
+            <div class="flex items-center justify-end space-x-4 pt-4">
               <button
                 type="button"
-                class="btn-form-cancel"
+                class="px-8 py-3 rounded-lg font-bold text-primary hover:bg-surface-container-high transition-colors"
                 (click)="cancelEditProject($event)"
                 [disabled]="editFormLoading()"
               >
@@ -128,11 +164,10 @@
               </button>
               <button
                 type="submit"
-                class="btn-form-save"
+                class="bg-primary-gradient px-8 py-3 rounded-lg font-bold text-on-primary shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                 [disabled]="editFormLoading()"
               >
                 @if (editFormLoading()) {
-                  <span class="loading-spinner"></span>
                   Saving...
                 } @else {
                   Save Changes
@@ -144,124 +179,138 @@
       } @else {
         <!-- Normal Card View -->
         <div
-          class="project-card"
-          [routerLink]="['/projects', project.id]"
-          [class.menu-open]="activeProjectMenu() === project.id"
-        >
-          <div class="project-header">
-            <div class="project-title-section">
-              <h3>{{ project.name }}</h3>
-              <div class="project-tags">
-                <span class="project-category">{{ project.category || 'General' }}</span>
-                <span class="project-type" [class]="'type-' + (project.defaultTabOnOpen || 'tasks')" title="Default content type">
-                  {{ project.defaultTabOnOpen === 'subprojects' ? 'Sub-Projects' : 'Tasks' }}
+            class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_32px_64px_-15px_rgba(11,28,48,0.06)] flex flex-col justify-between group hover:-translate-y-1 transition-transform duration-300 cursor-pointer"
+            [class.menu-open]="activeProjectMenu() === project.id"
+            [routerLink]="['/projects', project.id]"
+            (click)="$event.stopPropagation(); $event.cancelBubble = true"
+          >
+            <div>
+              <div class="flex justify-between items-start mb-4">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                  [class.bg-primary-fixed]="project.category === 'Work'"
+                  [class.text-on-primary-fixed]="project.category === 'Work'"
+                  [class.bg-tertiary-fixed]="project.category === 'Finance'"
+                  [class.text-on-tertiary-fixed]="project.category === 'Finance'"
+                  [class.bg-secondary-fixed]="project.category !== 'Work' && project.category !== 'Finance'"
+                  [class.text-on-secondary-fixed]="project.category !== 'Work' && project.category !== 'Finance'"
+                >
+                  {{ project.category || 'General' }}
                 </span>
+                <button
+                  class="text-on-surface-variant hover:text-on-surface transition-colors"
+                  (click)="toggleProjectMenu($event, project)"
+                >
+                  <span class="material-symbols-outlined">more_horiz</span>
+                </button>
+              </div>
+              <h3 class="font-headline font-bold text-xl text-on-surface mb-2">{{ project.name }}</h3>
+              <p class="text-sm text-on-surface-variant line-clamp-2 mb-6">
+                {{ project.description || 'No description provided' }}
+              </p>
+            </div>
+            <div class="space-y-6">
+              <div>
+                <div class="flex justify-between text-xs font-medium mb-2 text-on-surface-variant">
+                  <span>Progress</span>
+                  <span class="text-primary">{{ getProgressPercentage(project) }}% Complete</span>
+                </div>
+                <div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-primary progress-glow"
+                    [style.width.%]="getProgressPercentage(project)"
+                  ></div>
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                @if (shouldShowSubProjectStats(project)) {
+                  <div class="text-center">
+                    <div class="text-xs text-on-surface-variant mb-1">Projects</div>
+                    <div class="text-sm font-bold text-on-surface">{{ getSubProjectCount(project) }}</div>
+                  </div>
+                  <div class="text-center">
+                    <div class="text-xs text-on-surface-variant mb-1">Done</div>
+                    <div class="text-sm font-bold text-on-surface">{{ getCompletedSubProjects(project) }}</div>
+                  </div>
+                  <div class="text-center">
+                    <div class="text-xs text-on-surface-variant mb-1">Pending</div>
+                    <div class="text-sm font-bold text-on-surface">{{ getPendingSubProjects(project) }}</div>
+                  </div>
+                } @else {
+                  <div class="text-center">
+                    <div class="text-xs text-on-surface-variant mb-1">Tasks</div>
+                    <div class="text-sm font-bold text-on-surface">{{ project.totalTasks || 0 }}</div>
+                  </div>
+                  <div class="text-center">
+                    <div class="text-xs text-on-surface-variant mb-1">Done</div>
+                    <div class="text-sm font-bold text-on-surface">{{ project.completedTasks || 0 }}</div>
+                  </div>
+                  <div class="text-center">
+                    <div class="text-xs text-on-surface-variant mb-1">Time</div>
+                    <div class="text-sm font-bold text-on-surface">{{ projectTotalTimes()[project.id] || '0h 0m' }}</div>
+                  </div>
+                }
               </div>
             </div>
-            <button
-              class="menu-btn"
-              [class.active]="activeProjectMenu() === project.id"
-              (click)="toggleProjectMenu($event, project)"
-            >
-              @if (activeProjectMenu() === project.id) {
-                ✕
-              } @else {
-                •••
-              }
-            </button>
-          </div>
-          <p class="project-description">{{ project.description }}</p>
-          <div class="project-stats">
-            @if (shouldShowSubProjectStats(project)) {
-              <div class="stat">
-                <span class="stat-value">{{ getSubProjectCount(project) }}</span>
-                <span class="stat-label">Projects</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">{{ getCompletedSubProjects(project) }}</span>
-                <span class="stat-label">Done</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">{{ getPendingSubProjects(project) }}</span>
-                <span class="stat-label">Pending</span>
-              </div>
-            } @else {
-              <div class="stat">
-                <span class="stat-value">{{ project.totalTasks || 0 }}</span>
-                <span class="stat-label">Tasks</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">{{ project.completedTasks || 0 }}</span>
-                <span class="stat-label">Done</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">{{ getPendingTasks(project) }}</span>
-                <span class="stat-label">Pending</span>
+
+            <!-- Action Menu -->
+            @if (activeProjectMenu() === project.id) {
+              <div class="mt-6 pt-6 border-t border-outline-variant/10 space-y-2 animate-in fade-in">
+                @if (deleteConfirmingProjectId() === project.id) {
+                  <div class="flex gap-2">
+                    <button
+                      class="flex-1 px-4 py-2 bg-error text-on-error rounded-lg font-medium text-sm hover:opacity-90 transition-opacity"
+                      (click)="confirmDeleteProject($event, project)"
+                      [disabled]="deleteInProgress()"
+                    >
+                      @if (deleteInProgress()) {
+                        Deleting...
+                      } @else {
+                        Confirm Delete
+                      }
+                    </button>
+                    <button
+                      class="flex-1 px-4 py-2 bg-surface-container-high text-on-surface rounded-lg font-medium text-sm hover:opacity-90 transition-opacity"
+                      (click)="cancelDeleteProject($event)"
+                      [disabled]="deleteInProgress()"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                } @else {
+                  <button
+                    class="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-high rounded-lg transition-colors flex items-center gap-2"
+                    (click)="startEditProject($event, project)"
+                  >
+                    <span class="material-symbols-outlined text-base">edit</span>
+                    Edit
+                  </button>
+                  <button
+                    class="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-high rounded-lg transition-colors flex items-center gap-2"
+                    (click)="toggleProjectComplete(project)"
+                  >
+                    <span class="material-symbols-outlined text-base">check_circle</span>
+                    Mark Complete
+                  </button>
+                  <button
+                    class="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-container-high rounded-lg transition-colors flex items-center gap-2"
+                    (click)="archiveProject(project)"
+                  >
+                    <span class="material-symbols-outlined text-base">archive</span>
+                    Archive
+                  </button>
+                  <button
+                    class="w-full text-left px-4 py-2 text-sm text-error hover:bg-error/10 rounded-lg transition-colors flex items-center gap-2"
+                    (click)="initiateDeleteProject($event, project)"
+                  >
+                    <span class="material-symbols-outlined text-base">delete</span>
+                    Delete
+                  </button>
+                }
               </div>
             }
           </div>
-          <!-- Total Time Worked Section -->
-          <div class="project-time-worked">
-            <span class="time-label">Total Time Worked:</span>
-            <span class="time-value">
-              {{ projectTotalTimes()[project.id] || '0h 0m' }}
-            </span>
-          </div>
-          <div class="progress-section">
-            <div class="progress-label">
-              <span>Progress</span>
-              <span>{{ getProgressPercentage(project) }}%</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="getProgressPercentage(project)"></div>
-            </div>
-          </div>
-          <!-- Action Buttons - Appear when menu is open -->
-          @if (activeProjectMenu() === project.id) {
-            <!-- Delete Confirmation State -->
-            @if (deleteConfirmingProjectId() === project.id) {
-              <div class="project-actions delete-confirmation">
-                <button
-                  class="action-btn confirm-delete"
-                  (click)="confirmDeleteProject($event, project)"
-                  title="Confirm delete"
-                  [disabled]="deleteInProgress()"
-                >
-                  @if (deleteInProgress()) {
-                    <span class="loading-spinner-small"></span>
-                  } @else {
-                    <span class="icon">✓</span>
-                  }
-                </button>
-                <button
-                  class="action-btn cancel-delete"
-                  (click)="cancelDeleteProject($event)"
-                  title="Cancel delete"
-                  [disabled]="deleteInProgress()"
-                >
-                  <span class="icon">✕</span>
-                </button>
-              </div>
-            } @else {
-              <!-- Normal Actions -->
-              <div class="project-actions">
-                <button class="action-btn complete" (click)="toggleProjectComplete(project)" title="Mark as complete">
-                  <span class="icon">✓</span>
-                </button>
-                <button class="action-btn edit" (click)="startEditProject($event, project)" title="Edit">
-                  <span class="icon">✎</span>
-                </button>
-                <button class="action-btn archive" (click)="archiveProject(project)" title="Archive">
-                  <span class="icon">📦</span>
-                </button>
-                <button class="action-btn delete" (click)="initiateDeleteProject($event, project)" title="Delete">
-                  <span class="icon">🗑</span>
-                </button>
-              </div>
-            }
-          }
-        </div>
       }
     }
   </div>
-</div>
+</main>

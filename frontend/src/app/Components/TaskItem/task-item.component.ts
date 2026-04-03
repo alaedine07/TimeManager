@@ -6,13 +6,12 @@ import { TimeSessionsService } from '../../services/timeSessions.service';
 import { formatTimeSpan } from '../../utils/time-format.util';
 import { TaskFormComponent } from '../TaskForm/task-form.component';
 import { CheckpointsComponent } from '../Checkpoints/checkpoints.component';
-import { DatePipe } from '@angular/common';
 import { Output } from '@angular/core';
 
 @Component({
   selector: 'app-task-item',
   standalone: true,
-  imports: [CommonModule, TaskFormComponent, CheckpointsComponent, DatePipe],
+  imports: [CommonModule, TaskFormComponent, CheckpointsComponent],
   templateUrl: './task-item.component.html',
   styleUrl: './task-item.component.scss'
 })
@@ -29,6 +28,7 @@ export class TaskItemComponent implements OnInit, OnDestroy, OnChanges {
 
   editing = signal(false);
   taskBeingDeleted = signal(false);
+  actionsOpen = signal(false);
   taskTotalTime = signal<string | null>(null);
   taskTimer = signal<number | null>(null);
 
@@ -140,6 +140,10 @@ export class TaskItemComponent implements OnInit, OnDestroy, OnChanges {
     this.taskTimer.set(null);
     localStorage.removeItem(this.getTimerStorageKey());
     this.timerReset.emit(this.task);
+  }
+
+  toggleActions() {
+    this.actionsOpen.update(value => !value);
   }
 
   formatTime(ms: number): string {

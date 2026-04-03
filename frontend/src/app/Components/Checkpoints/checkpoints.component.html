@@ -1,14 +1,33 @@
-<!-- components/checkpoints/checkpoints.component.html -->
-<div class="checkpoints-section">
-  <button class="toggle-checkpoints" (click)="toggleCheckpoints()">
-    {{ open() ? '▲ Hide Checkpoints' : '▼ Show Checkpoints' }} ({{ checkpoints.length }})
+<!-- Components/Checkpoints/checkpoints.component.html -->
+<div class="space-y-4">
+  <!-- Toggle Button -->
+  <button
+    (click)="toggleCheckpoints()"
+    class="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-surface-container-high hover:bg-surface-container-highest transition-all font-bold text-on-surface group"
+  >
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined group-hover:scale-110 transition-transform">
+        {{ open() ? 'expand_less' : 'expand_more' }}
+      </span>
+      <span class="text-sm">Checkpoints</span>
+    </div>
+    <span class="text-primary font-headline text-lg">{{ checkpoints.length }}</span>
   </button>
+
+  <!-- Checkpoints Content -->
   @if (open()) {
-    <div class="checkpoints-container">
+    <div class="space-y-4 bg-surface-container-low rounded-xl p-6">
+      <!-- Empty State -->
       @if (checkpoints.length === 0) {
-        <p class="empty-state">No checkpoints yet.</p>
+        <div class="flex items-center justify-center py-8 text-center">
+          <div class="space-y-2">
+            <span class="material-symbols-outlined text-4xl text-outline-variant/30">flag</span>
+            <p class="text-on-surface-variant text-sm">No checkpoints yet. Add one to track milestones.</p>
+          </div>
+        </div>
       } @else {
-        <div class="checkpoints-list">
+        <!-- Checkpoints List -->
+        <div class="space-y-2">
           @for (checkpoint of checkpoints; track checkpoint.id) {
             <app-checkpoint-item
               [checkpoint]="checkpoint"
@@ -21,36 +40,52 @@
           }
         </div>
       }
+
+      <!-- Add Checkpoint Form -->
       @if (showForm()) {
-        <div class="checkpoint-form-container">
-          <form [formGroup]="checkpointForm" (ngSubmit)="addCheckpoint()">
-            <div class="form-group">
+        <div class="bg-surface-container-highest rounded-lg p-4 space-y-3 border border-outline/10">
+          <form [formGroup]="checkpointForm" (ngSubmit)="addCheckpoint()" class="space-y-3">
+            <div class="space-y-2">
               <input
                 formControlName="name"
                 placeholder="Enter checkpoint name"
-                class="form-input"
-                autofocus>
+                class="w-full px-4 py-2 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface placeholder:text-outline-variant font-body text-sm transition-all"
+                autofocus
+              />
               @if (checkpointForm.get('name')?.invalid && checkpointForm.get('name')?.touched) {
-                <span class="error-text">
+                <span class="block text-error text-xs font-bold">
                   @if (checkpointForm.get('name')?.errors?.['required']) {
                     Checkpoint name is required
                   }
                 </span>
               }
             </div>
-            <div class="form-actions">
-              <button type="button" class="btn btn-secondary small" (click)="toggleForm()">
+            <!-- Actions -->
+            <div class="flex gap-2 justify-end">
+              <button
+                type="button"
+                class="px-3 py-1.5 rounded-lg font-bold text-on-surface hover:bg-surface-container-high transition-all text-sm"
+                (click)="toggleForm()"
+              >
                 Cancel
               </button>
-              <button type="submit" class="btn btn-primary small" [disabled]="checkpointForm.invalid">
-                Add Checkpoint
+              <button
+                type="submit"
+                class="px-4 py-1.5 rounded-lg bg-primary text-on-primary font-bold hover:scale-105 active:scale-95 transition-all text-sm disabled:opacity-50"
+                [disabled]="checkpointForm.invalid"
+              >
+                Add
               </button>
             </div>
           </form>
         </div>
       } @else {
-        <button class="btn-add small" (click)="toggleForm()">
-          + Add Checkpoint
+        <button
+          (click)="toggleForm()"
+          class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg hover:bg-surface-container-highest transition-all font-bold text-primary text-sm"
+        >
+          <span class="material-symbols-outlined">add</span>
+          Add Checkpoint
         </button>
       }
     </div>

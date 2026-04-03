@@ -1,4 +1,4 @@
-// components/create-project/create-project.component.ts
+// pages/create-project/create-project.component.ts
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
