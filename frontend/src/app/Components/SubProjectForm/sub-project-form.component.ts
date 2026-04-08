@@ -7,8 +7,7 @@ import { Project } from '../../models/project.model';
   selector: 'app-sub-project-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './sub-project-form.component.html',
-  styleUrl: './sub-project-form.component.scss'
+  templateUrl: './sub-project-form.component.html'
 })
 export class SubProjectFormComponent implements OnInit {
   @Input() mode: 'add' | 'edit' = 'add';

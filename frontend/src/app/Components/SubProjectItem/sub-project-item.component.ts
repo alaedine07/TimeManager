@@ -11,8 +11,7 @@ import { SubProjectFormComponent } from '../SubProjectForm/sub-project-form.comp
   selector: 'app-sub-project-item',
   standalone: true,
   imports: [CommonModule, RouterLink, SubProjectFormComponent],
-  templateUrl: './sub-project-item.component.html',
-  styleUrl: './sub-project-item.component.scss'
+  templateUrl: './sub-project-item.component.html'
 })
 export class SubProjectItemComponent implements OnInit {
   @Input() subProject!: Project;
@@ -21,7 +20,6 @@ export class SubProjectItemComponent implements OnInit {
 
   editing = signal(false);
   beingDeleted = signal(false);
-  actionsOpen = signal(false);
   totalTime = signal<string | null>(null);
 
   constructor(
@@ -40,10 +38,6 @@ export class SubProjectItemComponent implements OnInit {
     });
   }
 
-  toggleActions() {
-    this.actionsOpen.update(val => !val);
-  }
-
   toggleComplete() {
     this.update({ completed: !this.subProject.completed });
   }
@@ -54,7 +48,6 @@ export class SubProjectItemComponent implements OnInit {
 
   startEdit() {
     this.editing.set(true);
-    this.actionsOpen.set(false);
   }
 
   saveEditSubProject(updates: Omit<Project, 'id'>) {
@@ -73,7 +66,6 @@ export class SubProjectItemComponent implements OnInit {
 
   startDelete() {
     this.beingDeleted.set(true);
-    this.actionsOpen.set(false);
   }
 
   confirmDelete() {
@@ -89,7 +81,6 @@ export class SubProjectItemComponent implements OnInit {
     this.projectService.updateProject(this.subProject.id, updates).subscribe({
       next: (updated) => {
         this.updated.emit(updated);
-        this.actionsOpen.set(false);
       },
       error: (err) => console.error('Failed to update sub-project', err)
     });

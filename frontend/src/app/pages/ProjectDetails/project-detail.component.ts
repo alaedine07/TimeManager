@@ -15,8 +15,7 @@ import { SubProjectListComponent } from '../../Components/SubProjectList/sub-pro
   selector: 'app-project-detail',
   standalone: true,
   imports: [CommonModule, TaskListComponent, SubProjectListComponent],
-  templateUrl: './project-detail.component.html',
-  styleUrl: './project-detail.component.scss'
+  templateUrl: './project-detail.component.html'
 })
 export class ProjectDetailComponent implements OnInit {
   @ViewChild('taskList', { static: false }) taskListComponent!: TaskListComponent;

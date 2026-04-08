@@ -12,7 +12,6 @@ import { Project } from '../../models/project.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './create-project.component.html',
-  styleUrl: './create-project.component.scss'
 })
 export class CreateProjectComponent {
   projectName = signal('');

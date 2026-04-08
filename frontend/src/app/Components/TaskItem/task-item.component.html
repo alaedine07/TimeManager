@@ -105,46 +105,29 @@
           </div>
         </div>
 
-        <!-- More Menu Button -->
-        <div class="relative">
+        <!-- Inline Actions -->
+        <div class="flex items-center gap-1">
           <button
-            (click)="toggleActions()"
-            class="text-on-surface-variant hover:text-on-surface transition-colors w-10 h-10 rounded-lg flex items-center justify-center hover:bg-surface-container-high"
+            (click)="startEdit()"
+            class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all"
+            title="Edit"
           >
-            <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+            <span class="material-symbols-outlined text-xl">edit</span>
           </button>
-
-          <!-- Dropdown Menu -->
-          @if (actionsOpen()) {
-            <div class="absolute right-0 mt-2 w-48 bg-surface-container-high rounded-xl shadow-lg z-20 overflow-hidden border border-outline/10">
-              <!-- Edit -->
-              <button
-                (click)="startEdit(); toggleActions()"
-                class="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-surface-container-highest transition-all text-on-surface hover:text-primary text-sm font-bold border-b border-outline/5"
-              >
-                <span class="material-symbols-outlined">edit</span>
-                Edit
-              </button>
-
-              <!-- Reset Timer -->
-              <button
-                (click)="resetTimer(); toggleActions()"
-                class="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-surface-container-highest transition-all text-on-surface hover:text-primary text-sm font-bold border-b border-outline/5"
-              >
-                <span class="material-symbols-outlined">restart_alt</span>
-                Reset Timer
-              </button>
-
-              <!-- Delete -->
-              <button
-                (click)="startDelete(); toggleActions()"
-                class="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-error-container transition-all text-error hover:text-error text-sm font-bold"
-              >
-                <span class="material-symbols-outlined">delete</span>
-                Delete
-              </button>
-            </div>
-          }
+          <button
+            (click)="resetTimer()"
+            class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all"
+            title="Reset Timer"
+          >
+            <span class="material-symbols-outlined text-xl">restart_alt</span>
+          </button>
+          <button
+            (click)="startDelete()"
+            class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error-container/30 transition-all"
+            title="Delete"
+          >
+            <span class="material-symbols-outlined text-xl">delete</span>
+          </button>
         </div>
       </div>
     </div>

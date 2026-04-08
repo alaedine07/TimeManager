@@ -9,8 +9,7 @@ import { CheckpointItemComponent } from '../CheckpointItem/checkpoint-item.compo
   selector: 'app-checkpoints',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, CheckpointItemComponent],
-  templateUrl: './checkpoints.component.html',
-  styleUrl: './checkpoints.component.scss'
+  templateUrl: './checkpoints.component.html'
 })
 export class CheckpointsComponent {
   @Input() projectId!: string;

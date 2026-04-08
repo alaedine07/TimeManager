@@ -13,7 +13,6 @@ import { TaskTimer } from '../../models/taskTimer.model';
   standalone: true,
   imports: [CommonModule, TaskFormComponent, TaskItemComponent],
   templateUrl: './task-list.component.html',
-  styleUrl: './task-list.component.scss'
 })
 export class TaskListComponent implements OnInit {
   @Input() tasks: Task[] = [];

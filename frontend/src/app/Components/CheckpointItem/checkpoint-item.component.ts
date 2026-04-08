@@ -7,8 +7,7 @@ import { Checkpoint } from '../../models/task.model';
   selector: 'app-checkpoint-item',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './checkpoint-item.component.html',
-  styleUrl: './checkpoint-item.component.scss'
+  templateUrl: './checkpoint-item.component.html'
 })
 export class CheckpointItemComponent {
   @Input() checkpoint!: Checkpoint;
