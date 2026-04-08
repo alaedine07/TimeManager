@@ -45,7 +45,7 @@
     />
 
     <!-- Checkpoint Name -->
-    <span class="flex-1 font-body text-on-surface" [class.line-through]="checkpoint.completed">
+    <span class="flex-1 font-body text-on-surface" [class.text-on-surface-variant]="checkpoint.completed" [class.opacity-60]="checkpoint.completed">
       {{ checkpoint.name }}
     </span>
 

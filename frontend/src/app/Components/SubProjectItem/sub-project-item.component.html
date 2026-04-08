@@ -1,5 +1,5 @@
 <!-- Components/SubProjectItem/sub-project-item.component.html -->
-<div class="rounded-xl overflow-hidden bg-surface-container-lowest shadow-sm hover:shadow-lg transition-all duration-200 h-full flex flex-col" [class.opacity-50]="subProject.archived">
+<div class="rounded-xl overflow-hidden bg-surface-container-lowest shadow-sm hover:shadow-lg transition-all duration-200 h-full flex flex-col" [class.opacity-50]="subProject.archived" [class.bg-tertiary-fixed/20]="subProject.completed">
   @if (editing()) {
     <div class="p-8 bg-surface-container-low">
       <app-sub-project-form
@@ -34,7 +34,7 @@
     <!-- Header with title and menu -->
     <div class="p-6 pb-4 flex items-start justify-between gap-4">
       <div class="flex-1 min-w-0">
-        <h3 class="font-headline font-bold text-lg truncate" [class.text-on-surface]="!subProject.completed" [class.line-through]="subProject.completed" [class.opacity-60]="subProject.completed" [class.text-on-surface-variant]="subProject.completed">{{ subProject.name }}</h3>
+        <h3 class="font-headline font-bold text-lg truncate" [class.text-on-surface]="!subProject.completed" [class.text-on-surface-variant]="subProject.completed">{{ subProject.name }}</h3>
         <div class="flex items-center gap-2 mt-2">
           @if (subProject.completed) {
             <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary-container text-primary text-xs font-bold">
