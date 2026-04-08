@@ -4,4 +4,5 @@ export interface TaskTimer {
   elapsedTime: number;
   isRunning: boolean;
   startTime?: number | null;
+  duration?: number | null; // in ms, null = unlimited
 }

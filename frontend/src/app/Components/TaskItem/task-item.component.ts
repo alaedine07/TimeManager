@@ -1,13 +1,19 @@
-import { Component, EventEmitter, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, signal, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Task } from '../../models/task.model';
+import { TaskTimer } from '../../models/taskTimer.model';
 import { ProjectService } from '../../services/project.service';
 import { TimeSessionsService } from '../../services/timeSessions.service';
 import { formatTimeSpan } from '../../utils/time-format.util';
 import { TaskFormComponent } from '../TaskForm/task-form.component';
 import { CheckpointsComponent } from '../Checkpoints/checkpoints.component';
 import { Output } from '@angular/core';
+
+export interface TimerStartEvent {
+  task: Task;
+  duration: number | null;
+}
 
 @Component({
   selector: 'app-task-item',
@@ -21,7 +27,7 @@ export class TaskItemComponent implements OnInit, OnDestroy, OnChanges {
   @Input() projectName?: string;
   @Input() isInProgress = false;
   @Output() completionToggled = new EventEmitter<Task>();
-  @Output() progressToggled = new EventEmitter<Task>();
+  @Output() progressToggled = new EventEmitter<TimerStartEvent>();
   @Output() progressPaused = new EventEmitter<void>();
   @Output() timerReset = new EventEmitter<Task>();
   @Output() editSaved = new EventEmitter<Task>();
@@ -32,12 +38,22 @@ export class TaskItemComponent implements OnInit, OnDestroy, OnChanges {
   taskBeingDeleted = signal(false);
   taskTotalTime = signal<string | null>(null);
   taskTimer = signal<number | null>(null);
+  showDurationPicker = signal(false);
+
+  readonly durationOptions = [
+    { label: '30 min', value: 30 * 60 * 1000 },
+    { label: '45 min', value: 45 * 60 * 1000 },
+    { label: '1h', value: 60 * 60 * 1000 },
+    { label: '1h 30', value: 90 * 60 * 1000 },
+    { label: 'Unlimited', value: null as number | null },
+  ];
 
   private timerInterval: any;
 
   constructor(
     private projectService: ProjectService,
-    private timeSessionsService: TimeSessionsService
+    private timeSessionsService: TimeSessionsService,
+    private elementRef: ElementRef
   ) {}
 
   ngOnInit() {
@@ -71,12 +87,28 @@ export class TaskItemComponent implements OnInit, OnDestroy, OnChanges {
       return; // Timer already running
     }
     this.timerInterval = setInterval(() => {
-      this.taskTimer.update(current => {
-        const newValue = (current || 0) + 1000;
-        this.saveTimerToStorage(newValue);
-        return newValue;
-      });
+      this.updateTimerDisplay();
     }, 1000);
+  }
+
+  private updateTimerDisplay() {
+    const stored = localStorage.getItem('taskTimers');
+    if (!stored) return;
+    const timers: { [taskId: string]: TaskTimer } = JSON.parse(stored);
+    const timer = timers[this.task.id];
+    if (!timer) return;
+
+    let elapsed = timer.elapsedTime;
+    if (timer.isRunning && timer.startTime) {
+      elapsed += Date.now() - timer.startTime;
+    }
+
+    if (timer.duration) {
+      const remaining = Math.max(timer.duration - elapsed, 0);
+      this.taskTimer.set(remaining);
+    } else {
+      this.taskTimer.set(elapsed);
+    }
   }
 
   private stopTimer() {
@@ -86,24 +118,23 @@ export class TaskItemComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  private getTimerStorageKey(): string {
-    return `timer_task_${this.task.id}`;
-  }
-
   private loadTimerFromStorage() {
-    const stored = localStorage.getItem(this.getTimerStorageKey());
-    if (stored) {
-      try {
-        const value = parseInt(stored, 10);
-        this.taskTimer.set(value);
-      } catch (e) {
-        console.error('Failed to parse timer from storage', e);
-      }
-    }
-  }
+    const stored = localStorage.getItem('taskTimers');
+    if (!stored) return;
+    const timers: { [taskId: string]: TaskTimer } = JSON.parse(stored);
+    const timer = timers[this.task.id];
+    if (!timer) return;
 
-  private saveTimerToStorage(value: number) {
-    localStorage.setItem(this.getTimerStorageKey(), value.toString());
+    let elapsed = timer.elapsedTime;
+    if (timer.isRunning && timer.startTime) {
+      elapsed += Date.now() - timer.startTime;
+    }
+
+    if (timer.duration) {
+      this.taskTimer.set(Math.max(timer.duration - elapsed, 0));
+    } else {
+      this.taskTimer.set(elapsed);
+    }
   }
 
   startEdit() {
@@ -139,7 +170,6 @@ export class TaskItemComponent implements OnInit, OnDestroy, OnChanges {
 
   resetTimer() {
     this.taskTimer.set(null);
-    localStorage.removeItem(this.getTimerStorageKey());
     this.timerReset.emit(this.task);
   }
 
@@ -149,5 +179,25 @@ export class TaskItemComponent implements OnInit, OnDestroy, OnChanges {
     const m = Math.floor((totalSeconds % 3600) / 60);
     const s = totalSeconds % 60;
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+
+  onPlayClick() {
+    if (this.isInProgress) {
+      this.progressPaused.emit();
+    } else {
+      this.showDurationPicker.set(true);
+    }
+  }
+
+  selectDuration(duration: number | null) {
+    this.showDurationPicker.set(false);
+    this.progressToggled.emit({ task: this.task, duration });
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (this.showDurationPicker() && !this.elementRef.nativeElement.contains(event.target)) {
+      this.showDurationPicker.set(false);
+    }
   }
 }

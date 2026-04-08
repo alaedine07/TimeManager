@@ -4,7 +4,7 @@ import { Task } from '../../models/task.model';
 import { ProjectService } from '../../services/project.service';
 import { TimeSessionsService } from '../../services/timeSessions.service';
 import { TaskFormComponent } from '../TaskForm/task-form.component';
-import { TaskItemComponent } from '../TaskItem/task-item.component';
+import { TaskItemComponent, TimerStartEvent } from '../TaskItem/task-item.component';
 import { formatTimeSpan } from '../../utils/time-format.util';
 import { TaskTimer } from '../../models/taskTimer.model';
 
@@ -109,16 +109,16 @@ export class TaskListComponent implements OnInit {
     });
   }
 
-  toggleTaskProgress(task: Task) {
-    this.timeSessionsService.startSession(task.id).subscribe({
+  toggleTaskProgress(event: TimerStartEvent) {
+    this.timeSessionsService.startSession(event.task.id).subscribe({
       next: () => {
-        if (this.TaskCurrentlyInProgress() && this.TaskCurrentlyInProgress() !== task.id) {
+        if (this.TaskCurrentlyInProgress() && this.TaskCurrentlyInProgress() !== event.task.id) {
           this.pauseTaskTimer();
         }
-        this.TaskCurrentlyInProgress.set(task.id);
-        this.startTaskTimer();
+        this.TaskCurrentlyInProgress.set(event.task.id);
+        this.startTaskTimer(event.duration);
       },
-      error: (err) => console.error('Failed to start time session for task', task.id, err)
+      error: (err) => console.error('Failed to start time session for task', event.task.id, err)
     });
   }
 
@@ -149,7 +149,7 @@ export class TaskListComponent implements OnInit {
     }
   }
 
-  private startTaskTimer() {
+  private startTaskTimer(duration: number | null = null) {
     const stored = localStorage.getItem('taskTimers');
     let taskTimers: { [taskId: string]: TaskTimer } = stored ? JSON.parse(stored) : {};
     const currentId = this.TaskCurrentlyInProgress()!;
@@ -158,11 +158,13 @@ export class TaskListComponent implements OnInit {
         taskId: currentId,
         elapsedTime: 0,
         isRunning: false,
-        startTime: null
+        startTime: null,
+        duration: null
       };
     }
     taskTimers[currentId].isRunning = true;
     taskTimers[currentId].startTime = Date.now();
+    taskTimers[currentId].duration = duration;
     localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
   }
 
@@ -188,9 +190,32 @@ export class TaskListComponent implements OnInit {
       if (timer.isRunning && timer.startTime) {
         elapsed += Date.now() - timer.startTime;
       }
-      display[taskId] = elapsed;
+      // Auto-pause if duration reached
+      if (timer.duration && elapsed >= timer.duration && timer.isRunning) {
+        this.autoPauseTask(taskId);
+        elapsed = timer.duration;
+      }
+      display[taskId] = timer.duration ? Math.max(timer.duration - elapsed, 0) : elapsed;
     });
     this.taskTimers.set(display);
+  }
+
+  private autoPauseTask(taskId: string) {
+    this.timeSessionsService.pauseSession().subscribe({
+      next: () => {
+        const stored = localStorage.getItem('taskTimers');
+        if (!stored) return;
+        const taskTimers: { [tid: string]: TaskTimer } = JSON.parse(stored);
+        if (taskTimers[taskId]) {
+          taskTimers[taskId].elapsedTime = taskTimers[taskId].duration || 0;
+          taskTimers[taskId].startTime = null;
+          taskTimers[taskId].isRunning = false;
+          localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
+        }
+        this.TaskCurrentlyInProgress.set(null);
+      },
+      error: (err) => console.error('Failed to auto-pause session', err)
+    });
   }
 
   formatTime(ms: number): string {

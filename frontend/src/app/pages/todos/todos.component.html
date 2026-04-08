@@ -56,7 +56,7 @@
           [projectName]="task.projectName"
           [isInProgress]="taskCurrentlyInProgress() === task.id"
           (completionToggled)="toggleCompletion($any($event))"
-          (progressToggled)="toggleProgress($any($event))"
+          (progressToggled)="toggleProgress($event)"
           (progressPaused)="pauseProgress()"
           (timerReset)="resetTimer($any($event))"
           (editSaved)="onEditSaved($event)"

@@ -5,7 +5,7 @@ import { ProjectService } from '../../services/project.service';
 import { TimeSessionsService } from '../../services/timeSessions.service';
 import { Project } from '../../models/project.model';
 import { Task } from '../../models/task.model';
-import { TaskItemComponent } from '../../Components/TaskItem/task-item.component';
+import { TaskItemComponent, TimerStartEvent } from '../../Components/TaskItem/task-item.component';
 import { TaskTimer } from '../../models/taskTimer.model';
 
 interface TodoTask extends Task {
@@ -105,14 +105,15 @@ export class TodosComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleProgress(task: TodoTask): void {
+  toggleProgress(event: TimerStartEvent): void {
+    const task = event.task as TodoTask;
     this.timeSessionsService.startSession(task.id).subscribe({
       next: () => {
         if (this.taskCurrentlyInProgress() && this.taskCurrentlyInProgress() !== task.id) {
           this.pauseTaskTimer();
         }
         this.taskCurrentlyInProgress.set(task.id);
-        this.startTaskTimer();
+        this.startTaskTimer(event.duration);
       },
       error: (err) => console.error('Failed to start time session', err)
     });
@@ -156,15 +157,16 @@ export class TodosComponent implements OnInit, OnDestroy {
     }
   }
 
-  private startTaskTimer(): void {
+  private startTaskTimer(duration: number | null = null): void {
     const stored = localStorage.getItem('taskTimers');
     const taskTimers: { [taskId: string]: TaskTimer } = stored ? JSON.parse(stored) : {};
     const currentId = this.taskCurrentlyInProgress()!;
     if (!taskTimers[currentId]) {
-      taskTimers[currentId] = { taskId: currentId, elapsedTime: 0, isRunning: false, startTime: null };
+      taskTimers[currentId] = { taskId: currentId, elapsedTime: 0, isRunning: false, startTime: null, duration: null };
     }
     taskTimers[currentId].isRunning = true;
     taskTimers[currentId].startTime = Date.now();
+    taskTimers[currentId].duration = duration;
     localStorage.setItem('taskTimers', JSON.stringify(taskTimers));
   }
 }

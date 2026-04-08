@@ -86,12 +86,25 @@
             {{ isInProgress ? 'Running Now' : 'Time Logged' }}
           </span>
           <div class="flex items-center gap-3">
-            <span
-              class="text-xl font-headline font-bold text-on-surface tabular-nums"
-              [class.text-primary]="isInProgress"
-            >
-              {{ (taskTimer() || 0) > 0 ? formatTime(taskTimer() || 0) : (taskTotalTime() || '0h 0m') }}
-            </span>
+            @if (showDurationPicker()) {
+              <div class="flex items-center gap-1.5">
+                @for (option of durationOptions; track option.label) {
+                  <button
+                    (click)="selectDuration(option.value); $event.stopPropagation()"
+                    class="px-3 py-1.5 rounded-full text-xs font-bold border border-outline-variant/30 text-on-surface-variant hover:bg-primary hover:text-on-primary hover:border-primary transition-all"
+                  >
+                    {{ option.label }}
+                  </button>
+                }
+              </div>
+            } @else {
+              <span
+                class="text-xl font-headline font-bold text-on-surface tabular-nums"
+                [class.text-primary]="isInProgress"
+              >
+                {{ (taskTimer() || 0) > 0 ? formatTime(taskTimer() || 0) : (taskTotalTime() || '0h 0m') }}
+              </span>
+            }
             <button
               class="w-10 h-10 rounded-full flex items-center justify-center transition-all"
               [class.bg-primary-fixed]="!isInProgress"
@@ -100,7 +113,7 @@
               [class.text-on-primary]="isInProgress"
               [class.shadow-lg]="isInProgress"
               [class.shadow-primary/30]="isInProgress"
-              (click)="isInProgress ? progressPaused.emit() : progressToggled.emit(task)"
+              (click)="onPlayClick(); $event.stopPropagation()"
             >
               <span
                 class="material-symbols-outlined"
