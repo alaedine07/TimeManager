@@ -34,6 +34,7 @@
         (timerReset)="resetTaskTimer($event)"
         (editSaved)="onEditSaved($event)"
         (deleted)="deleteTask($event)"
+        (todoToggled)="toggleTodoList($event)"
       ></app-task-item>
       @if (task !== getTasksSortedByCompletion()[getTasksSortedByCompletion().length - 1]) {
         <div class="h-4"></div>

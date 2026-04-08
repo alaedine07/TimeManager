@@ -7,6 +7,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { LoginComponent } from './pages/Login/login.component';
 import { RegisterComponent } from './pages/Register/register.component';
 import { RedirectIfAuthenticatedGuard } from './guards/redirect-if-authenticated.guard';
+import { TodosComponent } from './pages/todos/todos.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'projects', component: ProjectsComponent, canActivate: [AuthGuard] },
   { path: 'projects/new', component: CreateProjectComponent, canActivate: [AuthGuard] },
   { path: 'projects/:id', component: ProjectDetailComponent, canActivate: [AuthGuard] },
+  { path: 'todos', component: TodosComponent, canActivate: [AuthGuard] },
 
   { path: 'login', component: LoginComponent, canActivate: [RedirectIfAuthenticatedGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [RedirectIfAuthenticatedGuard] },

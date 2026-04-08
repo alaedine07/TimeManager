@@ -50,6 +50,15 @@
           >
             {{ task.name }}
           </h3>
+          @if (projectName) {
+            <a
+              [routerLink]="['/projects', projectId]"
+              class="inline-flex items-center gap-1 text-xs text-on-surface-variant/70 hover:text-primary transition-colors mb-2"
+            >
+              <span class="material-symbols-outlined text-sm">folder_open</span>
+              {{ projectName }}
+            </a>
+          }
           <div class="flex items-center gap-3">
             <!-- Priority Badge -->
             <span
@@ -107,6 +116,18 @@
 
         <!-- Inline Actions -->
         <div class="flex items-center gap-1">
+          <button
+            (click)="todoToggled.emit(task)"
+            class="w-9 h-9 rounded-lg flex items-center justify-center transition-all"
+            [ngClass]="task.isInTodoList
+              ? 'text-primary bg-primary-container/30 hover:bg-primary-container/50'
+              : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-high'"
+            [title]="task.isInTodoList ? 'Remove from Todo List' : 'Add to Todo List'"
+          >
+            <span class="material-symbols-outlined text-xl"
+              [style.font-variation-settings]="task.isInTodoList ? '\'FILL\' 1' : '\'FILL\' 0'"
+            >checklist</span>
+          </button>
           <button
             (click)="startEdit()"
             class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all"

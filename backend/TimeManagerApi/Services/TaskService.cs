@@ -68,6 +68,9 @@ namespace TaskManagementApi.Services
             if (dto.DueDate.HasValue)
                 task.DueDate = dto.DueDate.Value;
 
+            if (dto.IsInTodoList.HasValue)
+                task.IsInTodoList = dto.IsInTodoList.Value;
+
             var updated = await _repository.UpdateTaskAsync(task);
             return MapToDto(updated);
         }
@@ -88,6 +91,7 @@ namespace TaskManagementApi.Services
                 Completed = task.Completed,
                 Priority = task.Priority,
                 DueDate = task.DueDate,
+                IsInTodoList = task.IsInTodoList,
                 CreatedAt = task.CreatedAt,
                 UpdatedAt = task.UpdatedAt
             };

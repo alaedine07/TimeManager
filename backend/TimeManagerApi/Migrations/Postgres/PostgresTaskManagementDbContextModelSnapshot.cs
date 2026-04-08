@@ -114,6 +114,9 @@ namespace TimeManagerApi.Migrations.Postgres
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsInTodoList")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");

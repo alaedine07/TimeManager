@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { Task } from '../../models/task.model';
 import { ProjectService } from '../../services/project.service';
 import { TimeSessionsService } from '../../services/timeSessions.service';
@@ -11,12 +12,13 @@ import { Output } from '@angular/core';
 @Component({
   selector: 'app-task-item',
   standalone: true,
-  imports: [CommonModule, TaskFormComponent, CheckpointsComponent],
+  imports: [CommonModule, RouterModule, TaskFormComponent, CheckpointsComponent],
   templateUrl: './task-item.component.html'
 })
 export class TaskItemComponent implements OnInit, OnDestroy, OnChanges {
   @Input() task!: Task;
   @Input() projectId!: string;
+  @Input() projectName?: string;
   @Input() isInProgress = false;
   @Output() completionToggled = new EventEmitter<Task>();
   @Output() progressToggled = new EventEmitter<Task>();
@@ -24,6 +26,7 @@ export class TaskItemComponent implements OnInit, OnDestroy, OnChanges {
   @Output() timerReset = new EventEmitter<Task>();
   @Output() editSaved = new EventEmitter<Task>();
   @Output() deleted = new EventEmitter<string>();
+  @Output() todoToggled = new EventEmitter<Task>();
 
   editing = signal(false);
   taskBeingDeleted = signal(false);

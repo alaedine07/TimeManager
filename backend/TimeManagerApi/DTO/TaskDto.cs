@@ -12,6 +12,7 @@ namespace TaskManagementApi.DTOs
         public bool Completed { get; set; }
         public string? Priority { get; set; }
         public DateTime? DueDate { get; set; }
+        public bool IsInTodoList { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

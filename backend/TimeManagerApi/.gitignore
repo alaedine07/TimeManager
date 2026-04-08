@@ -3,3 +3,4 @@
 /published
 *.db-wal
 *.db-shm
+appsettings.Production.json

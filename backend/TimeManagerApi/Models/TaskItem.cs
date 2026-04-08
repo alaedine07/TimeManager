@@ -12,6 +12,7 @@ namespace TaskManagementApi.Models
         public bool Completed { get; set; } = false;
         public string? Priority { get; set; } // "low", "medium", "high"
         public DateTime? DueDate { get; set; }
+        public bool IsInTodoList { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

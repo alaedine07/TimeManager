@@ -90,6 +90,13 @@ export class TaskListComponent implements OnInit {
     });
   }
 
+  toggleTodoList(task: Task) {
+    this.projectService.updateTask(this.projectId, task.id, { isInTodoList: !task.isInTodoList }).subscribe({
+      next: (updatedTask) => this.taskUpdated.emit(updatedTask),
+      error: (err) => console.error('Failed to toggle todo list', err)
+    });
+  }
+
   getCurrentlyInProgressSession() {
     this.timeSessionsService.getCurrentActiveSession().subscribe({
       next: (data: any) => {

@@ -110,6 +110,7 @@ namespace TaskManagementApi.Services
                     Completed = t.Completed,
                     Priority = t.Priority,
                     DueDate = t.DueDate,
+                    IsInTodoList = t.IsInTodoList,
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt
                 }).ToList() ?? new List<TaskDto>()

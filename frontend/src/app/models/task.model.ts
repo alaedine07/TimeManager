@@ -12,5 +12,6 @@ export interface Task {
   completed: boolean;
   dueDate?: Date;
   priority?: 'low' | 'medium' | 'high';
+  isInTodoList?: boolean;
   checkpoints?: Checkpoint[];
 }
