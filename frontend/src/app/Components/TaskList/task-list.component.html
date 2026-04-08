@@ -1,37 +1,55 @@
-<!-- components/task-list/task-list.component.html -->
-<div class="tab-content">
-  <div class="content-header">
-    <h2>Tasks</h2>
-    <button class="btn-add" (click)="toggleTaskForm()">
-      {{ showTaskForm() ? '✕ Cancel' : '+ Add Task' }}
-    </button>
-  </div>
-
+<!-- Components/TaskList/task-list.component.html -->
+<div class="space-y-4">
+  <!-- Task Form -->
   @if (showTaskForm()) {
-    <app-task-form
-      mode="add"
-      (saved)="addTask($event)"
-      (cancelled)="toggleTaskForm()"
-    ></app-task-form>
+    <div class="bg-surface-container-lowest rounded-xl p-6">
+      <app-task-form
+        mode="add"
+        (saved)="addTask($event)"
+        (cancelled)="toggleTaskForm()"
+      ></app-task-form>
+    </div>
   }
 
+  <!-- Empty State -->
   @if (tasks.length === 0) {
-    <p class="empty-state">No tasks yet. Create one to get started!</p>
+    <div class="h-32 rounded-2xl border-2 border-dashed border-outline-variant/30 flex items-center justify-center group cursor-pointer hover:border-primary/40 transition-colors">
+      <div class="text-center">
+        <span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors mb-2">playlist_add</span>
+        <p class="text-sm font-bold text-on-surface-variant group-hover:text-on-surface transition-colors">
+          No tasks yet. Create one to get started!
+        </p>
+      </div>
+    </div>
   } @else {
-    <div class="tasks-list">
-      @for (task of getTasksSortedByCompletion(); track task.id) {
-        <app-task-item
-          [task]="task"
-          [projectId]="projectId"
-          [isInProgress]="TaskCurrentlyInProgress() === task.id"
-          (completionToggled)="toggleTaskCompletion($event)"
-          (progressToggled)="toggleTaskProgress($event)"
-          (progressPaused)="pauseTaskProgress()"
-          (timerReset)="resetTaskTimer($event)"
-          (editSaved)="onEditSaved($event)"
-          (deleted)="deleteTask($event)"
-        ></app-task-item>
+    <!-- Tasks List -->
+    @for (task of getTasksSortedByCompletion(); track task.id) {
+      <app-task-item
+        [task]="task"
+        [projectId]="projectId"
+        [isInProgress]="TaskCurrentlyInProgress() === task.id"
+        (completionToggled)="toggleTaskCompletion($event)"
+        (progressToggled)="toggleTaskProgress($event)"
+        (progressPaused)="pauseTaskProgress()"
+        (timerReset)="resetTaskTimer($event)"
+        (editSaved)="onEditSaved($event)"
+        (deleted)="deleteTask($event)"
+      ></app-task-item>
+      @if (task !== getTasksSortedByCompletion()[getTasksSortedByCompletion().length - 1]) {
+        <div class="h-4"></div>
       }
+    }
+  }
+
+  <!-- Empty State Filler -->
+  @if (tasks.length > 0) {
+    <div class="h-32 rounded-2xl border-2 border-dashed border-outline-variant/30 flex items-center justify-center group cursor-pointer hover:border-primary/40 transition-colors">
+      <div class="text-center">
+        <span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors mb-2">playlist_add</span>
+        <p class="text-sm font-bold text-on-surface-variant group-hover:text-on-surface transition-colors">
+          Drag to reorder or click to add next step
+        </p>
+      </div>
     </div>
   }
 </div>

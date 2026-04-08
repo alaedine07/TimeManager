@@ -1,40 +1,70 @@
-<div class="checkpoint-item" [class.completed]="checkpoint.completed" [class.editing]="editing()">
+<!-- Components/CheckpointItem/checkpoint-item.component.html -->
+<div class="flex items-start gap-3 p-3 rounded-lg hover:bg-surface-container-high/50 transition-all" [class.opacity-60]="checkpoint.completed">
   @if (editing()) {
-    <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
-      <div class="form-group">
-        <input
-          formControlName="name"
-          placeholder="Checkpoint name"
-          class="form-input"
-          autofocus>
-        @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
-          <span class="error-text">
-            @if (editForm.get('name')?.errors?.['required']) {
-              Checkpoint name is required
-            }
-          </span>
-        }
-      </div>
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary small" (click)="cancelEdit()">
+    <!-- Edit Mode -->
+    <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="flex-1 space-y-2">
+      <input
+        formControlName="name"
+        placeholder="Checkpoint name"
+        class="w-full px-3 py-2 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface placeholder:text-outline-variant font-body text-sm transition-all"
+        autofocus
+      />
+      @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
+        <span class="block text-error text-xs font-bold">
+          @if (editForm.get('name')?.errors?.['required']) {
+            Checkpoint name is required
+          }
+        </span>
+      }
+      <!-- Edit Form Actions -->
+      <div class="flex gap-2 justify-end">
+        <button
+          type="button"
+          class="px-3 py-1 rounded-lg font-bold text-on-surface hover:bg-surface-container-high transition-all text-xs"
+          (click)="cancelEdit()"
+        >
           Cancel
         </button>
-        <button type="submit" class="btn btn-primary small" [disabled]="editForm.invalid">
+        <button
+          type="submit"
+          class="px-3 py-1 rounded-lg bg-primary text-on-primary font-bold hover:scale-105 active:scale-95 transition-all text-xs disabled:opacity-50"
+          [disabled]="editForm.invalid"
+        >
           Save
         </button>
       </div>
     </form>
   } @else {
+    <!-- View Mode -->
+    <!-- Checkbox -->
     <input
       type="checkbox"
       [checked]="checkpoint.completed"
       (change)="completionToggled.emit(checkpoint)"
-      class="checkpoint-checkbox"
+      class="w-5 h-5 mt-0.5 rounded accent-primary cursor-pointer"
     />
-    <span class="checkpoint-name">{{ checkpoint.name }}</span>
-    <div class="checkpoint-actions">
-      <button class="btn-edit small" (click)="startEdit()">✏</button>
-      <button class="btn-delete small" (click)="deleted.emit(checkpoint.id)">×</button>
+
+    <!-- Checkpoint Name -->
+    <span class="flex-1 font-body text-on-surface" [class.line-through]="checkpoint.completed">
+      {{ checkpoint.name }}
+    </span>
+
+    <!-- Actions -->
+    <div class="flex gap-1">
+      <button
+        (click)="startEdit()"
+        class="w-8 h-8 flex items-center justify-center rounded-lg text-primary hover:bg-primary-container/30 transition-all"
+        title="Edit"
+      >
+        <span class="material-symbols-outlined text-lg">edit</span>
+      </button>
+      <button
+        (click)="deleted.emit(checkpoint.id)"
+        class="w-8 h-8 flex items-center justify-center rounded-lg text-error hover:bg-error-container/30 transition-all"
+        title="Delete"
+      >
+        <span class="material-symbols-outlined text-lg">delete</span>
+      </button>
     </div>
   }
 </div>

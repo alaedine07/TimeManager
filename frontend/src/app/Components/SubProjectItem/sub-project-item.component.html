@@ -1,69 +1,123 @@
-<!-- components/sub-project-item/sub-project-item.component.html -->
-<div class="subproject-card" [class.completed]="subProject.completed" [class.archived]="subProject.archived">
+<!-- Components/SubProjectItem/sub-project-item.component.html -->
+<div class="rounded-xl overflow-hidden bg-surface-container-lowest shadow-sm hover:shadow-lg transition-all duration-200 h-full flex flex-col" [class.opacity-50]="subProject.archived">
   @if (editing()) {
-    <app-sub-project-form
-      mode="edit"
-      [initialData]="subProject"
-      (saved)="saveEditSubProject($event)"
-      (cancelled)="cancelEdit()"
-    ></app-sub-project-form>
+    <div class="p-8 bg-surface-container-low">
+      <app-sub-project-form
+        mode="edit"
+        [initialData]="subProject"
+        (saved)="saveEditSubProject($event)"
+        (cancelled)="cancelEdit()"
+      ></app-sub-project-form>
+    </div>
   } @else if (beingDeleted()) {
-    <div class="delete-confirmation">
-      <div class="confirmation-content">
-        <h4>Delete "{{ subProject.name }}"?</h4>
-        <p>This action cannot be undone.</p>
+    <div class="p-8 space-y-4">
+      <div class="text-center space-y-2">
+        <h4 class="font-headline font-bold text-on-surface text-lg">Delete "{{ subProject.name }}"?</h4>
+        <p class="text-on-surface-variant text-sm">This action cannot be undone.</p>
       </div>
-      <div class="confirmation-actions">
-        <button class="btn-confirm" (click)="confirmDelete()">
-          Delete
-        </button>
-        <button class="btn-cancel" (click)="cancelDelete()">
+      <div class="flex gap-3 justify-center pt-4">
+        <button
+          (click)="cancelDelete()"
+          class="px-4 py-2 rounded-lg font-bold text-on-surface hover:bg-surface-container-high transition-all"
+        >
           Cancel
+        </button>
+        <button
+          (click)="confirmDelete()"
+          class="px-4 py-2 rounded-lg bg-error text-on-error font-bold hover:scale-105 active:scale-95 transition-all"
+        >
+          Delete
         </button>
       </div>
     </div>
   } @else {
-    <div class="subproject-header">
-      <div class="subproject-title-section">
-        <div class="subproject-info">
-          <h3>{{ subProject.name }}</h3>
+    <!-- Header with title and menu -->
+    <div class="p-6 pb-4 flex items-start justify-between gap-4">
+      <div class="flex-1 min-w-0">
+        <h3 class="font-headline font-bold text-lg truncate" [class.text-on-surface]="!subProject.completed" [class.line-through]="subProject.completed" [class.opacity-60]="subProject.completed" [class.text-on-surface-variant]="subProject.completed">{{ subProject.name }}</h3>
+        <div class="flex items-center gap-2 mt-2">
+          @if (subProject.completed) {
+            <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary-container text-primary text-xs font-bold">
+              <span class="material-symbols-outlined text-sm">check_circle</span>
+              Completed
+            </div>
+          }
           @if (subProject.archived) {
-            <span class="archived-badge">Archived</span>
+            <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-warning-container text-warning text-xs font-bold">
+              <span class="material-symbols-outlined text-sm">archive</span>
+              Archived
+            </div>
           }
         </div>
       </div>
-      <button class="btn-actions-menu" (click)="toggleActions()" title="More options">
-        ⋮
-      </button>
+      <!-- Inline Actions -->
+      <div class="flex items-center gap-1">
+        <button
+          (click)="toggleComplete()"
+          class="w-9 h-9 rounded-lg flex items-center justify-center transition-all"
+          [class.text-primary]="subProject.completed"
+          [class.text-on-surface-variant]="!subProject.completed"
+          [class.hover:text-primary]="!subProject.completed"
+          [class.hover:bg-surface-container-high]="true"
+          [title]="subProject.completed ? 'Mark as Incomplete' : 'Mark as Completed'"
+        >
+          <span class="material-symbols-outlined text-xl" [style.font-variation-settings]="subProject.completed ? '\'FILL\' 1' : ''">
+            {{ subProject.completed ? 'check_circle' : 'radio_button_unchecked' }}
+          </span>
+        </button>
+        <button
+          (click)="startEdit()"
+          class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all"
+          title="Edit"
+        >
+          <span class="material-symbols-outlined text-xl">edit</span>
+        </button>
+        <button
+          (click)="toggleArchive()"
+          class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all"
+          [title]="subProject.archived ? 'Unarchive' : 'Archive'"
+        >
+          <span class="material-symbols-outlined text-xl">
+            {{ subProject.archived ? 'unarchive' : 'archive' }}
+          </span>
+        </button>
+        <button
+          (click)="startDelete()"
+          class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error-container/30 transition-all"
+          title="Delete"
+        >
+          <span class="material-symbols-outlined text-xl">delete</span>
+        </button>
+      </div>
     </div>
 
-    @if (actionsOpen()) {
-      <div class="actions-dropdown">
-        <button class="action-item complete" (click)="toggleComplete()">
-          <span class="icon">{{ subProject.completed ? '↩' : '✓' }}</span>
-          {{ subProject.completed ? 'Mark as Incomplete' : 'Mark as Completed' }}
-        </button>
-        <button class="action-item edit" (click)="startEdit()">
-          <span class="icon">✎</span>
-          Edit
-        </button>
-        <button class="action-item archive" (click)="toggleArchive()">
-          <span class="icon">{{ subProject.archived ? '↩ Unarchive' : '📦 Archive' }}</span>
-        </button>
-        <button class="action-item delete" (click)="startDelete()">
-          <span class="icon">×</span>
-          Delete
-        </button>
+    <!-- Description -->
+    @if (subProject.description) {
+      <div class="px-6 pb-4">
+        <p class="text-on-surface-variant text-sm leading-relaxed">{{ subProject.description }}</p>
       </div>
     }
 
-    <p class="subproject-description">{{ subProject.description }}</p>
-
-    <div class="subproject-time-worked">
-      <span class="time-label">Total Time Worked:</span>
-      <span class="time-value">{{ totalTime() || '0h 0m' }}</span>
+    <!-- Time Worked Stats -->
+    <div class="px-6 py-3 bg-surface-container-high/50 border-t border-outline/10">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-on-surface-variant text-sm">
+          <span class="material-symbols-outlined text-lg">timer</span>
+          Total Time Worked
+        </div>
+        <span class="font-headline font-bold text-on-surface">{{ totalTime() || '0h 0m' }}</span>
+      </div>
     </div>
 
-    <a [routerLink]="['/projects', subProject.id]" class="view-link">View →</a>
+    <!-- View Link -->
+    <div class="px-6 py-4 mt-auto border-t border-outline/10">
+      <a
+        [routerLink]="['/projects', subProject.id]"
+        class="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg text-primary font-bold hover:bg-primary-container/30 transition-all group"
+      >
+        View Details
+        <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+      </a>
+    </div>
   }
 </div>

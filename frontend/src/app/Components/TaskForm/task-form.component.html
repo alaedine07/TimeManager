@@ -1,64 +1,82 @@
-<!-- components/task-form/task-form.component.html -->
-<div class="task-form-container">
-  <form [formGroup]="taskForm" (ngSubmit)="save()" class="task-form">
-    <div class="form-row">
-      <div class="form-group">
-        <label for="taskName">Task Name *</label>
-        <input
-          id="taskName"
-          type="text"
-          formControlName="name"
-          placeholder="Enter task name"
-          class="form-input"
-          autofocus>
-        @if (taskForm.get('name')?.invalid && taskForm.get('name')?.touched) {
-          <span class="error-text">
-            @if (taskForm.get('name')?.errors?.['required']) {
-              Task name is required
-            } @else if (taskForm.get('name')?.errors?.['minlength']) {
-              Task name must be at least 3 characters
-            }
-          </span>
-        }
-      </div>
+<!-- Components/TaskForm/task-form.component.html -->
+<div class="w-full">
+  <form [formGroup]="taskForm" (ngSubmit)="save()" class="space-y-6">
+    <!-- Task Name Field -->
+    <div class="space-y-2">
+      <label for="taskName" class="block font-headline font-bold text-on-surface text-sm">Task Name *</label>
+      <input
+        id="taskName"
+        type="text"
+        formControlName="name"
+        placeholder="Enter task name"
+        class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface placeholder:text-outline-variant font-body transition-all"
+        autofocus
+      />
+      @if (taskForm.get('name')?.invalid && taskForm.get('name')?.touched) {
+        <span class="block text-error text-xs font-bold mt-1">
+          @if (taskForm.get('name')?.errors?.['required']) {
+            Task name is required
+          } @else if (taskForm.get('name')?.errors?.['minlength']) {
+            Task name must be at least 3 characters
+          }
+        </span>
+      }
+    </div>
 
-      <div class="form-group">
-        <label for="taskPriority">Priority</label>
+    <!-- Priority and Due Date Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Priority Field -->
+      <div class="space-y-2">
+        <label for="taskPriority" class="block font-headline font-bold text-on-surface text-sm">Priority</label>
         <select
           id="taskPriority"
           formControlName="priority"
-          class="form-input">
+          class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface font-body transition-all"
+        >
           <option value="low">Low</option>
           <option value="medium" selected>Medium</option>
           <option value="high">High</option>
         </select>
       </div>
 
-      <div class="form-group">
-        <label for="taskDueDate">Due Date</label>
+      <!-- Due Date Field -->
+      <div class="space-y-2">
+        <label for="taskDueDate" class="block font-headline font-bold text-on-surface text-sm">Due Date</label>
         <input
           id="taskDueDate"
           type="date"
           formControlName="dueDate"
-          class="form-input">
+          class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface font-body transition-all"
+        />
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="taskDesc">Description</label>
+    <!-- Description Field -->
+    <div class="space-y-2">
+      <label for="taskDesc" class="block font-headline font-bold text-on-surface text-sm">Description</label>
       <textarea
         id="taskDesc"
         formControlName="description"
         placeholder="Add task description (optional)"
         rows="3"
-        class="form-input"></textarea>
+        class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface placeholder:text-outline-variant font-body transition-all resize-none"
+      ></textarea>
     </div>
 
-    <div class="form-actions">
-      <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">
+    <!-- Action Buttons -->
+    <div class="flex gap-3 justify-end pt-4">
+      <button
+        type="button"
+        class="px-6 py-3 rounded-lg font-bold text-on-surface hover:bg-surface-container-high transition-all"
+        (click)="cancelled.emit()"
+      >
         Cancel
       </button>
-      <button type="submit" class="btn btn-primary" [disabled]="taskForm.invalid">
+      <button
+        type="submit"
+        class="px-6 py-3 rounded-lg bg-primary-gradient text-on-primary font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="taskForm.invalid"
+      >
         {{ mode === 'add' ? 'Create Task' : 'Save Changes' }}
       </button>
     </div>

@@ -1,4 +1,4 @@
-// components/create-project/create-project.component.ts
+// pages/create-project/create-project.component.ts
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,7 +12,6 @@ import { Project } from '../../models/project.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './create-project.component.html',
-  styleUrl: './create-project.component.scss'
 })
 export class CreateProjectComponent {
   projectName = signal('');

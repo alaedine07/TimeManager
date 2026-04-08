@@ -8,8 +8,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-project-header',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  templateUrl: './project-header.component.html',
-  styleUrl: './project-header.component.scss'
+  templateUrl: './project-header.component.html'
 })
 export class ProjectHeaderComponent {
   @Input() project!: Project;

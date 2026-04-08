@@ -1,60 +1,51 @@
-<!-- frontend/src/app/Components/NavBar/navbar.component.html -->
-<aside class="sidebar" *ngIf="isLoggedIn">
-  <nav class="nav-menu">
+<!-- Components/NavBar/navbar.component.html -->
+<aside *ngIf="isLoggedIn" class="fixed left-0 top-0 h-screen w-20 bg-surface-container-highest border-r border-outline/10 flex flex-col items-center py-6 gap-4 shadow-lg">
+  <!-- Navigation Menu -->
+  <nav class="flex flex-col gap-4">
     <!-- Dashboard -->
     <button
-      class="nav-icon-btn"
       (click)="navigateTo('dashboard')"
       title="Dashboard"
-      aria-label="Go to Dashboard">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="7" height="7"></rect>
-        <rect x="14" y="3" width="7" height="7"></rect>
-        <rect x="14" y="14" width="7" height="7"></rect>
-        <rect x="3" y="14" width="7" height="7"></rect>
-      </svg>
-      <span class="tooltip">Dashboard</span>
+      aria-label="Go to Dashboard"
+      class="w-12 h-12 rounded-xl flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-all duration-200 group relative"
+    >
+      <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">dashboard</span>
+      <span class="absolute left-20 px-3 py-1.5 bg-surface-variant text-on-surface rounded-lg text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Dashboard</span>
     </button>
 
     <!-- Projects -->
     <button
-      class="nav-icon-btn"
       (click)="navigateTo('projects')"
       title="Projects"
-      aria-label="Go to Projects">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-      </svg>
-      <span class="tooltip">Projects</span>
+      aria-label="Go to Projects"
+      class="w-12 h-12 rounded-xl flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-all duration-200 group relative"
+    >
+      <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">folder_open</span>
+      <span class="absolute left-20 px-3 py-1.5 bg-surface-variant text-on-surface rounded-lg text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Projects</span>
     </button>
 
     <!-- Profile -->
     <button
-      class="nav-icon-btn"
       (click)="navigateTo('profile')"
       title="Profile"
-      aria-label="Go to Profile">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
-      </svg>
-      <span class="tooltip">Profile</span>
+      aria-label="Go to Profile"
+      class="w-12 h-12 rounded-xl flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-all duration-200 group relative"
+    >
+      <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">account_circle</span>
+      <span class="absolute left-20 px-3 py-1.5 bg-surface-variant text-on-surface rounded-lg text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Profile</span>
     </button>
   </nav>
 
-  <!-- Logout at bottom -->
-  <div class="nav-bottom">
+  <!-- Logout Button at Bottom -->
+  <div class="mt-auto">
     <button
-      class="nav-icon-btn logout-btn"
       (click)="logout()"
       title="Logout"
-      aria-label="Logout">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-        <polyline points="16 17 21 12 16 7"></polyline>
-        <line x1="21" y1="12" x2="9" y2="12"></line>
-      </svg>
-      <span class="tooltip">Logout</span>
+      aria-label="Logout"
+      class="w-12 h-12 rounded-xl flex items-center justify-center text-error hover:bg-error-container transition-all duration-200 group relative"
+    >
+      <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">logout</span>
+      <span class="absolute left-20 px-3 py-1.5 bg-error-container text-error rounded-lg text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Logout</span>
     </button>
   </div>
 </aside>

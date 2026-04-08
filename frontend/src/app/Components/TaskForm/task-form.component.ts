@@ -7,8 +7,7 @@ import { Task } from '../../models/task.model';
   selector: 'app-task-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './task-form.component.html',
-  styleUrl: './task-form.component.scss'
+  templateUrl: './task-form.component.html'
 })
 export class TaskFormComponent implements OnInit {
   @Input() mode: 'add' | 'edit' = 'add';

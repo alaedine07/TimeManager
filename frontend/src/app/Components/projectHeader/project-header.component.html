@@ -1,12 +1,28 @@
-<!--<DOCUMENT filename="project-header/project-header.component.html">-->
-<div class="detail-header">
-  <div class="header-top">
-    <button class="back-link" (click)="backClicked.emit()">← Back</button>
-    <a routerLink="/" class="home-link">Home</a>
+<!--Components/projectHeader/project-header.component.html-->
+<div class="space-y-6">
+  <!-- Navigation Bar -->
+  <div class="flex items-center justify-between">
+    <button
+      (click)="backClicked.emit()"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg text-primary hover:bg-primary-container/30 transition-all font-bold"
+    >
+      <span class="material-symbols-outlined">arrow_back</span>
+      Back
+    </button>
+    <a
+      routerLink="/"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg text-on-surface hover:bg-surface-container-high transition-all font-bold"
+    >
+      <span class="material-symbols-outlined">home</span>
+      Home
+    </a>
   </div>
 
-  <div class="project-title-section">
-    <h1>{{ project.name }}</h1>
-    <p class="project-desc">{{ project.description }}</p>
+  <!-- Project Title and Description -->
+  <div class="space-y-3">
+    <h1 class="font-headline text-5xl font-extrabold text-on-surface">{{ project.name }}</h1>
+    @if (project.description) {
+      <p class="text-on-surface-variant font-body text-lg leading-relaxed max-w-3xl">{{ project.description }}</p>
+    }
   </div>
 </div>

@@ -1,94 +1,181 @@
 <!-- create-project.component.html -->
-<div class="create-project-container">
-  <div class="form-wrapper">
-    <div class="form-header">
-      <button class="back-btn" (click)="goBack()">← Back</button>
-      <h1>Create New Project</h1>
+<main class="min-h-screen relative flex flex-col items-center bg-background">
+  <!-- Header Actions / Back Navigation -->
+  <header class="w-full max-w-4xl px-8 pt-12 pb-6 flex items-center justify-between">
+    <button
+      type="button"
+      (click)="goBack()"
+      class="flex items-center text-primary font-semibold hover:opacity-80 transition-opacity group"
+    >
+      <span
+        class="material-symbols-outlined mr-2 transition-transform group-hover:-translate-x-1"
+        data-icon="arrow_back"
+      >
+        arrow_back
+      </span>
+      Back to Projects
+    </button>
+  </header>
+
+  <!-- Centered Form Container -->
+  <section class="w-full max-w-2xl px-8 pb-24">
+    <div class="mb-12">
+      <h1 class="font-headline text-4xl font-extrabold tracking-tight text-on-surface mb-2">
+        Create New Project
+      </h1>
+      <p class="text-on-surface-variant font-body">
+        Define the boundaries of your next focus period. Structure leads to clarity.
+      </p>
     </div>
+
+    <!-- Error Message -->
     @if (error()) {
-      <div class="error-message">
-        <p>{{ error() }}</p>
+      <div
+        class="mb-6 p-4 rounded-lg bg-error-container text-error border border-error/20 font-body text-sm"
+      >
+        {{ error() }}
       </div>
     }
-    <form (ngSubmit)="createProject()" class="project-form">
-      <div class="form-group">
-        <label for="projectName">Project Name <span class="required">*</span></label>
+
+    <!-- Focus Form Card -->
+    <form (ngSubmit)="createProject()" class="bg-surface-container-low rounded-xl p-8 space-y-8">
+      <!-- Project Name -->
+      <div class="space-y-2">
+        <label
+          for="projectName"
+          class="block font-headline font-bold text-on-surface text-sm uppercase tracking-wider"
+        >
+          Project Name
+        </label>
         <input
           type="text"
           id="projectName"
           [(ngModel)]="projectName"
           name="projectName"
-          placeholder="Enter project name"
+          class="w-full px-4 py-3 bg-surface-container-lowest border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface placeholder:text-outline-variant font-body transition-all"
+          placeholder="e.g., Q4 Marketing Campaign"
           required
-          class="form-input"
         />
       </div>
 
-      <div class="form-group">
-        <label for="projectDescription">Description</label>
+      <!-- Description -->
+      <div class="space-y-2">
+        <label
+          for="projectDescription"
+          class="block font-headline font-bold text-on-surface text-sm uppercase tracking-wider"
+        >
+          Description
+        </label>
         <textarea
           id="projectDescription"
           [(ngModel)]="projectDescription"
           name="projectDescription"
-          placeholder="Enter project description"
+          class="w-full px-4 py-3 bg-surface-container-lowest border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface placeholder:text-outline-variant font-body transition-all resize-none"
+          placeholder="What is the primary objective of this undertaking?"
           rows="4"
-          class="form-textarea"
         ></textarea>
       </div>
 
-      <div class="form-group">
-        <label for="projectCategory">Category</label>
-        <select
-          id="projectCategory"
-          [(ngModel)]="projectCategory"
-          name="projectCategory"
-          class="form-select"
-        >
-          @for (cat of categories; track cat) {
-            <option [value]="cat">{{ cat }}</option>
-          }
-        </select>
-      </div>
-
-      <!-- Default Tab Configuration -->
-      <div class="form-group default-tab-section">
-        <label class="section-label">📌 Default Tab When Opening This Project</label>
-        <div class="radio-options">
-          <label class="radio-option" [class.selected]="defaultTabOnOpen() === 'tasks'">
-            <input
-              type="radio"
-              name="defaultTabOnOpen"
-              value="tasks"
-              [ngModel]="defaultTabOnOpen()"
-              (change)="defaultTabOnOpen.set('tasks')"
-              class="radio-input"
-            />
-            <div class="radio-content">
-              <span class="radio-title">Tasks</span>
-              <span class="radio-description">Open directly to tasks list</span>
-            </div>
+      <!-- Category & Default Tab Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Category -->
+        <div class="space-y-2">
+          <label
+            for="projectCategory"
+            class="block font-headline font-bold text-on-surface text-sm uppercase tracking-wider"
+          >
+            Category
           </label>
+          <div class="relative">
+            <select
+              id="projectCategory"
+              [(ngModel)]="projectCategory"
+              name="projectCategory"
+              class="w-full px-4 py-3 bg-surface-container-lowest border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface font-body appearance-none cursor-pointer"
+            >
+              @for (cat of categories; track cat) {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            </select>
+            <span
+              class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-outline"
+              data-icon="expand_more"
+            >
+              expand_more
+            </span>
+          </div>
+        </div>
 
-          <label class="radio-option" [class.selected]="defaultTabOnOpen() === 'subprojects'">
-            <input
-              type="radio"
-              name="defaultTabOnOpen"
-              value="subprojects"
-              [ngModel]="defaultTabOnOpen()"
-              (change)="defaultTabOnOpen.set('subprojects')"
-              class="radio-input"
-            />
-            <div class="radio-content">
-              <span class="radio-title">Sub Projects</span>
-              <span class="radio-description">Open to sub-projects structure</span>
-            </div>
+        <!-- Default Tab Radio Logic -->
+        <div class="space-y-3">
+          <label class="block font-headline font-bold text-on-surface text-sm uppercase tracking-wider">
+            Default Tab
           </label>
+          <div class="flex space-x-4">
+            <label
+              class="flex-1 flex items-center justify-center py-3 px-4 rounded-lg bg-surface-container-lowest cursor-pointer border-2 transition-all"
+              [class.border-primary]="defaultTabOnOpen() === 'tasks'"
+              [class.border-transparent]="defaultTabOnOpen() !== 'tasks'"
+            >
+              <input
+                type="radio"
+                name="defaultTabOnOpen"
+                value="tasks"
+                [ngModel]="defaultTabOnOpen()"
+                (change)="defaultTabOnOpen.set('tasks')"
+                class="hidden"
+              />
+              <span
+                *ngIf="defaultTabOnOpen() === 'tasks'"
+                class="material-symbols-outlined mr-2 text-primary"
+                data-icon="check_circle"
+                style="font-variation-settings: 'FILL' 1"
+              >
+                check_circle
+              </span>
+              <span class="font-medium text-sm">Tasks</span>
+            </label>
+            <label
+              class="flex-1 flex items-center justify-center py-3 px-4 rounded-lg bg-surface-container-lowest cursor-pointer border-2 transition-all"
+              [class.border-primary]="defaultTabOnOpen() === 'subprojects'"
+              [class.border-transparent]="defaultTabOnOpen() !== 'subprojects'"
+            >
+              <input
+                type="radio"
+                name="defaultTabOnOpen"
+                value="subprojects"
+                [ngModel]="defaultTabOnOpen()"
+                (change)="defaultTabOnOpen.set('subprojects')"
+                class="hidden"
+              />
+              <span
+                *ngIf="defaultTabOnOpen() === 'subprojects'"
+                class="material-symbols-outlined mr-2 text-primary"
+                data-icon="check_circle"
+                style="font-variation-settings: 'FILL' 1"
+              >
+                check_circle
+              </span>
+              <span class="font-medium text-sm">Sub-Projects</span>
+            </label>
+          </div>
         </div>
       </div>
 
-      <div class="form-actions">
-        <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
-        <button type="submit" class="btn-submit" [disabled]="loading()">
+      <!-- Form Actions -->
+      <div class="flex items-center justify-end space-x-4 pt-4">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="px-8 py-3 rounded-lg font-bold text-primary hover:bg-surface-container-high transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="loading()"
+          class="bg-primary-gradient px-8 py-3 rounded-lg font-bold text-on-primary shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           @if (loading()) {
             Creating...
           } @else {
@@ -97,5 +184,20 @@
         </button>
       </div>
     </form>
+  </section>
+
+  <!-- Footer Decoration -->
+  <div class="absolute bottom-12 right-12 w-32 h-32 opacity-10">
+    <svg class="w-full h-full text-primary fill-current" viewBox="0 0 100 100">
+      <path d="M0 0 L100 0 L100 100 Z"></path>
+    </svg>
   </div>
-</div>
+</main>
+
+<!-- Floating Background Elements for Depth -->
+<div
+  class="fixed top-0 right-0 -z-10 w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/4"
+></div>
+<div
+  class="fixed bottom-0 left-0 -z-10 w-[400px] h-[400px] bg-tertiary/5 blur-[100px] rounded-full -translate-x-1/4 translate-y-1/4"
+></div>

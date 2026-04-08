@@ -12,8 +12,7 @@ import { SubProjectItemComponent } from '../SubProjectItem/sub-project-item.comp
   selector: 'app-sub-project-list',
   standalone: true,
   imports: [CommonModule, SubProjectFormComponent, SubProjectItemComponent],
-  templateUrl: './sub-project-list.component.html',
-  styleUrl: './sub-project-list.component.scss'
+  templateUrl: './sub-project-list.component.html'
 })
 export class SubProjectListComponent {
   @Input() subProjects: Project[] = [];

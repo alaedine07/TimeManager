@@ -1,74 +1,144 @@
-<!-- components/task-item/task-item.component.html -->
-<div
-  class="task-item"
-  [class.completed]="task.completed"
-  [class.active]="isInProgress"
-  [class.toBeDeleted]="taskBeingDeleted()"
->
-  @if (editing()) {
-    <app-task-form
-      mode="edit"
-      [initialData]="task"
-      (saved)="saveEditTask($event)"
-      (cancelled)="cancelEdit()"
-    ></app-task-form>
-  } @else {
-    <div class="task-content">
-      <input
-        type="checkbox"
-        [checked]="task.completed"
-        (change)="completionToggled.emit(task)"
-        class="task-checkbox"
-      />
-      <div class="task-info">
-        <h3>{{ task.name }}</h3>
-        @if (task.description) {
-          <p class="task-desc">{{ task.description }}</p>
-        }
-        @if (task.dueDate) {
-          <p class="task-due-date">Due: {{ task.dueDate | date }}</p>
-        }
-        <p class="task-priority priority-{{ task.priority }}">
-          {{ task.priority | titlecase }}
-        </p>
-        <div class="task-time-worked">
-          Time Worked: {{ taskTotalTime() || '0h 0m' }}
+<!-- Components/TaskItem/task-item.component.html -->
+@if (editing()) {
+  <app-task-form
+    mode="edit"
+    [initialData]="task"
+    (saved)="saveEditTask($event)"
+    (cancelled)="cancelEdit()"
+  ></app-task-form>
+} @else if (taskBeingDeleted()) {
+  <div class="bg-surface-container-lowest rounded-2xl p-6 space-y-4">
+    <div class="text-center space-y-2">
+      <h4 class="font-headline font-bold text-on-surface text-lg">Delete "{{ task.name }}"?</h4>
+      <p class="text-on-surface-variant text-sm">This action cannot be undone.</p>
+    </div>
+    <div class="flex gap-3 justify-center">
+      <button
+        (click)="cancelDelete()"
+        class="px-4 py-2 rounded-lg font-bold text-on-surface hover:bg-surface-container-high transition-all"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="confirmDelete()"
+        class="px-4 py-2 rounded-lg bg-error text-on-error font-bold hover:scale-105 active:scale-95 transition-all"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+} @else {
+  <div
+    class="group bg-surface-container-lowest rounded-2xl p-6 space-y-4 transition-all hover:bg-surface-container-low relative"
+    [class.border-2]="isInProgress"
+    [class.border-primary/20]="isInProgress"
+    [class.shadow-sm]="isInProgress"
+  >
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="flex items-start gap-4">
+        <button
+          class="mt-1 text-outline-variant hover:text-primary transition-colors"
+          (click)="completionToggled.emit(task)"
+        >
+          <span class="material-symbols-outlined text-2xl" data-icon="check_circle">check_circle</span>
+        </button>
+        <div>
+          <h3
+            class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors mb-2"
+            [class.line-through]="task.completed"
+            [class.opacity-60]="task.completed"
+          >
+            {{ task.name }}
+          </h3>
+          <div class="flex items-center gap-3">
+            <!-- Priority Badge -->
+            <span
+              class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
+              [class.bg-error-container]="task.priority === 'high'"
+              [class.text-error]="task.priority === 'high'"
+              [class.bg-secondary-container]="task.priority === 'medium'"
+              [class.text-on-secondary-container]="task.priority === 'medium'"
+              [class.bg-tertiary-container]="task.priority === 'low'"
+              [class.text-on-tertiary-container]="task.priority === 'low'"
+            >
+              {{ task.priority | titlecase }} Priority
+            </span>
+          </div>
         </div>
-        <div class="task-timer">Timer: {{ formatTime(taskTimer() || 0) }}</div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <!-- Time Logged Section -->
+        <div class="flex flex-col items-end">
+          <span
+            class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant opacity-60 mb-1"
+            [class.text-primary]="isInProgress"
+            [class.opacity-100]="isInProgress"
+          >
+            {{ isInProgress ? 'Running Now' : 'Time Logged' }}
+          </span>
+          <div class="flex items-center gap-3">
+            <span
+              class="text-xl font-headline font-bold text-on-surface tabular-nums"
+              [class.text-primary]="isInProgress"
+            >
+              {{ (taskTimer() || 0) > 0 ? formatTime(taskTimer() || 0) : (taskTotalTime() || '0h 0m') }}
+            </span>
+            <button
+              class="w-10 h-10 rounded-full flex items-center justify-center transition-all"
+              [class.bg-primary-fixed]="!isInProgress"
+              [class.text-primary]="!isInProgress"
+              [class.bg-primary]="isInProgress"
+              [class.text-on-primary]="isInProgress"
+              [class.shadow-lg]="isInProgress"
+              [class.shadow-primary/30]="isInProgress"
+              (click)="isInProgress ? progressPaused.emit() : progressToggled.emit(task)"
+            >
+              <span
+                class="material-symbols-outlined"
+                [attr.data-icon]="isInProgress ? 'pause' : 'play_arrow'"
+                [style.font-variation-settings]="'FILL 1'"
+              >
+                {{ isInProgress ? 'pause' : 'play_arrow' }}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Inline Actions -->
+        <div class="flex items-center gap-1">
+          <button
+            (click)="startEdit()"
+            class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all"
+            title="Edit"
+          >
+            <span class="material-symbols-outlined text-xl">edit</span>
+          </button>
+          <button
+            (click)="resetTimer()"
+            class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all"
+            title="Reset Timer"
+          >
+            <span class="material-symbols-outlined text-xl">restart_alt</span>
+          </button>
+          <button
+            (click)="startDelete()"
+            class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error-container/30 transition-all"
+            title="Delete"
+          >
+            <span class="material-symbols-outlined text-xl">delete</span>
+          </button>
+        </div>
       </div>
     </div>
-    <div class="task-actions">
-      @if (taskBeingDeleted()) {
-        <button class="btn-confirm" (click)="confirmDelete()">
-          Confirm
-        </button>
-        <button class="btn-cancel" (click)="cancelDelete()">
-          Cancel
-        </button>
-      } @else {
-        @if (isInProgress) {
-          <button class="btn-play" (click)="progressPaused.emit()">
-            ⏸
-          </button>
-          <button class="btn-reset" title="Reset timer" (click)="resetTimer()">
-            ↻
-          </button>
-        } @else {
-          <button class="btn-play" (click)="progressToggled.emit(task)">
-            ▶
-          </button>
-          <button class="btn-reset" title="Reset timer" (click)="resetTimer()">
-            ↻
-          </button>
-        }
-        <button class="btn-edit" title="Edit task" (click)="startEdit()">
-          ✏
-        </button>
-        <button class="btn-delete" (click)="startDelete()">
-          ×
-        </button>
-      }
+
+    <!-- Checkpoints Section -->
+    <div class="pt-2">
+    <app-checkpoints
+      [projectId]="projectId"
+      [taskId]="task.id"
+      [checkpoints]="task.checkpoints ?? []"
+    ></app-checkpoints>
     </div>
-    <app-checkpoints [projectId]="projectId" [taskId]="task.id" [checkpoints]="task.checkpoints ?? []"></app-checkpoints>
-  }
-</div>
+  </div>
+}

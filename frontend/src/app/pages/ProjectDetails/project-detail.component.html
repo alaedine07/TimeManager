@@ -1,81 +1,144 @@
-<!-- components/project-detail/project-detail.component.html -->
-<div class="project-detail-container">
-  @if (loading()) {
-    <div class="loading">
-      <p>Loading project...</p>
-    </div>
-  }
+<!-- pages/project-detail/project-detail.component.html -->
+<!-- Main Content Canvas -->
+<main class="pt-12 px-8 pb-12 min-h-screen">
+  <div class="max-w-6xl mx-auto">
+    <!-- Breadcrumb / Back Navigation -->
+    <nav class="mb-8">
+      <button
+        class="group flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-medium"
+        (click)="goBack()"
+      >
+        <span
+          class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform"
+          data-icon="arrow_back"
+        >
+          arrow_back
+        </span>
+        Back to Projects
+      </button>
+    </nav>
 
-  @if (error()) {
-    <div class="error">
-      <p>{{ error() }}</p>
-    </div>
-  }
-
-  @if (project()) {
-    <div class="project-detail">
-      <!-- Header -->
-      <app-project-header [project]="project()!" (backClicked)="goBack()"></app-project-header>
-
-      <!-- Total Time Worked Section -->
-      <div class="total-time-worked">
-        <span class="time-label">Total Time Worked:</span>
-        <span class="time-value">{{ currentProjectTotalTime() }}</span>
-      </div>
-
-      <!-- Progress Bar -->
-      <div class="progress-section">
-        <div class="progress-label">
-          <span>Overall Progress</span>
-          <span>{{ getProgressPercentage() }}%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" [style.width.%]="getProgressPercentage()"></div>
+    @if (loading()) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="inline-block text-primary mb-4">
+            <div class="animate-spin">
+              <span class="material-symbols-outlined text-5xl">hourglass_top</span>
+            </div>
+          </div>
+          <p class="text-on-surface-variant font-body">Loading project...</p>
         </div>
       </div>
+    }
 
-      <!-- Tabs -->
-      <div class="tabs">
-        @if (project()!.defaultTabOnOpen === 'subprojects') {
-          <!-- Sub-Projects is default tab -->
-          <button
-            class="tab"
-            [class.active]="activeTab() === 'subprojects'"
-            (click)="setActiveTab('subprojects')">
-            Sub-Projects ({{ getSubProjectCount() }})
-          </button>
-          <button
-            class="tab"
-            [class.active]="activeTab() === 'tasks'"
-            (click)="setActiveTab('tasks')">
-            Tasks ({{ project()!.tasks?.length || 0 }})
-          </button>
-        } @else {
-          <!-- Tasks is default tab -->
-          <button
-            class="tab"
-            [class.active]="activeTab() === 'tasks'"
-            (click)="setActiveTab('tasks')">
-            Tasks ({{ project()!.tasks?.length || 0 }})
-          </button>
-          <button
-            class="tab"
-            [class.active]="activeTab() === 'subprojects'"
-            (click)="setActiveTab('subprojects')">
-            Sub-Projects ({{ getSubProjectCount() }})
-          </button>
-        }
+    @if (error()) {
+      <div class="mb-6 p-4 rounded-lg bg-error-container text-error border border-error/20 font-body text-sm">
+        {{ error() }}
+      </div>
+    }
+
+    @if (project()) {
+      <!-- Project Header -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
+        <div class="lg:col-span-7">
+          <h1 class="text-5xl font-extrabold text-on-surface tracking-tight mb-4">
+            {{ project()!.name }}
+          </h1>
+          <p class="text-xl text-on-surface-variant leading-relaxed max-w-2xl mb-8">
+            {{ project()!.description || 'No description provided' }}
+          </p>
+          <div class="flex items-center gap-8 text-on-surface-variant">
+            <div class="flex flex-col">
+              <span class="text-xs uppercase tracking-widest font-bold opacity-60 mb-1">Total Time Worked</span>
+              <span class="text-2xl font-headline font-bold text-on-surface">
+                {{ currentProjectTotalTime() || '0h 0m' }}
+              </span>
+            </div>
+            <div class="w-px h-10 bg-outline-variant/30"></div>
+            <div class="flex flex-col">
+              <span class="text-xs uppercase tracking-widest font-bold opacity-60 mb-1">Category</span>
+              <span class="text-2xl font-headline font-bold text-on-surface">
+                {{ project()!.category || 'General' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Visual -->
+        <div class="lg:col-span-5 flex flex-col justify-end">
+          <div class="bg-surface-container-low rounded-3xl p-8 relative overflow-hidden">
+            <div class="relative z-10">
+              <div class="flex justify-between items-end mb-4">
+                <span class="text-sm font-bold text-primary uppercase tracking-tighter">Project Completion</span>
+                <span class="text-4xl font-headline font-extrabold text-on-surface">{{ getProgressPercentage() }}%</span>
+              </div>
+              <div class="h-4 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                <div
+                  class="h-full bg-gradient-to-r from-primary to-primary-container rounded-full relative"
+                  [style.width.%]="getProgressPercentage()"
+                >
+                  <div
+                    class="absolute inset-y-0 right-0 w-px bg-white/30 shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <!-- Subtle Background Pattern -->
+            <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tabs Navigation -->
+      <div class="flex gap-8 mb-10 border-b border-outline-variant/10">
+        <button
+          [class]="activeTab() === 'tasks'
+            ? 'pb-4 text-on-surface font-bold border-b-2 border-primary transition-all flex items-center gap-2'
+            : 'pb-4 text-on-surface-variant font-medium hover:text-on-surface transition-all flex items-center gap-2'"
+          (click)="setActiveTab('tasks')"
+        >
+          Tasks
+          <span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-primary text-xs">
+            {{ project()!.tasks?.length || 0 }}
+          </span>
+        </button>
+        <button
+          [class]="activeTab() === 'subprojects'
+            ? 'pb-4 text-on-surface font-bold border-b-2 border-primary transition-all flex items-center gap-2'
+            : 'pb-4 text-on-surface-variant font-medium hover:text-on-surface transition-all flex items-center gap-2'"
+          (click)="setActiveTab('subprojects')"
+        >
+          Sub-Projects
+          <span class="px-2 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant text-xs font-bold">
+            {{ getSubProjectCount() }}
+          </span>
+        </button>
       </div>
 
-      <!-- Tasks Tab -->
+      <!-- Tasks View Content -->
       @if (activeTab() === 'tasks') {
-        <app-task-list
-          [tasks]="project()!.tasks ?? []"
-          [projectId]="project()!.id"
-          (taskAdded)="onTaskAdded($event)"
-          (taskUpdated)="onTaskUpdated($event)"
-          (taskDeleted)="onTaskDeleted($event)"
-        ></app-task-list>
+        <div class="space-y-4">
+          <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold text-on-surface">Active Workflow</h2>
+            <button
+              class="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all"
+              (click)="scrollToTaskForm()"
+            >
+              <span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+              Add Task
+            </button>
+          </div>
+
+          <!-- Tasks List -->
+          <app-task-list
+            #taskList
+            [tasks]="project()!.tasks ?? []"
+            [projectId]="project()!.id"
+            (taskAdded)="onTaskAdded($event)"
+            (taskUpdated)="onTaskUpdated($event)"
+            (taskDeleted)="onTaskDeleted($event)"
+          ></app-task-list>
+        </div>
       }
 
       <!-- Sub-Projects Tab -->
@@ -88,6 +151,6 @@
           (subProjectDeleted)="onSubProjectDeleted($event)"
         ></app-sub-project-list>
       }
-    </div>
-  }
-</div>
+    }
+  </div>
+</main>

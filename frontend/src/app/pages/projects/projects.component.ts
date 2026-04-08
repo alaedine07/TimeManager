@@ -11,8 +11,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-projects',
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule],
-  templateUrl: './projects.component.html',
-  styleUrl: './projects.component.scss'
+  templateUrl: './projects.component.html'
 })
 export class ProjectsComponent implements OnInit {
   projects = signal<Project[]>([]);

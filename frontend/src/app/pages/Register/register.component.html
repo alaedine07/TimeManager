@@ -1,36 +1,89 @@
-<!-- frontend/src/app/pages/Register/register.component.html -->
-<div class="auth-container">
-  <h2>Register</h2>
-
-  <form (ngSubmit)="submit()">
-    <div class="form-group">
-      <label for="username">Username</label>
-      <input id="username" type="text" [value]="username()" (input)="username.set($event.target.value)" required />
-    </div>
-
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input id="password" type="password" [value]="password()" (input)="password.set($event.target.value)" required />
-    </div>
-
-    <div class="form-group">
-      <label for="confirmPassword">Confirm Password</label>
-      <input id="confirmPassword" type="password" [value]="confirmPassword()" (input)="confirmPassword.set($event.target.value)" required />
+<!-- pages/Register/register.component.html -->
+<main class="min-h-screen bg-background flex items-center justify-center px-4">
+  <div class="w-full max-w-md">
+    <!-- Header -->
+    <div class="mb-12 text-center">
+      <h1 class="font-headline text-4xl font-extrabold text-on-surface mb-2">Create Account</h1>
+      <p class="text-on-surface-variant font-body">Join us and start managing your time better</p>
     </div>
 
     @if (error()) {
-      <div class="error">{{ error() }}</div>
+      <div class="mb-6 p-4 rounded-lg bg-error-container text-error border border-error/20 font-body text-sm">
+        {{ error() }}
+      </div>
     }
 
-    @if (loading()) {
-      <div class="loading">Registering...</div>
-    }
+    <!-- Register Form -->
+    <form (ngSubmit)="submit()" class="bg-surface-container-lowest rounded-xl p-8 space-y-6 shadow-sm">
+      <!-- Username Field -->
+      <div class="space-y-2">
+        <label for="username" class="block font-headline font-bold text-on-surface text-sm">Username</label>
+        <input
+          id="username"
+          type="text"
+          [value]="username()"
+          (input)="username.set($event.target.value)"
+          class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface placeholder:text-outline-variant font-body transition-all"
+          placeholder="Choose a username"
+          required
+        />
+      </div>
 
-    <button type="submit" [disabled]="loading()">Register</button>
-  </form>
+      <!-- Password Field -->
+      <div class="space-y-2">
+        <label for="password" class="block font-headline font-bold text-on-surface text-sm">Password</label>
+        <input
+          id="password"
+          type="password"
+          [value]="password()"
+          (input)="password.set($event.target.value)"
+          class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface placeholder:text-outline-variant font-body transition-all"
+          placeholder="Create a password"
+          required
+        />
+      </div>
 
-  <p>
-    Already have an account?
-    <a routerLink="/login">Login here</a>
-  </p>
-</div>
+      <!-- Confirm Password Field -->
+      <div class="space-y-2">
+        <label for="confirmPassword" class="block font-headline font-bold text-on-surface text-sm">Confirm Password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          [value]="confirmPassword()"
+          (input)="confirmPassword.set($event.target.value)"
+          class="w-full px-4 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/30 text-on-surface placeholder:text-outline-variant font-body transition-all"
+          placeholder="Confirm your password"
+          required
+        />
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        [disabled]="loading()"
+        class="w-full bg-primary-gradient text-on-primary font-bold py-3 rounded-lg mt-8 shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        @if (loading()) {
+          <div class="flex items-center justify-center gap-2">
+            <div class="animate-spin">
+              <span class="material-symbols-outlined text-lg">hourglass_top</span>
+            </div>
+            <span>Creating account...</span>
+          </div>
+        } @else {
+          Register
+        }
+      </button>
+    </form>
+
+    <!-- Login Link -->
+    <p class="text-center text-on-surface-variant font-body mt-6">
+      Already have an account?
+      <a routerLink="/login" class="text-primary font-bold hover:underline transition-colors">Login here</a>
+    </p>
+  </div>
+
+  <!-- Background Decorations -->
+  <div class="fixed top-0 right-0 -z-10 w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/4"></div>
+  <div class="fixed bottom-0 left-0 -z-10 w-[400px] h-[400px] bg-tertiary/5 blur-[100px] rounded-full -translate-x-1/4 translate-y-1/4"></div>
+</main>
